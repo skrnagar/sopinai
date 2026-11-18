@@ -1,0 +1,69 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-sopin-black: #101014;
+  --color-sopin-white: #FFFFFF;
+  --color-sopin-navy: #101126;
+  --color-sopin-indigo: #6252E8;
+  --color-sopin-purple: #965BFF;
+  --color-sopin-light: #F7F7FA;
+  --color-sopin-muted: #777786;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  *:focus-visible {
+    outline: 2px solid #6252E8;
+    outline-offset: 2px;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Subtle architectural grid background for engineering canvas */
+.sopin-grid-light {
+  background-image:
+    linear-gradient(to right, rgba(16, 16, 20, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 16, 20, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.sopin-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

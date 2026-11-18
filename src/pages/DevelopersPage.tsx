@@ -1,0 +1,174 @@
+import React, { useState } from 'react';
+import { ArrowRight, Code2, Globe, Plug, Terminal } from 'lucide-react';
+import { RoutePath } from '../types/navigation';
+import { CodeBlock, SectionHeader, StatusText } from '../components/ui/EditorialPrimitives';
+
+interface DevelopersPageProps {
+  onNavigate: (path: RoutePath, sectionId?: string) => void;
+}
+
+export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onNavigate }) => {
+  const [sdkLang, setSdkLang] = useState<'typescript' | 'python'>('typescript');
+
+  const sdkCode = {
+    typescript: `import { SopinClient, mcpTool, z } from "@sopin/sdk";
+
+const sopin = new SopinClient();
+
+export const auditAgent = sopin.agent("dependency-auditor", {
+  gateway: { route: "reasoning-structured" },
+  tools: [mcpTool("package.inspectManifest")],
+  outputSchema: z.object({
+    outdatedPackages: z.array(z.string()),
+    requiresUpgradeReview: z.boolean()
+  })
+});`,
+    python: `from sopin_sdk import SopinClient, mcp_tool
+from pydantic import BaseModel
+
+class AuditResult(BaseModel):
+    outdated_packages: list[str]
+    requires_upgrade_review: bool
+
+client = SopinClient()
+
+audit_agent = client.agent(
+    name="dependency-auditor",
+    gateway={"route": "reasoning-structured"},
+    tools=[mcp_tool("package.inspectManifest")],
+    output_schema=AuditResult
+)`,
+  };
+
+  return (
+    <div>
+      <section className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+          <div className="max-w-3xl">
+            <StatusText items={['SOPIN Developers', 'SDK · MCP · A2A · Integrations']} accentLast />
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-tight text-[#101014] dark:text-white text-balance">
+              Built for software engineers, not prompt-only toys.
+            </h1>
+            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              Version agent specifications in Git, enforce typed input/output contracts, and integrate external tools using open standards including Model Context Protocol (MCP) and Agent-to-Agent (A2A).
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => onNavigate('/docs')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+              >
+                <span>Open Documentation</span>
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* API and SDK */}
+      <section id="sdk" className="py-20 border-b border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/40">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-5 space-y-5">
+            <SectionHeader
+              kicker="API and SDK"
+              title="Typed TypeScript and Python SDKs."
+              description="Define schemas, tool scopes, retry rules, and approval gates directly in code with bidirectional Studio synchronization."
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setSdkLang('typescript')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                  sdkLang === 'typescript'
+                    ? 'bg-[#6252E8] text-white'
+                    : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                }`}
+              >
+                TypeScript (@sopin/sdk)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSdkLang('python')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                  sdkLang === 'python'
+                    ? 'bg-[#6252E8] text-white'
+                    : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                }`}
+              >
+                Python (sopin-sdk · Planned)
+              </button>
+            </div>
+          </div>
+          <div className="lg:col-span-7">
+            <CodeBlock
+              label={sdkLang === 'typescript' ? 'agent.ts' : 'agent.py (planned syntax)'}
+              code={sdkCode[sdkLang]}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* MCP & A2A, Integrations, Open Source */}
+      <section id="protocols" className="py-20 bg-[#FFFFFF] dark:bg-[#101014]">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7">
+            <Plug className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+            <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+              MCP and A2A Protocols
+            </h2>
+            <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              Standardized tool discovery via Model Context Protocol and structured inter-agent task delegation via Agent-to-Agent contracts.
+            </p>
+          </div>
+
+          <div id="integrations" className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7">
+            <Terminal className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+            <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+              Structured Integrations
+            </h2>
+            <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              Typed connector manifests for source repositories, document stores, relational read views, and webhook triggers with per-node permission scopes.
+            </p>
+          </div>
+
+          <div id="open-source" className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7">
+            <div className="flex items-center justify-between">
+              <Globe className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+              <span className="text-xs font-medium text-[#6252E8] dark:text-[#B894FF]">Coming Soon</span>
+            </div>
+            <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+              Open Source Adapters
+            </h2>
+            <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              Public protocol schemas, MCP starter adapters, and local verification CLI utilities planned for release under SONIL Group open engineering initiatives.
+            </p>
+          </div>
+        </div>
+
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 mt-10">
+          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#101126] text-white p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <Code2 className="w-6 h-6 text-[#965BFF] mt-1 shrink-0" aria-hidden="true" />
+              <div>
+                <h3 className="font-display text-lg font-semibold">
+                  Explore the SOPIN Developer Quickstart
+                </h3>
+                <p className="text-sm text-[#B5B5C5] mt-1">
+                  Read schema specifications, CLI usage patterns, and MCP configuration guides.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('/docs')}
+              className="px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+            >
+              Read Documentation
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};

@@ -1,0 +1,6 @@
+{
+  "name": "SOPIN",
+  "description": "Unified AI Agent Engineering and Execution Platform by SONIL Group. Design, connect, execute, verify, and govern intelligent agents.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
