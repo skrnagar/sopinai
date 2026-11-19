@@ -132,12 +132,12 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
     filteredDocs.find((d) => d.id === selectedId) ?? filteredDocs[0] ?? null;
 
   return (
-    <div className="bg-[#FFFFFF] dark:bg-[#101014] min-h-[75vh]">
-      <section className="border-b border-[#101014]/10 dark:border-white/10 py-12 lg:py-16">
+    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#101014] min-h-[75vh]">
+      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 py-12 lg:py-16">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <StatusText items={['SOPIN Documentation', 'Developer Hub', 'Specification Preview']} accentLast />
-            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#101014] dark:text-white">
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white">
               SOPIN Engineering Documentation
             </h1>
             <p className="mt-3 text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
@@ -156,7 +156,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search documentation topics..."
               aria-label="Search documentation"
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white placeholder:text-[#777786]"
+              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white placeholder:text-[#777786]"
             />
           </div>
         </div>
@@ -174,7 +174,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             {/* Sidebar Navigation */}
-            <aside className="lg:col-span-4 space-y-2">
+            <aside className="lg:col-span-4 space-y-2 min-w-0">
               <div className="text-xs font-semibold text-[#777786] dark:text-[#9A9AB0] px-3 pb-1">
                 Specification Sections
               </div>
@@ -185,10 +185,10 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     key={doc.id}
                     type="button"
                     onClick={() => setSelectedId(doc.id)}
-                    className={`w-full text-left rounded-xl p-3.5 border transition-colors ${
+                    className={`w-full min-h-[44px] text-left rounded-xl p-3.5 border transition-colors ${
                       isSelected
                         ? 'border-[#6252E8] bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15'
-                        : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 hover:border-[#6252E8]/40'
+                        : 'border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 hover:border-[#6252E8]/40'
                     }`}
                   >
                     <div className="text-[11px] font-medium text-[#6252E8] dark:text-[#965BFF]">
@@ -204,8 +204,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
 
             {/* Active Documentation Content */}
             {activeDoc && (
-              <div className="lg:col-span-8 space-y-6">
-                <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 p-8">
+              <div className="lg:col-span-8 space-y-6 min-w-0">
+                <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
                   <div className="flex items-center gap-2 text-xs font-medium text-[#6252E8] dark:text-[#965BFF] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
                     <span>{activeDoc.group} · {activeDoc.status}</span>
@@ -223,7 +223,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
 
                 <CodeBlock label={activeDoc.codeLabel} code={activeDoc.code} />
 
-                <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-display text-base font-semibold text-[#101014] dark:text-white">
                       Need early cohort SDK credentials?
@@ -235,7 +235,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                   <button
                     type="button"
                     onClick={() => onNavigate('/contact')}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                   >
                     <span>Request Access</span>
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />

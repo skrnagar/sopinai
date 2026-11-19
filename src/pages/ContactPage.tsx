@@ -47,12 +47,12 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <section className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+    <div className="overflow-x-clip">
+      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['Contact SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-tight text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Connect with the SOPIN team.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
@@ -64,14 +64,14 @@ export const ContactPage: React.FC = () => {
 
       <section className="py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-7 space-y-4">
+          <div className="lg:col-span-5 space-y-6 min-w-0">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <h2 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Direct Channels
               </h2>
               <div className="space-y-3 text-sm text-[#777786] dark:text-[#B5B5C5]">
                 <div>
-                  <div className="font-medium text-[#101014] dark:text-white">Platform & Preview Inquiries</div>
+                  <div className="font-medium text-[#101014] dark:text-white">Platform &amp; Preview Inquiries</div>
                   <div>hello@sopin.ai</div>
                 </div>
                 <div>
@@ -86,8 +86,8 @@ export const ContactPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-7">
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-8">
+          <div className="lg:col-span-7 min-w-0">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               {status === 'success' ? (
                 <div className="py-6 text-center space-y-4" role="status">
                   <CheckCircle2 className="w-10 h-10 text-[#6252E8] mx-auto" aria-hidden="true" />

@@ -56,12 +56,12 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div>
-      <section className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+    <div className="overflow-x-clip">
+      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Pricing & Access', 'Transparent Pre-Release Model']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-tight text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Transparent pathways while SOPIN evolves.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
@@ -69,11 +69,11 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             </p>
           </div>
 
-          <div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10">
+          <div className="mt-8 inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full">
             <button
               type="button"
               onClick={() => setDeploymentModel('managed')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+              className={`min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'managed'
                   ? 'bg-[#6252E8] text-white'
                   : 'text-[#777786] dark:text-[#B5B5C5]'
@@ -84,7 +84,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => setDeploymentModel('self-hosted')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+              className={`min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'self-hosted'
                   ? 'bg-[#6252E8] text-white'
                   : 'text-[#777786] dark:text-[#B5B5C5]'
@@ -98,7 +98,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
 
       <section className="py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-          <div className="mb-8 rounded-xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#777786] dark:text-[#B5B5C5]">
+          <div className="mb-8 rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#777786] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             {deploymentModel === 'managed' ? (
               <span>
                 <strong className="text-[#101014] dark:text-white">Managed Cloud Topology:</strong>{' '}
@@ -116,7 +116,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             {pathways.map((tier) => (
               <div
                 key={tier.name}
-                className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-8 flex flex-col justify-between"
+                className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
               >
                 <div>
                   <StatusText items={[tier.stage, tier.licensing]} accentLast />
@@ -146,7 +146,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('/contact')}
-                  className="mt-8 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors"
+                  className="mt-8 w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors"
                 >
                   <span>{tier.cta}</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />

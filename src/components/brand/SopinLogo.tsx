@@ -22,7 +22,7 @@ export function SopinLogo({
 
   return (
     <span className={`inline-flex items-center gap-3 select-none ${className}`}>
-      {/* 6-Prong Radial Geometric Emblem */}
+      {/* 6-Prong Radial U-Architecture Emblem (preserved from brand reference) */}
       <svg
         height={h}
         width={h}
@@ -35,18 +35,18 @@ export function SopinLogo({
         {PRONG_ANGLES.map((angle) => (
           <path
             key={angle}
-            d="M 35.8 5 L 38.5 25 A 11.5 11.5 0 0 0 61.5 25 L 64.2 5 L 54.4 5 L 54.4 25 A 4.4 4.4 0 0 1 45.6 25 L 45.6 5 Z"
+            d="M 35.5 4 L 39.2 26 A 10.8 10.8 0 0 0 60.8 26 L 64.5 4 L 53.5 4 L 53.5 24.5 A 3.5 3.5 0 0 1 46.5 24.5 L 46.5 4 Z"
             fill="currentColor"
             transform={`rotate(${angle} 50 50)`}
           />
         ))}
       </svg>
 
-      {/* Monoline Geometric "Sopin" Wordmark */}
+      {/* Monoline Geometric "Sopin" Wordmark with balanced x-height & optical spacing */}
       {showWordmark && (
         <svg
-          height={h * 1.04}
-          viewBox="0 0 206 96"
+          height={h * 1.08}
+          viewBox="0 0 202 96"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           aria-label="SOPIN"
@@ -54,63 +54,63 @@ export function SopinLogo({
         >
           {/* S */}
           <path
-            d="M 40.5 22.5 C 36.5 16.5 30.5 14 23.5 14 C 14.5 14 8.5 19.5 8.5 26.8 C 8.5 34.5 15.2 38.2 24.5 41.8 C 34.5 45.6 42.5 49.8 42.5 58.6 C 42.5 66.8 34.8 72.5 24.2 72.5 C 15.5 72.5 9.2 68.5 5.5 62.2"
+            d="M 43.5 24.5 C 39.2 19.2 32.8 17 25.5 17 C 15.6 17 9.2 22.5 9.2 30.2 C 9.2 38.2 16 42 25.8 45.8 C 36.2 49.8 44.2 53.6 44.2 62.2 C 44.2 70 36 75 25.2 75 C 15.8 75 9.2 70.6 5.5 63.8"
             stroke="currentColor"
-            strokeWidth="4.4"
+            strokeWidth="4.6"
             strokeLinecap="butt"
           />
 
           {/* o */}
           <ellipse
-            cx="71"
-            cy="54"
-            rx="17.5"
-            ry="18.5"
+            cx="75"
+            cy="55.5"
+            rx="16.4"
+            ry="19.5"
             stroke="currentColor"
-            strokeWidth="4.4"
+            strokeWidth="4.6"
           />
 
           {/* p */}
           <line
             x1="101.5"
-            y1="35.5"
+            y1="52"
             x2="101.5"
-            y2="90"
+            y2="92"
             stroke="currentColor"
-            strokeWidth="4.4"
+            strokeWidth="4.6"
             strokeLinecap="butt"
           />
           <ellipse
-            cx="119"
-            cy="54"
-            rx="17.5"
-            ry="18.5"
+            cx="117.9"
+            cy="55.5"
+            rx="16.4"
+            ry="19.5"
             stroke="currentColor"
-            strokeWidth="4.4"
+            strokeWidth="4.6"
           />
 
           {/* i */}
           <line
-            x1="149"
-            y1="36.5"
-            x2="149"
-            y2="72.5"
+            x1="147.5"
+            y1="36"
+            x2="147.5"
+            y2="75"
             stroke="currentColor"
-            strokeWidth="4.4"
+            strokeWidth="4.6"
             strokeLinecap="butt"
           />
           <circle
-            cx="149"
+            cx="147.5"
             cy="20"
-            r="3.8"
+            r="3.9"
             fill={purpleDot ? '#965BFF' : 'currentColor'}
           />
 
           {/* n */}
           <path
-            d="M 163 72.5 V 54 A 18 18.5 0 0 1 199 54 V 72.5"
+            d="M 161.5 75 V 54 A 15.5 18 0 0 1 192.5 54 V 75"
             stroke="currentColor"
-            strokeWidth="4.4"
+            strokeWidth="4.6"
             strokeLinecap="butt"
           />
         </svg>

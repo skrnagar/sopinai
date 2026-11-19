@@ -117,10 +117,10 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label, className = '
 
   return (
     <div
-      className={`rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#101126] text-[#FFFFFF] overflow-hidden ${className}`}
+      className={`w-full min-w-0 max-w-full rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#101126] text-[#FFFFFF] overflow-hidden ${className}`}
     >
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-white/[0.03]">
-        <span className="font-mono text-xs text-[#A4A4B5]">{label || 'Specification'}</span>
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-white/10 bg-white/[0.03]">
+        <span className="font-mono text-xs text-[#A4A4B5] truncate">{label || 'Specification'}</span>
         <button
           type="button"
           onClick={handleCopy}

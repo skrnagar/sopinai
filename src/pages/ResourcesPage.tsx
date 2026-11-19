@@ -39,12 +39,12 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div>
-      <section className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+    <div className="overflow-x-clip">
+      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Resources', 'Engineering Knowledge Base']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-tight text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Guides, tutorials, and architecture notes.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
@@ -66,7 +66,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                   role="tab"
                   aria-selected={category === cat}
                   onClick={() => handleCategoryChange(cat)}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                  className={`min-h-[40px] px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                     category === cat
                       ? 'bg-[#6252E8] text-white'
                       : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10 hover:text-[#101014] dark:hover:text-white'
@@ -77,8 +77,8 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
               ))}
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="relative w-full md:w-72">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+              <div className="relative w-full sm:w-64 md:w-72">
                 <Search
                   className="w-4 h-4 text-[#777786] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
                   aria-hidden="true"
@@ -89,13 +89,13 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Filter guides & tutorials..."
                   aria-label="Filter resources"
-                  className="w-full pl-9 pr-4 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-sm text-[#101014] dark:text-white placeholder:text-[#777786]"
+                  className="w-full min-h-[40px] pl-9 pr-4 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-sm text-[#101014] dark:text-white placeholder:text-[#777786]"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => setViewState(viewState === 'error' ? 'ready' : 'error')}
-                className="px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-medium text-[#777786] dark:text-[#B5B5C5] hover:text-[#101014] dark:hover:text-white whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-medium text-[#777786] dark:text-[#B5B5C5] hover:text-[#101014] dark:hover:text-white whitespace-nowrap shrink-0"
               >
                 {viewState === 'error' ? 'Restore Feed' : 'Test Error State'}
               </button>
@@ -140,7 +140,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                 <article
                   key={entry.id}
                   id={entry.category.toLowerCase().replace(/\s+/g, '-')}
-                  className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-7 flex flex-col justify-between"
+                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div>
                     <StatusText

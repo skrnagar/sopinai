@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, CheckCircle2, Cpu, Eye, Layers, Lock, Network, ShieldCheck } from 'lucide-react';
 import { RoutePath } from '../types/navigation';
+import { ProductPreviews } from '../components/interactive/ProductPreviews';
 import { CodeBlock, SectionHeader, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface PlatformPageProps {
@@ -32,13 +33,13 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div>
+    <div className="overflow-x-clip">
       {/* Platform Header */}
-      <section id="overview" className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section id="overview" className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Platform', 'Architecture Overview', 'SONIL Group']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-tight text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               One architectural stack from authoring to governance.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
@@ -48,7 +49,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/studio')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Open Studio Overview</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -56,7 +57,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Read Architecture Docs</span>
               </button>
@@ -69,7 +70,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
       <section id="gateway" className="py-20 border-b border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-5 space-y-5">
+            <div className="lg:col-span-5 space-y-5 min-w-0">
               <SectionHeader
                 kicker="SOPIN Gateway"
                 title="Unified Model Gateway with structural output guarantees."
@@ -82,7 +83,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                     key={tab}
                     type="button"
                     onClick={() => setGatewayMode(tab)}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold capitalize transition-colors whitespace-nowrap shrink-0 ${
+                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold capitalize transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
                       gatewayMode === tab
                         ? 'bg-[#6252E8] text-white'
                         : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
@@ -94,7 +95,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-7 min-w-0">
               <CodeBlock
                 label={`gateway.${gatewayMode}.yaml`}
                 code={gatewaySnippets[gatewayMode]}
@@ -114,7 +115,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
           />
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6">
+            <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <Cpu className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Ephemeral Sandboxes
@@ -123,7 +124,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                 Code interpreters and local MCP servers run inside scoped containers with strict CPU, memory, and network egress limits.
               </p>
             </div>
-            <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6">
+            <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <Layers className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Durable Checkpoints
@@ -132,7 +133,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                 Each completed node persists an immutable state snapshot so long-running workflows pause for human sign-off or recover without restarting from scratch.
               </p>
             </div>
-            <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6">
+            <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <Network className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Idempotent Tool Retries
@@ -201,6 +202,18 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               </li>
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* Interactive Execution & Governance Preview */}
+      <section className="py-20 bg-[#F7F7FA] dark:bg-[#101014]">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
+          <SectionHeader
+            kicker="Execution & Control Surfaces"
+            title="Inspect execution spans, evaluations, and governance controls."
+            description="Switch across all eight realistic product previews—Studio, Flow, Context, Runtime, Gateway, Observe, Evaluate, and Control."
+          />
+          <ProductPreviews initialTab="observe" />
         </div>
       </section>
     </div>

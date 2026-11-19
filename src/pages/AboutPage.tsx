@@ -33,12 +33,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div>
-      <section className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+    <div className="overflow-x-clip">
+      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['About SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-tight text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Engineering accountable AI infrastructure under the SONIL Group.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
@@ -62,7 +62,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={p.number}
-                  className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-7"
+                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-[#6252E8] dark:text-[#965BFF]">
@@ -81,6 +81,25 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             })}
           </div>
 
+          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-5 space-y-3">
+              <p className="text-xs font-medium text-[#965BFF]">Official Brand Identity</p>
+              <h3 className="font-display text-2xl font-semibold">
+                The SOPIN Radial Emblem &amp; Wordmark
+              </h3>
+              <p className="text-sm text-[#B5B5C5] leading-relaxed">
+                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the `#965BFF` purple accent highlights the dot over the &ldquo;i&rdquo;.
+              </p>
+            </div>
+            <div className="lg:col-span-7 flex items-center justify-center rounded-xl border border-white/10 bg-[#000000] p-6">
+              <img
+                src="/assets/aistudio/Sopin_Logo_46f7e074.png"
+                alt="SOPIN official brand logo featuring six-prong radial emblem and Sopin wordmark"
+                className="max-h-28 w-auto object-contain"
+              />
+            </div>
+          </div>
+
           <div className="rounded-2xl bg-[#101126] text-white p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl">
               <p className="text-xs font-medium text-[#965BFF]">SONIL Group Initiative</p>
@@ -94,7 +113,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => onNavigate('/contact')}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
             >
               <span>Connect With Us</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
