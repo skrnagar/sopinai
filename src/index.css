@@ -12,7 +12,7 @@
   --color-sopin-indigo: #6252E8;
   --color-sopin-purple: #965BFF;
   --color-sopin-light: #F7F7FA;
-  --color-sopin-muted: #777786;
+  --color-sopin-muted: #5E5E6E;
 }
 
 @layer base {
@@ -20,6 +20,11 @@
     font-family: var(--font-sans);
     scroll-behavior: smooth;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-tap-highlight-color: rgba(98, 82, 232, 0.14);
+  }
+
+  body {
+    overflow-x: clip;
   }
 
   h1, h2, h3, h4, .font-display {
@@ -42,6 +47,28 @@
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* Safe-area utilities for notched iOS & Android devices */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Hide horizontal scrollbar on snap-scroll mobile tab strips while preserving scrollability */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Subtle architectural grid background for engineering canvas */

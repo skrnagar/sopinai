@@ -55,21 +55,21 @@ export const ContactPage: React.FC = () => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Connect with the SOPIN team.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Reach out regarding Developer Preview access, architecture reviews, MCP/A2A integrations, or enterprise collaboration with the SONIL Group.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
-        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
           <div className="lg:col-span-5 space-y-6 min-w-0">
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 sm:p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <h2 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Direct Channels
               </h2>
-              <div className="space-y-3 text-sm text-[#777786] dark:text-[#B5B5C5]">
+              <div className="space-y-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                 <div>
                   <div className="font-medium text-[#101014] dark:text-white">Platform &amp; Preview Inquiries</div>
                   <div>hello@sopin.ai</div>
@@ -87,20 +87,20 @@ export const ContactPage: React.FC = () => {
           </div>
 
           <div className="lg:col-span-7 min-w-0">
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               {status === 'success' ? (
                 <div className="py-6 text-center space-y-4" role="status">
                   <CheckCircle2 className="w-10 h-10 text-[#6252E8] mx-auto" aria-hidden="true" />
                   <h2 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
                     Inquiry Ready for Review
                   </h2>
-                  <p className="text-sm text-[#777786] dark:text-[#B5B5C5] max-w-md mx-auto leading-relaxed">
+                  <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5] max-w-md mx-auto leading-relaxed">
                     Thank you, {name}. Your {topic.toLowerCase()} note for {organization || 'your team'} passed validation in this prototype preview.
                   </p>
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="px-5 py-2.5 rounded-lg bg-[#6252E8] text-white text-sm font-semibold hover:bg-[#5243d6] transition-colors"
+                    className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] text-white text-sm font-semibold hover:bg-[#5243d6] transition-colors"
                   >
                     Submit Another Note
                   </button>
@@ -125,11 +125,12 @@ export const ContactPage: React.FC = () => {
                       <input
                         id="contact-name"
                         type="text"
+                        autoComplete="name"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Alex Rivera"
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
                       />
                     </div>
                     <div>
@@ -139,11 +140,13 @@ export const ContactPage: React.FC = () => {
                       <input
                         id="contact-email"
                         type="email"
+                        autoComplete="email"
+                        inputMode="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="alex@company.com"
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
                       />
                     </div>
                   </div>
@@ -156,10 +159,11 @@ export const ContactPage: React.FC = () => {
                       <input
                         id="contact-org"
                         type="text"
+                        autoComplete="organization"
                         value={organization}
                         onChange={(e) => setOrganization(e.target.value)}
                         placeholder="Organization name"
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
                       />
                     </div>
                     <div>
@@ -170,7 +174,7 @@ export const ContactPage: React.FC = () => {
                         id="contact-topic"
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
                       >
                         <option value="Design Partner Access">Design Partner Access</option>
                         <option value="Developer Preview & SDK">Developer Preview & SDK</option>
@@ -191,14 +195,14 @@ export const ContactPage: React.FC = () => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Describe the agent workflows, tools, or governance requirements you are exploring..."
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={status === 'submitting'}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+                    className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] disabled:opacity-60 text-white text-sm font-semibold transition-colors"
                   >
                     <Send className="w-4 h-4" aria-hidden="true" />
                     <span>{status === 'submitting' ? 'Validating...' : 'Send Inquiry'}</span>

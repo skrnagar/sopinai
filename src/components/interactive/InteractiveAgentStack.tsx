@@ -174,7 +174,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                       <Icon className="w-5 h-5" aria-hidden="true" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2 text-xs font-medium text-[#777786] dark:text-[#A4A4B5]">
+                      <div className="flex items-center gap-2 text-xs font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
                         <span className="font-mono text-[#6252E8] dark:text-[#965BFF]">
                           {layer.order}
                         </span>
@@ -184,7 +184,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                       <h3 className="mt-0.5 font-display text-lg font-semibold text-[#101014] dark:text-white">
                         {layer.name}
                       </h3>
-                      <p className="text-xs text-[#777786] dark:text-[#A4A4B5] mt-0.5">
+                      <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] mt-0.5">
                         {layer.modules}
                       </p>
                     </div>
@@ -194,7 +194,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                     className={`w-4 h-4 mt-1 shrink-0 transition-transform ${
                       isActive
                         ? 'text-[#6252E8] dark:text-[#965BFF] translate-x-0.5'
-                        : 'text-[#777786]/50'
+                        : 'text-[#5E5E6E]/60 dark:text-[#A4A4B5]/60'
                     }`}
                     aria-hidden="true"
                   />
@@ -252,7 +252,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 {activeLayer.headline}
               </h3>
 
-              <p className="mt-3 text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-3 text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                 {activeLayer.description}
               </p>
 

@@ -18,14 +18,14 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Orchestrate deterministic pipelines around intelligent steps.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Not every step should be left to open-ended reasoning. SOPIN Flow pairs explicit DAG control flow, typed conditions, bounded retries, and human approval checkpoints with LLM and MCP nodes.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>View Flow Specification</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -33,7 +33,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/context')}
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore Context &amp; Memory</span>
               </button>
@@ -68,7 +68,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                 <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Typed Branching
                 </h3>
-                <p className="mt-1.5 text-sm text-[#777786] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Route edges based on validated schema fields rather than brittle string matching.
                 </p>
               </div>
@@ -77,7 +77,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                 <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Bounded Retries
                 </h3>
-                <p className="mt-1.5 text-sm text-[#777786] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Configure backoff, circuit breakers, and fallback model routes per step.
                 </p>
               </div>
@@ -86,7 +86,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                 <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Pause &amp; Resume Gates
                 </h3>
-                <p className="mt-1.5 text-sm text-[#777786] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Checkpoint execution state while waiting on human review or external webhook signals.
                 </p>
               </div>
@@ -95,7 +95,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                 <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Dead-Letter Routing
                 </h3>
-                <p className="mt-1.5 text-sm text-[#777786] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Capture unrecoverable payloads cleanly with full execution context for inspection.
                 </p>
               </div>

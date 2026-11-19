@@ -64,19 +64,19 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Transparent pathways while SOPIN evolves.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               SOPIN is under active engineering development within the SONIL Group. Rather than publishing placeholder dollar tiers before general availability, we structure access around transparent evaluation and deployment pathways.
             </p>
           </div>
 
-          <div className="mt-8 inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full">
+          <div className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full">
             <button
               type="button"
               onClick={() => setDeploymentModel('managed')}
-              className={`min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+              className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'managed'
                   ? 'bg-[#6252E8] text-white'
-                  : 'text-[#777786] dark:text-[#B5B5C5]'
+                  : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
               }`}
             >
               Managed Cloud (Planned)
@@ -84,10 +84,10 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => setDeploymentModel('self-hosted')}
-              className={`min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+              className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'self-hosted'
                   ? 'bg-[#6252E8] text-white'
-                  : 'text-[#777786] dark:text-[#B5B5C5]'
+                  : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
               }`}
             >
               Self-Hosted Runtime (Planned)
@@ -96,9 +96,9 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
-        <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-          <div className="mb-8 rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#777786] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+      <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10">
+          <div className="mb-8 rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             {deploymentModel === 'managed' ? (
               <span>
                 <strong className="text-[#101014] dark:text-white">Managed Cloud Topology:</strong>{' '}
@@ -116,14 +116,14 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             {pathways.map((tier) => (
               <div
                 key={tier.name}
-                className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
               >
                 <div>
                   <StatusText items={[tier.stage, tier.licensing]} accentLast />
                   <h2 className="mt-3 font-display text-2xl font-semibold text-[#101014] dark:text-white">
                     {tier.name}
                   </h2>
-                  <p className="mt-3 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {tier.description}
                   </p>
 

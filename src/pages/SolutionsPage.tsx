@@ -57,7 +57,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Reference architectures engineered for domain rigor.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Each solution blueprint illustrates how SOPIN combines grounded context, scoped tools, verification gates, and human checkpoints without relying on brittle custom scripts.
             </p>
           </div>
@@ -81,7 +81,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                   <h2 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
                     {block.headline}
                   </h2>
-                  <p className="text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {block.description}
                   </p>
                   <div className="pt-2">
@@ -102,14 +102,14 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1">
                       Verification Criteria
                     </div>
-                    <p className="text-sm text-[#777786] dark:text-[#B5B5C5]">{block.verification}</p>
+                    <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">{block.verification}</p>
                   </div>
                   <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1">
                         Human Oversight
                       </div>
-                      <p className="text-sm text-[#777786] dark:text-[#B5B5C5]">
+                      <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                         {block.humanCheckpoint}
                       </p>
                     </div>

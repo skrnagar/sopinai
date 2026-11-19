@@ -42,14 +42,14 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Structured context and memory with verifiable provenance.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Unbounded context stuffing degrades accuracy and creates data leakage risks. SOPIN Context organizes memory into explicit scopes so every agent receives exactly the facts it is authorized to inspect.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => onNavigate('/developers')}
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Inspect Context SDK</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -90,12 +90,12 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
                     <span className="font-mono text-xs text-[#6252E8] dark:text-[#965BFF]">
                       {item.tier}
                     </span>
-                    <Icon className="w-5 h-5 text-[#777786]" aria-hidden="true" />
+                    <Icon className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
                   </div>
                   <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
                     {item.name}
                   </h2>
-                  <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -112,7 +112,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
               <h3 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
                 Every retrieved passage carries source lineage.
               </h3>
-              <p className="text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                 SOPIN Context attaches document checksums, version tags, and permission scopes to retrieved chunks so downstream verification gates can confirm claims against primary sources.
               </p>
             </div>

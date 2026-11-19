@@ -15,25 +15,28 @@ const VALID_ROUTES: Set<string> = new Set<RoutePath>([
   '/about',
   '/contact',
   '/docs',
+  '/app',
 ]);
 
-function normalizePath(pathname: string): RoutePath {
+function parsePath(pathname: string): { route: RoutePath; isNotFound: boolean } {
   const clean = pathname.replace(/\/+$/, '') || '/';
   if (VALID_ROUTES.has(clean)) {
-    return clean as RoutePath;
+    return { route: clean as RoutePath, isNotFound: false };
   }
-  return '/';
+  return { route: '/', isNotFound: true };
 }
 
 export function useRoute() {
-  const [route, setRoute] = useState<RoutePath>(() => normalizePath(window.location.pathname));
+  const [routeState, setRouteState] = useState<{ route: RoutePath; isNotFound: boolean }>(() =>
+    parsePath(window.location.pathname)
+  );
   const [activeSection, setActiveSection] = useState<string | null>(() =>
     window.location.hash ? window.location.hash.slice(1) : null
   );
 
   useEffect(() => {
     const handlePopState = () => {
-      setRoute(normalizePath(window.location.pathname));
+      setRouteState(parsePath(window.location.pathname));
       setActiveSection(window.location.hash ? window.location.hash.slice(1) : null);
     };
     window.addEventListener('popstate', handlePopState);
@@ -41,7 +44,12 @@ export function useRoute() {
   }, []);
 
   useEffect(() => {
-    const meta = ROUTE_META[route];
+    if (routeState.isNotFound) {
+      document.title = 'Page Not Found — SOPIN';
+      return;
+    }
+
+    const meta = ROUTE_META[routeState.route];
     document.title = meta.title;
 
     const setMetaTag = (selector: string, content: string) => {
@@ -56,14 +64,14 @@ export function useRoute() {
     setMetaTag('meta[property="og:description"]', meta.description);
     setMetaTag('meta[name="twitter:title"]', meta.title);
     setMetaTag('meta[name="twitter:description"]', meta.description);
-  }, [route]);
+  }, [routeState]);
 
   const navigate = useCallback((target: RoutePath, sectionId?: string) => {
     const url = sectionId ? `${target}#${sectionId}` : target;
     if (window.location.pathname !== target || window.location.hash !== (sectionId ? `#${sectionId}` : '')) {
       window.history.pushState({}, '', url);
     }
-    setRoute(target);
+    setRouteState({ route: target, isNotFound: false });
     setActiveSection(sectionId ?? null);
 
     if (sectionId) {
@@ -82,5 +90,5 @@ export function useRoute() {
     }
   }, []);
 
-  return { route, activeSection, navigate };
+  return { route: routeState.route, isNotFound: routeState.isNotFound, activeSection, navigate };
 }

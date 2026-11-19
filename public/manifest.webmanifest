@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "SOPIN — AI Agent Engineering & Execution Platform",
+  "short_name": "SOPIN",
+  "description": "Design, connect, execute, verify, and govern intelligent AI agents and workflows under SONIL Group.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#101126",
+  "background_color": "#101014",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/aistudio/Sopin_Logo_46f7e074.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

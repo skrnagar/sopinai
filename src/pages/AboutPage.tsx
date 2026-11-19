@@ -41,7 +41,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Engineering accountable AI infrastructure under the SONIL Group.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               SOPIN is a global AI technology platform created under the SONIL Group with a singular objective: give engineering and operations teams a unified system to design, connect, execute, verify, and govern AI agents that deliver dependable work.
             </p>
           </div>
@@ -68,12 +68,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                     <span className="font-mono text-xs text-[#6252E8] dark:text-[#965BFF]">
                       {p.number}
                     </span>
-                    <Icon className="w-5 h-5 text-[#777786]" aria-hidden="true" />
+                    <Icon className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
                   </div>
                   <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
                     {p.title}
                   </h2>
-                  <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {p.description}
                   </p>
                 </div>
@@ -113,7 +113,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => onNavigate('/contact')}
-              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+              className="w-full lg:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
             >
               <span>Connect With Us</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />

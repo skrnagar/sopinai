@@ -10,6 +10,7 @@ import {
   Layers,
   Lock,
   Shield,
+  Smartphone,
   Terminal,
   Workflow,
 } from 'lucide-react';
@@ -92,15 +93,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 Build AI agents that deliver work.
               </h1>
 
-              <p className="mt-6 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed max-w-xl">
+              <p className="mt-6 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed max-w-xl">
                 Design, connect, execute and govern intelligent agents and workflows from one unified platform.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
+              <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('/app')}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                >
+                  <Smartphone className="w-4 h-4" aria-hidden="true" />
+                  <span>Open Mobile Workspace</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => onNavigate('/docs')}
-                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg bg-[#101014] dark:bg-white text-white dark:text-[#101014] hover:opacity-90 text-sm font-semibold transition-opacity whitespace-nowrap shrink-0"
                 >
                   <span>Start Building</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -108,7 +117,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('/platform')}
-                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] hover:bg-[#F7F7FA] dark:hover:bg-white/10 text-[#101014] dark:text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] hover:bg-[#F7F7FA] dark:hover:bg-white/10 text-[#101014] dark:text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                 >
                   <span>Explore Platform</span>
                 </button>
@@ -178,7 +187,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <h2 className="font-display text-base font-semibold tracking-tight text-[#101014] dark:text-white">
                   {pillar.title}
                 </h2>
-                <p className="text-sm text-[#777786] dark:text-[#A4A4B5] leading-relaxed">
+                <p className="text-sm text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
                   {pillar.desc}
                 </p>
               </motion.div>
@@ -250,7 +259,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     <div className="mt-1 font-display text-lg font-semibold text-[#101014] dark:text-white relative z-10">
                       {stage.title}
                     </div>
-                    <div className="mt-0.5 text-xs text-[#777786] dark:text-[#A4A4B5] relative z-10">
+                    <div className="mt-0.5 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] relative z-10">
                       {stage.verb}
                     </div>
                   </button>
@@ -266,7 +275,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <StatusText
                     items={[`Stage ${selectedStage.number}`, selectedStage.verb, 'SOPIN Architecture']}
@@ -275,7 +284,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   <h3 className="mt-3 font-display text-2xl sm:text-3xl font-semibold tracking-tight text-[#101014] dark:text-white">
                     {selectedStage.number}. {selectedStage.title}
                   </h3>
-                  <p className="mt-4 text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-4 text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {selectedStage.summary}
                   </p>
 
@@ -304,7 +313,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                       <h4 className="text-xs font-semibold text-[#101014] dark:text-white mb-3">
                         Engineering Outcome
                       </h4>
-                      <p className="text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                      <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                         {selectedStage.outcome}
                       </p>
                       <button
@@ -337,7 +346,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div
               role="tablist"
               aria-label="Creation experiences"
-              className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-white dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 shrink-0"
+              className="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-white dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full shrink-0"
             >
               {CREATION_EXPERIENCES.map((exp, idx) => {
                 const active = idx === activeCreation;
@@ -348,10 +357,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setActiveCreation(idx)}
-                    className={`relative px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                    className={`relative min-h-[40px] px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                       active
                         ? 'text-white'
-                        : 'text-[#777786] dark:text-[#B5B5C5] hover:text-[#101014] dark:hover:text-white'
+                        : 'text-[#5E5E6E] dark:text-[#B5B5C5] hover:text-[#101014] dark:hover:text-white'
                     }`}
                   >
                     {active && (
@@ -383,7 +392,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   <h3 className="mt-3 font-display text-2xl font-semibold text-[#101014] dark:text-white leading-snug">
                     {selectedCreation.headline}
                   </h3>
-                  <p className="mt-4 text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-4 text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {selectedCreation.description}
                   </p>
 
@@ -466,7 +475,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     <h3 className="mt-3 font-display text-xl font-semibold text-[#101014] dark:text-white group-hover:text-[#6252E8] dark:group-hover:text-[#965BFF] transition-colors">
                       {mod.name}
                     </h3>
-                    <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                    <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                       {mod.summary}
                     </p>
                   </div>
@@ -591,7 +600,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 title="Governance designed into the execution layer."
                 description="Rather than retrofitting compliance wrappers after deployment, SOPIN enforces structural boundaries directly inside Gateway, Runtime, and Control."
               />
-              <p className="mt-6 text-xs text-[#777786] dark:text-[#9A9AB0] leading-relaxed">
+              <p className="mt-6 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
                 Note: Formal third-party compliance certifications and enterprise audit ledger modules are part of the planned SONIL Group enterprise roadmap and are not claimed as active certifications today.
               </p>
             </div>
@@ -602,7 +611,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <h3 className="mt-4 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Scoped Tool Credentials
                 </h3>
-                <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                   Agents receive short-lived, least-privilege capabilities per node rather than ambient workspace API keys.
                 </p>
               </div>
@@ -612,7 +621,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <h3 className="mt-4 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Pre-Inference Redaction
                 </h3>
-                <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                   Deterministic sanitization transforms strip restricted fields before payloads cross the Model Gateway.
                 </p>
               </div>
@@ -622,7 +631,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <h3 className="mt-4 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Deterministic Policy Gates · Planned
                 </h3>
-                <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                   Declarative approval policies and role-based sign-off queues integrated with SOPIN Control.
                 </p>
               </div>
@@ -632,7 +641,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 <h3 className="mt-4 font-display text-base font-semibold text-[#101014] dark:text-white">
                   Trace &amp; Audit Lineage · Planned
                 </h3>
-                <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                   Immutable correlation across trigger events, retrieved documents, model outputs, and human approvals.
                 </p>
               </div>
@@ -653,7 +662,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <div
             role="tablist"
             aria-label="Use case domains"
-            className="mt-10 flex flex-wrap gap-2"
+            className="mt-10 flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pb-1 sm:pb-0"
           >
             {USE_CASE_DOMAINS.map((domain, idx) => {
               const active = idx === activeDomain;
@@ -664,10 +673,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setActiveDomain(idx)}
-                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
+                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                     active
                       ? 'text-white'
-                      : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10 hover:text-[#101014] dark:hover:text-white'
+                      : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10 hover:text-[#101014] dark:hover:text-white'
                   }`}
                 >
                   {active && (
@@ -698,7 +707,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   <h3 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
                     {selectedDomain.headline}
                   </h3>
-                  <p className="text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {selectedDomain.description}
                   </p>
 
@@ -724,7 +733,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1.5">
                       Verification Gate
                     </div>
-                    <p className="text-sm text-[#777786] dark:text-[#B5B5C5]">
+                    <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                       {selectedDomain.verification}
                     </p>
                   </div>
@@ -733,7 +742,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1.5">
                       Human Checkpoint
                     </div>
-                    <p className="text-sm text-[#777786] dark:text-[#B5B5C5]">
+                    <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                       {selectedDomain.humanCheckpoint}
                     </p>
                   </div>

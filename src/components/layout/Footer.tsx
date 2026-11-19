@@ -45,6 +45,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     {
       heading: 'Company',
       links: [
+        { label: 'Mobile Workspace', href: '/app' },
         { label: 'About SOPIN', href: '/about' },
         { label: 'Resources', href: '/resources' },
         { label: 'Pricing & Access', href: '/pricing' },
@@ -54,19 +55,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <footer className="border-t border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-[#FFFFFF]">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-16">
+    <footer className="border-t border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-[#FFFFFF] pb-safe">
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-14 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4 space-y-4">
             <button
               type="button"
               onClick={() => onNavigate('/')}
               aria-label="SOPIN Home"
-              className="inline-flex items-center text-[#101014] dark:text-white"
+              className="inline-flex items-center text-[#101014] dark:text-white min-h-[44px]"
             >
               <SopinLogo size="md" />
             </button>
-            <p className="text-sm text-[#777786] dark:text-[#A4A4B5] leading-relaxed max-w-xs">
+            <p className="text-sm text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed max-w-xs">
               Unified AI Agent Engineering and Execution Platform. Design. Connect. Execute. Verify. Govern.
             </p>
             <p className="text-xs font-medium text-[#101014] dark:text-[#D2D2E0]">
@@ -80,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <h3 className="text-xs font-semibold tracking-tight text-[#101014] dark:text-white mb-4">
                   {col.heading}
                 </h3>
-                <ul className="space-y-2.5">
+                <ul className="space-y-3">
                   {col.links.map((link) => (
                     <li key={`${col.heading}-${link.label}`}>
                       <a
@@ -89,7 +90,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                           e.preventDefault();
                           onNavigate(link.href, link.sectionId);
                         }}
-                        className="text-sm text-[#777786] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white transition-colors"
+                        className="inline-block py-0.5 text-sm text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white transition-colors"
                       >
                         {link.label}
                       </a>
@@ -101,27 +102,34 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="mt-14 pt-8 border-t border-[#101014]/10 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#777786] dark:text-[#9A9AB0]">
+        <div className="mt-14 pt-8 border-t border-[#101014]/10 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#5E5E6E] dark:text-[#9A9AB0]">
           <p>© 2026 SOPIN · SONIL Group. Platform architecture preview.</p>
           <div className="flex flex-wrap items-center gap-6">
             <button
               type="button"
+              onClick={() => onNavigate('/app')}
+              className="min-h-[36px] hover:text-[#101014] dark:hover:text-white transition-colors"
+            >
+              Mobile Workspace
+            </button>
+            <button
+              type="button"
               onClick={() => onNavigate('/platform', 'governance')}
-              className="hover:text-[#101014] dark:hover:text-white transition-colors"
+              className="min-h-[36px] hover:text-[#101014] dark:hover:text-white transition-colors"
             >
               Governance Architecture
             </button>
             <button
               type="button"
               onClick={() => onNavigate('/docs')}
-              className="hover:text-[#101014] dark:hover:text-white transition-colors"
+              className="min-h-[36px] hover:text-[#101014] dark:hover:text-white transition-colors"
             >
               Specifications
             </button>
             <button
               type="button"
               onClick={() => onNavigate('/contact')}
-              className="hover:text-[#101014] dark:hover:text-white transition-colors"
+              className="min-h-[36px] hover:text-[#101014] dark:hover:text-white transition-colors"
             >
               hello@sopin.ai
             </button>

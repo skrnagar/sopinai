@@ -10,7 +10,8 @@ export type RoutePath =
   | '/pricing'
   | '/about'
   | '/contact'
-  | '/docs';
+  | '/docs'
+  | '/app';
 
 export interface NavDropdownItem {
   label: string;

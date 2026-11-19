@@ -21,6 +21,7 @@ import {
   Sun,
   Terminal,
   X,
+  Smartphone,
 } from 'lucide-react';
 import { NAVIGATION_CATEGORIES } from '../../data/sopinData';
 import { RoutePath } from '../../types/navigation';
@@ -160,9 +161,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header
       ref={navRef}
-      className="sticky top-0 z-50 h-16 border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF]/95 dark:bg-[#101014]/95 backdrop-blur-md transition-colors"
+      className="sticky top-0 z-50 h-16 pt-safe border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF]/95 dark:bg-[#101014]/95 backdrop-blur-md transition-colors"
     >
-      <div className="max-w-[1280px] mx-auto h-full px-6 lg:px-10 flex items-center justify-between gap-8">
+      <div className="max-w-[1280px] mx-auto h-full px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4 lg:gap-8">
         {/* Zone 1: Brand Wordmark */}
         <a
           href="/"
@@ -198,7 +199,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`relative text-sm font-medium transition-colors whitespace-nowrap shrink-0 py-2 ${
                     active
                       ? 'text-[#101014] dark:text-white'
-                      : 'text-[#777786] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white'
+                      : 'text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white'
                   }`}
                 >
                   <span>{category.label}</span>
@@ -227,7 +228,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`relative inline-flex items-center gap-1 text-sm font-medium transition-colors whitespace-nowrap shrink-0 py-2 ${
                     isOpen || active
                       ? 'text-[#101014] dark:text-white'
-                      : 'text-[#777786] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white'
+                      : 'text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white'
                   }`}
                 >
                   <span>{category.label}</span>
@@ -254,7 +255,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
                       role="menu"
                       aria-label={`${category.label} menu`}
-                      className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 ${
+                      className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 max-w-[calc(100vw-2rem)] ${
                         isMega ? 'w-[720px]' : 'w-[540px]'
                       }`}
                     >
@@ -269,7 +270,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                               <h3 className="mt-1.5 font-display text-base font-semibold text-[#101014] dark:text-white leading-snug">
                                 {intro.title}
                               </h3>
-                              <p className="mt-2 text-xs text-[#777786] dark:text-[#A4A4B5] leading-relaxed">
+                              <p className="mt-2 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
                                 {intro.description}
                               </p>
                             </div>
@@ -305,12 +306,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                                       {item.label}
                                     </span>
                                     {item.status && (
-                                      <span className="text-[11px] font-medium text-[#777786] dark:text-[#9A9AB0] shrink-0">
+                                      <span className="text-[11px] font-medium text-[#5E5E6E] dark:text-[#9A9AB0] shrink-0">
                                         {item.status}
                                       </span>
                                     )}
                                   </div>
-                                  <span className="block mt-0.5 text-xs text-[#777786] dark:text-[#A4A4B5] leading-snug">
+                                  <span className="block mt-0.5 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] leading-snug">
                                     {item.description}
                                   </span>
                                 </div>
@@ -327,19 +328,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Zone 3: Theme Toggle + Single Primary Action */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Zone 3: Theme Toggle + Open App + Primary Action */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           <button
             type="button"
             onClick={onToggleTheme}
             aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
-            className="w-10 h-10 rounded-lg inline-flex items-center justify-center text-[#777786] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors shrink-0"
+            className="w-11 h-11 rounded-lg inline-flex items-center justify-center text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors shrink-0"
           >
             {theme === 'light' ? (
               <Moon className="w-[18px] h-[18px]" aria-hidden="true" />
             ) : (
               <Sun className="w-[18px] h-[18px]" aria-hidden="true" />
             )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleLinkClick('/app')}
+            className="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[40px] px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-[#101014] dark:text-white hover:border-[#6252E8] transition-colors whitespace-nowrap shrink-0"
+          >
+            <Smartphone className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+            <span>Open App</span>
           </button>
 
           <button
@@ -375,7 +385,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-[#FFFFFF] dark:bg-[#101014] border-t border-[#101014]/10 dark:border-white/10 overflow-y-auto px-6 py-6"
+            className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-[#FFFFFF] dark:bg-[#101014] border-t border-[#101014]/10 dark:border-white/10 overflow-y-auto px-5 py-6 pb-safe"
           >
             <nav aria-label="Mobile navigation" className="space-y-2 max-w-lg mx-auto">
               {NAVIGATION_CATEGORIES.map((category) => {
@@ -434,7 +444,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                                   {item.label}
                                   {item.status ? ` · ${item.status}` : ''}
                                 </span>
-                                <span className="text-xs text-[#777786] dark:text-[#A4A4B5]">
+                                <span className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
                                   {item.description}
                                 </span>
                               </div>
@@ -450,16 +460,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="pt-5 flex flex-col gap-3">
                 <button
                   type="button"
-                  onClick={() => handleLinkClick('/docs')}
-                  className="w-full min-h-[44px] py-3 px-4 rounded-lg bg-[#6252E8] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
+                  onClick={() => handleLinkClick('/app')}
+                  className="w-full min-h-[48px] py-3 px-4 rounded-lg bg-[#6252E8] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
                 >
-                  <span>Start Building</span>
+                  <Smartphone className="w-4 h-4" aria-hidden="true" />
+                  <span>Open Mobile Workspace</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLinkClick('/docs')}
+                  className="w-full min-h-[48px] py-3 px-4 rounded-lg bg-[#101014] dark:bg-white text-white dark:text-[#101014] text-sm font-semibold inline-flex items-center justify-center gap-2"
+                >
+                  <span>Start Building (Docs)</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleLinkClick('/contact')}
-                  className="w-full min-h-[44px] py-3 px-4 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white"
+                  className="w-full min-h-[48px] py-3 px-4 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white"
                 >
                   Contact SONIL Group
                 </button>

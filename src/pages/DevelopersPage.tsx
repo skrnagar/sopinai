@@ -49,14 +49,14 @@ audit_agent = client.agent(
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Built for software engineers, not prompt-only toys.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Version agent specifications in Git, enforce typed input/output contracts, and integrate external tools using open standards including Model Context Protocol (MCP) and Agent-to-Agent (A2A).
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Open Documentation</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -79,10 +79,10 @@ audit_agent = client.agent(
               <button
                 type="button"
                 onClick={() => setSdkLang('typescript')}
-                className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
+                className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'typescript'
                     ? 'bg-[#6252E8] text-white'
-                    : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                    : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
                 }`}
               >
                 TypeScript (@sopin/sdk)
@@ -90,10 +90,10 @@ audit_agent = client.agent(
               <button
                 type="button"
                 onClick={() => setSdkLang('python')}
-                className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
+                className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'python'
                     ? 'bg-[#6252E8] text-white'
-                    : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                    : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
                 }`}
               >
                 Python (sopin-sdk · Planned)
@@ -117,7 +117,7 @@ audit_agent = client.agent(
             <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
               MCP and A2A Protocols
             </h2>
-            <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Standardized tool discovery via Model Context Protocol and structured inter-agent task delegation via Agent-to-Agent contracts.
             </p>
           </div>
@@ -127,7 +127,7 @@ audit_agent = client.agent(
             <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
               Structured Integrations
             </h2>
-            <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Typed connector manifests for source repositories, document stores, relational read views, and webhook triggers with per-node permission scopes.
             </p>
           </div>
@@ -140,7 +140,7 @@ audit_agent = client.agent(
             <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
               Open Source Adapters
             </h2>
-            <p className="mt-2.5 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Public protocol schemas, MCP starter adapters, and local verification CLI utilities planned for release under SONIL Group open engineering initiatives.
             </p>
           </div>

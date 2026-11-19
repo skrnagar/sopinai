@@ -73,6 +73,12 @@ export const ROUTE_META: Record<RoutePath, RouteMeta> = {
       'Quickstart guides, SDK references, MCP tool bindings, A2A protocol specifications, and runtime configuration documentation.',
     canonicalPath: '/docs',
   },
+  '/app': {
+    title: 'SOPIN Workspace — Mobile-First AI Agent Studio & Execution',
+    description:
+      'Interactive mobile-first SOPIN workspace prototype: build agents, design workflows, inspect execution timelines, manage knowledge, and govern permissions.',
+    canonicalPath: '/app',
+  },
 };
 
 export const NAVIGATION_CATEGORIES: NavCategory[] = [

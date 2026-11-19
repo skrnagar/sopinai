@@ -297,11 +297,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
 
   return (
     <div className="space-y-6">
-      {/* 8-Module Product Surface Switcher */}
+      {/* 8-Module Product Surface Switcher (Horizontal snap scroll on mobile, grid on sm+) */}
       <div
         role="tablist"
         aria-label="SOPIN product interface previews"
-        className="grid grid-cols-2 sm:grid-cols-4 gap-2.5"
+        className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-2.5 pb-1 sm:pb-0 sm:grid sm:grid-cols-4 sm:overflow-visible"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -313,7 +313,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               role="tab"
               aria-selected={active}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative text-left rounded-xl border p-3.5 transition-colors min-w-0 ${
+              className={`relative snap-start shrink-0 w-[180px] sm:w-auto text-left rounded-xl border p-3.5 min-h-[56px] transition-colors min-w-0 ${
                 active
                   ? 'border-[#6252E8] bg-white dark:bg-[#101126] shadow-sm'
                   : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 hover:border-[#6252E8]/40'
@@ -329,7 +329,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               <div className="flex items-center gap-2 relative z-10 min-w-0">
                 <Icon
                   className={`w-4 h-4 shrink-0 ${
-                    active ? 'text-[#6252E8] dark:text-[#965BFF]' : 'text-[#777786]'
+                    active ? 'text-[#6252E8] dark:text-[#965BFF]' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                   }`}
                   aria-hidden="true"
                 />
@@ -337,7 +337,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   {tab.label}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-[#777786] dark:text-[#A4A4B5] truncate relative z-10">
+              <p className="mt-1 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] truncate relative z-10">
                 {tab.subtitle}
               </p>
             </button>
@@ -485,11 +485,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-1 p-1 rounded-lg bg-white/[0.06]">
+                <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-lg bg-white/[0.06] w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => setWorkflowBranch('high-risk')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
+                    className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                       workflowBranch === 'high-risk'
                         ? 'bg-[#6252E8] text-white'
                         : 'text-[#B5B5C5] hover:text-white'
@@ -500,7 +500,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <button
                     type="button"
                     onClick={() => setWorkflowBranch('standard')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
+                    className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                       workflowBranch === 'standard'
                         ? 'bg-[#6252E8] text-white'
                         : 'text-[#B5B5C5] hover:text-white'
@@ -774,7 +774,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <button
                     type="button"
                     onClick={() => setStrictSchema((s) => !s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                    className={`min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                       strictSchema
                         ? 'border-[#965BFF] bg-[#6252E8]/25 text-white'
                         : 'border-white/15 text-[#9A9AB0]'
@@ -855,7 +855,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                           style={{ left: `${span.offsetPct}%`, width: `${span.widthPct}%` }}
                         />
                       </div>
-                      <div className="md:col-span-2 text-right font-mono text-[11px] text-[#C5C5D6]">
+                      <div className="md:col-span-2 text-left md:text-right font-mono text-[11px] text-[#C5C5D6]">
                         {span.status}
                       </div>
                     </button>
@@ -1032,7 +1032,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <button
                     type="button"
                     onClick={() => setApprovalState('approved')}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold transition-colors whitespace-nowrap"
+                    className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold transition-colors whitespace-nowrap"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Approve</span>
@@ -1040,7 +1040,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <button
                     type="button"
                     onClick={() => setApprovalState('held')}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-white/15 hover:bg-white/10 text-white text-xs font-semibold transition-colors whitespace-nowrap"
+                    className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-white/15 hover:bg-white/10 text-white text-xs font-semibold transition-colors whitespace-nowrap"
                   >
                     <XCircle className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Hold</span>
@@ -1049,7 +1049,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                     <button
                       type="button"
                       onClick={() => setApprovalState('pending')}
-                      className="text-xs text-[#9A9AB0] hover:text-white underline px-2"
+                      className="min-h-[44px] text-xs text-[#9A9AB0] hover:text-white underline px-3"
                     >
                       Reset
                     </button>

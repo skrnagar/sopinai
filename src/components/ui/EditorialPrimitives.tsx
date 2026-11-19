@@ -41,7 +41,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {description && (
         <p
           className={`mt-4 text-base sm:text-lg leading-relaxed ${
-            dark ? 'text-[#B5B5C5]' : 'text-[#777786] dark:text-[#A4A4B5]'
+            dark ? 'text-[#B5B5C5]' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
           }`}
         >
           {description}
@@ -70,7 +70,7 @@ export const StatusText: React.FC<StatusTextProps> = ({
   return (
     <div
       className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium ${
-        dark ? 'text-[#9A9AB0]' : 'text-[#777786] dark:text-[#9A9AB0]'
+        dark ? 'text-[#9A9AB0]' : 'text-[#5E5E6E] dark:text-[#9A9AB0]'
       } ${className}`}
     >
       {items.map((item, idx) => {
@@ -125,7 +125,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label, className = '
           type="button"
           onClick={handleCopy}
           aria-label="Copy code snippet"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C5C5D6] hover:text-white transition-colors px-2 py-1 rounded-md hover:bg-white/10 whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C5C5D6] hover:text-white transition-colors px-2.5 min-h-[36px] sm:min-h-[32px] rounded-md hover:bg-white/10 whitespace-nowrap shrink-0"
         >
           {copied ? (
             <>
@@ -172,7 +172,7 @@ export const StateDisplay: React.FC<StateDisplayProps> = ({
           <RefreshCw className="w-5 h-5 text-[#6252E8] animate-spin" aria-hidden="true" />
         )}
         {mode === 'empty' && (
-          <Inbox className="w-5 h-5 text-[#777786]" aria-hidden="true" />
+          <Inbox className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
         )}
         {mode === 'error' && (
           <AlertCircle className="w-5 h-5 text-[#965BFF]" aria-hidden="true" />
@@ -181,14 +181,14 @@ export const StateDisplay: React.FC<StateDisplayProps> = ({
       <h3 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
         {title}
       </h3>
-      <p className="mt-2 text-sm text-[#777786] dark:text-[#A4A4B5] leading-relaxed">
+      <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
         {description}
       </p>
       {actionLabel && onAction && (
         <button
           type="button"
           onClick={onAction}
-          className="mt-5 inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg bg-[#6252E8] text-white hover:bg-[#5344d4] transition-colors whitespace-nowrap shrink-0"
+          className="mt-5 inline-flex items-center justify-center px-5 min-h-[44px] text-sm font-medium rounded-lg bg-[#6252E8] text-white hover:bg-[#5344d4] transition-colors whitespace-nowrap shrink-0"
         >
           {actionLabel}
         </button>

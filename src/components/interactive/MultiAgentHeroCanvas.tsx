@@ -101,8 +101,8 @@ export const MultiAgentHeroCanvas: React.FC = () => {
   return (
     <div className="h-full w-full min-w-0 rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white flex flex-col overflow-hidden shadow-2xl">
       {/* Top Studio Header */}
-      <div className="px-4 sm:px-5 py-3.5 border-b border-white/10 bg-white/[0.025] flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+      <div className="px-3.5 sm:px-5 py-3 border-b border-white/10 bg-white/[0.025] flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-1.5 min-w-0 overflow-x-auto no-scrollbar max-w-full">
           {WORKFLOW_SCENARIOS.map((item, idx) => {
             const active = idx === scenarioIdx;
             return (
@@ -110,7 +110,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                 key={item.id}
                 type="button"
                 onClick={() => selectScenario(idx)}
-                className={`relative px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
+                className={`relative min-h-[38px] sm:min-h-[32px] px-3 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                   active ? 'text-white' : 'text-[#B5B5C5] hover:text-white hover:bg-white/10'
                 }`}
               >
@@ -131,7 +131,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
           <button
             type="button"
             onClick={() => setViewMode('collaboration')}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
+            className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
               viewMode === 'collaboration'
                 ? 'bg-white text-[#101014]'
                 : 'text-[#B5B5C5] hover:text-white'
@@ -146,7 +146,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               setIsPlaying(false);
               setViewMode('sdk');
             }}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
+            className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
               viewMode === 'sdk' ? 'bg-white text-[#101014]' : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
@@ -183,7 +183,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsPlaying((p) => !p)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 {isPlaying ? (
                   <>
@@ -203,7 +203,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   setIsPlaying(false);
                   setStepIdx((prev) => (prev + 1) % COLLAB_MAP.length);
                 }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white text-[#101014] hover:bg-[#F7F7FA] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-white text-[#101014] hover:bg-[#F7F7FA] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <SkipForward className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
                 <span className="tabular-nums">
@@ -217,7 +217,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   setStepIdx(0);
                 }}
                 aria-label="Reset collaboration trace"
-                className="p-1.5 rounded-lg border border-white/15 text-[#C5C5D6] hover:text-white hover:bg-white/10 transition-colors"
+                className="min-h-[40px] min-w-[40px] sm:min-h-[34px] sm:min-w-[34px] inline-flex items-center justify-center rounded-lg border border-white/15 text-[#C5C5D6] hover:text-white hover:bg-white/10 transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
               </button>

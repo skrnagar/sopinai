@@ -42,14 +42,14 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               One architectural stack from authoring to governance.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               SOPIN eliminates the gap between experimental notebooks and accountable production systems. Every module shares a single typed specification for graphs, context scopes, tool permissions, and verification gates.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => onNavigate('/studio')}
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Open Studio Overview</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -57,7 +57,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Read Architecture Docs</span>
               </button>
@@ -77,16 +77,16 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                 description="Decouple agent logic from individual model vendors. Route by task profile, enforce typed JSON schemas, and apply pre-inference sanitization in one place."
               />
 
-              <div className="flex flex-wrap gap-2 pt-2">
+              <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pt-2 pb-1 sm:pb-0">
                 {(['routing', 'schema', 'fallback'] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setGatewayMode(tab)}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold capitalize transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
+                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold capitalize transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                       gatewayMode === tab
                         ? 'bg-[#6252E8] text-white'
-                        : 'bg-white dark:bg-[#101126] text-[#777786] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                        : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
                     }`}
                   >
                     {tab === 'routing' ? 'Task Routing' : tab === 'schema' ? 'Schema Enforcement' : 'Fallback Policy'}
@@ -120,7 +120,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <h3 className="mt-4 font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Ephemeral Sandboxes
               </h3>
-              <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                 Code interpreters and local MCP servers run inside scoped containers with strict CPU, memory, and network egress limits.
               </p>
             </div>
@@ -129,7 +129,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <h3 className="mt-4 font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Durable Checkpoints
               </h3>
-              <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                 Each completed node persists an immutable state snapshot so long-running workflows pause for human sign-off or recover without restarting from scratch.
               </p>
             </div>
@@ -138,7 +138,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <h3 className="mt-4 font-display text-lg font-semibold text-[#101014] dark:text-white">
                 Idempotent Tool Retries
               </h3>
-              <p className="mt-2 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                 Configure deterministic retry backoffs and idempotency keys for external API mutations to prevent duplicate side effects.
               </p>
             </div>

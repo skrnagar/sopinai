@@ -140,29 +140,30 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
             <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white">
               SOPIN Engineering Documentation
             </h1>
-            <p className="mt-3 text-sm sm:text-base text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-3 text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
               Explore reference specifications for @sopin/sdk, Studio blueprint schemas, MCP tool scopes, and A2A handoffs.
             </p>
           </div>
 
           <div className="relative w-full md:w-80">
             <Search
-              className="w-4 h-4 text-[#777786] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="w-4 h-4 text-[#5E5E6E] dark:text-[#A4A4B5] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
               aria-hidden="true"
             />
             <input
               type="search"
+              inputMode="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search documentation topics..."
               aria-label="Search documentation"
-              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-sm text-[#101014] dark:text-white placeholder:text-[#777786]"
+              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white placeholder:text-[#5E5E6E] dark:placeholder:text-[#9A9AB0]"
             />
           </div>
         </div>
       </section>
 
-      <section className="max-w-[1280px] mx-auto px-6 lg:px-10 py-12">
+      <section className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-10 sm:py-12">
         {filteredDocs.length === 0 ? (
           <StateDisplay
             mode="empty"
@@ -172,40 +173,42 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
             onAction={() => setSearchQuery('')}
           />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Sidebar Navigation */}
-            <aside className="lg:col-span-4 space-y-2 min-w-0">
-              <div className="text-xs font-semibold text-[#777786] dark:text-[#9A9AB0] px-3 pb-1">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+            {/* Topic Navigation: horizontal snap strip on mobile, stacked sidebar on lg+ */}
+            <aside className="lg:col-span-4 min-w-0">
+              <div className="text-xs font-semibold text-[#5E5E6E] dark:text-[#9A9AB0] px-1 lg:px-3 pb-2">
                 Specification Sections
               </div>
-              {filteredDocs.map((doc) => {
-                const isSelected = activeDoc?.id === doc.id;
-                return (
-                  <button
-                    key={doc.id}
-                    type="button"
-                    onClick={() => setSelectedId(doc.id)}
-                    className={`w-full min-h-[44px] text-left rounded-xl p-3.5 border transition-colors ${
-                      isSelected
-                        ? 'border-[#6252E8] bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15'
-                        : 'border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 hover:border-[#6252E8]/40'
-                    }`}
-                  >
-                    <div className="text-[11px] font-medium text-[#6252E8] dark:text-[#965BFF]">
-                      {doc.group}
-                    </div>
-                    <div className="mt-1 text-sm font-semibold text-[#101014] dark:text-white">
-                      {doc.title}
-                    </div>
-                  </button>
-                );
-              })}
+              <div className="flex lg:flex-col gap-2 overflow-x-auto no-scrollbar pb-1 lg:pb-0 snap-x">
+                {filteredDocs.map((doc) => {
+                  const isSelected = activeDoc?.id === doc.id;
+                  return (
+                    <button
+                      key={doc.id}
+                      type="button"
+                      onClick={() => setSelectedId(doc.id)}
+                      className={`snap-start shrink-0 w-[230px] lg:w-full min-h-[44px] text-left rounded-xl p-3.5 border transition-colors ${
+                        isSelected
+                          ? 'border-[#6252E8] bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15'
+                          : 'border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 hover:border-[#6252E8]/40'
+                      }`}
+                    >
+                      <div className="text-[11px] font-medium text-[#6252E8] dark:text-[#965BFF] truncate">
+                        {doc.group}
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-[#101014] dark:text-white line-clamp-2">
+                        {doc.title}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </aside>
 
             {/* Active Documentation Content */}
             {activeDoc && (
               <div className="lg:col-span-8 space-y-6 min-w-0">
-                <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+                <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
                   <div className="flex items-center gap-2 text-xs font-medium text-[#6252E8] dark:text-[#965BFF] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
                     <span>{activeDoc.group} · {activeDoc.status}</span>
@@ -216,7 +219,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                   <p className="mt-3 text-base text-[#101014] dark:text-[#E8E8F2] leading-relaxed">
                     {activeDoc.summary}
                   </p>
-                  <p className="mt-4 text-sm text-[#777786] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-4 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {activeDoc.body}
                   </p>
                 </div>
@@ -228,7 +231,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     <h3 className="font-display text-base font-semibold text-[#101014] dark:text-white">
                       Need early cohort SDK credentials?
                     </h3>
-                    <p className="text-sm text-[#777786] dark:text-[#A4A4B5]">
+                    <p className="text-sm text-[#5E5E6E] dark:text-[#A4A4B5]">
                       Request Developer Preview access through the SOPIN engineering intake form.
                     </p>
                   </div>
