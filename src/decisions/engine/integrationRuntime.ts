@@ -25,6 +25,7 @@ import {
 import { buildInputSummary, nextExecutionId } from './executionTrace';
 import { coerceScalar, compareValues, isPlainObject, resolveInputField } from './operators';
 import { DecisionCollections, evaluateDecisionTarget } from './testRunner';
+import { isPublishedSnapshotStatus } from './versioning';
 
 export type ContextClearance = 'standard' | 'governance-authorized';
 
@@ -128,7 +129,8 @@ export function getTargetArtifactStatus(
       version: r.version,
       name: r.name,
       hasPublishedSnapshot:
-        r.status === 'Published' || r.versionHistory.some((v) => v.status === 'Published'),
+        isPublishedSnapshotStatus(r.status) ||
+        r.versionHistory.some((v) => isPublishedSnapshotStatus(v.status)),
     };
   }
   if (targetType === 'table') {
@@ -140,7 +142,8 @@ export function getTargetArtifactStatus(
       version: t.version,
       name: t.name,
       hasPublishedSnapshot:
-        t.status === 'Published' || t.versionHistory.some((v) => v.status === 'Published'),
+        isPublishedSnapshotStatus(t.status) ||
+        t.versionHistory.some((v) => isPublishedSnapshotStatus(v.status)),
     };
   }
   if (targetType === 'ruleset') {
@@ -151,7 +154,9 @@ export function getTargetArtifactStatus(
       status: rs.status,
       version: rs.version,
       name: rs.name,
-      hasPublishedSnapshot: rs.status === 'Published',
+      hasPublishedSnapshot:
+        isPublishedSnapshotStatus(rs.status) ||
+        (rs.versionHistory ?? []).some((v) => isPublishedSnapshotStatus(v.status)),
     };
   }
   if (targetType === 'chain') {
@@ -162,7 +167,9 @@ export function getTargetArtifactStatus(
       status: c.status,
       version: c.version,
       name: c.name,
-      hasPublishedSnapshot: c.status === 'Published' || c.status === 'Tested',
+      hasPublishedSnapshot:
+        isPublishedSnapshotStatus(c.status) ||
+        (c.versionHistory ?? []).some((v) => isPublishedSnapshotStatus(v.status)),
     };
   }
   if (targetType === 'scorecard') {
@@ -173,7 +180,9 @@ export function getTargetArtifactStatus(
       status: sc.status,
       version: sc.version,
       name: sc.name,
-      hasPublishedSnapshot: sc.status === 'Published',
+      hasPublishedSnapshot:
+        isPublishedSnapshotStatus(sc.status) ||
+        (sc.versionHistory ?? []).some((v) => isPublishedSnapshotStatus(v.status)),
     };
   }
   return { exists: false };

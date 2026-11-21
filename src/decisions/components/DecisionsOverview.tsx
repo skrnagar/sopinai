@@ -14,15 +14,20 @@ import {
   DecisionExecutionSpec,
   DecisionSectionId,
   DecisionTableSpec,
+  RuleChainSpec,
   RuleSpec,
   RulesetSpec,
+  ScorecardSpec,
 } from '../types';
+import { isPublishedSnapshotStatus } from '../evaluator';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
 
 interface DecisionsOverviewProps {
   rules: RuleSpec[];
   tables: DecisionTableSpec[];
   rulesets: RulesetSpec[];
+  chains?: RuleChainSpec[];
+  scorecards?: ScorecardSpec[];
   executions: DecisionExecutionSpec[];
   onSwitchSection: (section: DecisionSectionId) => void;
   onSelectRule: (ruleId: string) => void;
@@ -34,20 +39,20 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
   rules,
   tables,
   rulesets,
+  chains = [],
+  scorecards = [],
   executions,
   onSwitchSection,
   onSelectRule,
   onSelectTable,
   onOpenAiAssist,
 }) => {
-  const totalArtifacts = rules.length + tables.length + rulesets.length;
-  const publishedCount =
-    rules.filter((r) => r.status === 'Published').length +
-    tables.filter((t) => t.status === 'Published').length +
-    rulesets.filter((rs) => rs.status === 'Published').length;
-  const draftOrTestedCount =
-    rules.filter((r) => r.status === 'Draft' || r.status === 'Tested').length +
-    tables.filter((t) => t.status === 'Draft' || t.status === 'Tested').length;
+  const allArtifacts = [...rules, ...tables, ...rulesets, ...chains, ...scorecards];
+  const totalArtifacts = allArtifacts.length;
+  const publishedCount = allArtifacts.filter((a) => isPublishedSnapshotStatus(a.status)).length;
+  const draftOrTestedCount = allArtifacts.filter(
+    (a) => a.status === 'Draft' || a.status === 'Validated' || a.status === 'Tested' || a.status === 'Review'
+  ).length;
 
   const successCount = executions.filter((e) => e.status === 'Matched' || e.status === 'Fallback').length;
   const errorCount = executions.filter((e) => e.status === 'Error').length;
@@ -56,6 +61,7 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
     ...rules.map((r) => ({
       id: r.id,
       kind: 'Rule' as const,
+      section: 'rules' as DecisionSectionId,
       name: r.name,
       status: r.status,
       version: r.version,
@@ -66,6 +72,7 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
     ...tables.map((t) => ({
       id: t.id,
       kind: 'Table' as const,
+      section: 'tables' as DecisionSectionId,
       name: t.name,
       status: t.status,
       version: t.version,
@@ -73,7 +80,29 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
       updatedAt: t.updatedAt,
       isDemoData: t.isDemoData,
     })),
-  ].slice(0, 6);
+    ...chains.map((c) => ({
+      id: c.id,
+      kind: 'Chain' as const,
+      section: 'chains' as DecisionSectionId,
+      name: c.name,
+      status: c.status,
+      version: c.version,
+      env: c.environment,
+      updatedAt: c.updatedAt,
+      isDemoData: c.isDemoData,
+    })),
+    ...scorecards.map((s) => ({
+      id: s.id,
+      kind: 'Scorecard' as const,
+      section: 'scorecards' as DecisionSectionId,
+      name: s.name,
+      status: s.status,
+      version: s.version,
+      env: s.environment,
+      updatedAt: s.updatedAt,
+      isDemoData: s.isDemoData,
+    })),
+  ].slice(0, 8);
 
   return (
     <div className="space-y-4">
@@ -137,7 +166,7 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
             {totalArtifacts}
           </div>
           <div className="mt-1 text-[11px] font-mono text-[#6252E8] dark:text-[#B894FF]">
-            {rules.length} rules · {tables.length} tables
+            {rules.length}R · {tables.length}T · {rulesets.length}RS · {chains.length}C · {scorecards.length}SC
           </div>
         </div>
 
@@ -149,19 +178,19 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
             {publishedCount}
           </div>
           <div className="mt-1 text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
-            Immutable active specs
+            Immutable SHA-256 specs
           </div>
         </div>
 
         <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4">
           <div className="text-[11px] font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
-            Draft / Tested
+            Draft / Validated / Tested
           </div>
           <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#101014] dark:text-white">
             {draftOrTestedCount}
           </div>
           <div className="mt-1 text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
-            Pending promotion
+            Pending governance gate
           </div>
         </div>
 
@@ -194,9 +223,11 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
               <button
                 key={item.id}
                 type="button"
-                onClick={() =>
-                  item.kind === 'Rule' ? onSelectRule(item.id) : onSelectTable(item.id)
-                }
+                onClick={() => {
+                  if (item.kind === 'Rule') onSelectRule(item.id);
+                  else if (item.kind === 'Table') onSelectTable(item.id);
+                  else onSwitchSection(item.section);
+                }}
                 className="w-full min-h-[52px] text-left rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8] p-3 flex items-center justify-between gap-3 transition-colors"
               >
                 <div className="min-w-0">

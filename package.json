@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test:decisions": "tsx --test src/decisions/__tests__/decisionEngine.test.ts src/decisions/__tests__/integrationScenarios.test.ts"
+    "test:decisions": "tsx --test src/decisions/__tests__/decisionEngine.test.ts src/decisions/__tests__/integrationScenarios.test.ts src/decisions/__tests__/lifecycleGovernance.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

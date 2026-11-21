@@ -3,6 +3,7 @@ import {
   DecisionActionOutput,
   DecisionConditionNode,
   DecisionExecutionSpec,
+  DecisionInputField,
   DecisionTraceStep,
   RuleSpec,
 } from '../types';
@@ -19,47 +20,84 @@ import {
 } from './operators';
 import { validateInputAgainstSchema, validateRuleSpec } from './validators';
 
+function lookupSchemaField(
+  schema: DecisionInputField[],
+  fieldPath: string
+): DecisionInputField | undefined {
+  const exact = schema.find((f) => f.name === fieldPath);
+  if (exact) return exact;
+  if (fieldPath.includes('.')) {
+    const root = fieldPath.split('.')[0];
+    return schema.find((f) => f.name === root);
+  }
+  return undefined;
+}
+
 function evaluateConditionNode(
   node: DecisionConditionNode,
+  rule: RuleSpec,
   input: Record<string, unknown>,
   traces: ConditionEvalTrace[]
 ): boolean {
   if (node.kind === 'predicate') {
     const resolved = resolveInputField(input, node.field);
     const actual = resolved.value;
+    const schemaEntry = lookupSchemaField(rule.inputSchema, node.field);
+    const effectiveType =
+      schemaEntry && !(schemaEntry.type === 'object' && node.field.includes('.'))
+        ? schemaEntry.type
+        : undefined;
     const targetExpr =
       node.operator === 'matches_formula' ? node.expression || node.value : node.value;
+
     const passed = compareValues(
       actual,
       node.operator,
       targetExpr,
       node.valueEnd,
       input,
-      resolved.exists
+      resolved.exists,
+      {
+        fieldType: effectiveType,
+        caseSensitive: node.caseSensitive ?? rule.executionConfig.caseSensitiveStrings,
+      }
     );
+
+    const actualLabel = !resolved.exists
+      ? 'missing'
+      : actual === undefined
+      ? 'undefined'
+      : JSON.stringify(actual);
+    const expectedLabel =
+      node.operator === 'between'
+        ? `${node.value} .. ${node.valueEnd ?? ''}`
+        : node.operator === 'is_empty' ||
+          node.operator === 'is_not_empty' ||
+          node.operator === 'exists' ||
+          node.operator === 'not_exists'
+        ? node.operator
+        : `${node.operator} ${targetExpr}`;
+
+    const label = node.reusableLabel ? `${node.field} (${node.reusableLabel})` : node.field;
     traces.push({
       nodeId: node.id,
-      label: node.reusableLabel ? `${node.field} (${node.reusableLabel})` : node.field,
+      label,
       passed,
-      actualValue: !resolved.exists ? 'missing' : actual === undefined ? 'undefined' : JSON.stringify(actual),
-      expectedSpec:
-        node.operator === 'between'
-          ? `${node.value} .. ${node.valueEnd ?? ''}`
-          : node.operator === 'is_empty' ||
-            node.operator === 'is_not_empty' ||
-            node.operator === 'exists' ||
-            node.operator === 'not_exists'
-          ? node.operator
-          : `${node.operator} ${targetExpr}`,
+      actualValue: actualLabel,
+      expectedSpec: expectedLabel,
+      explanation: `${label}: actual=${actualLabel} vs (${expectedLabel}) => ${passed ? 'TRUE' : 'FALSE'}`,
     });
     return passed;
   }
 
-  if (node.children.length === 0) return true;
+  if (node.children.length === 0) {
+    throw new Error(`Empty condition group "${node.id}" cannot be evaluated.`);
+  }
+
   if (node.logic === 'AND') {
     let allPassed = true;
     for (const child of node.children) {
-      if (!evaluateConditionNode(child, input, traces)) {
+      if (!evaluateConditionNode(child, rule, input, traces)) {
         allPassed = false;
       }
     }
@@ -67,7 +105,7 @@ function evaluateConditionNode(
   } else {
     let anyPassed = false;
     for (const child of node.children) {
-      if (evaluateConditionNode(child, input, traces)) {
+      if (evaluateConditionNode(child, rule, input, traces)) {
         anyPassed = true;
       }
     }
@@ -84,12 +122,17 @@ function resolveOutputs(
     if (act.type === 'expression') {
       out[act.key] = evaluateRestrictedExpression(act.valueExpression, input);
     } else if (act.type === 'number') {
-      out[act.key] = Number(coerceScalar(act.valueExpression));
+      const n = Number(coerceScalar(act.valueExpression));
+      if (Number.isNaN(n) || !Number.isFinite(n)) {
+        throw new Error(`Action output "${act.key}" produced non-finite number.`);
+      }
+      out[act.key] = n;
     } else if (act.type === 'boolean') {
       const coerced = coerceScalar(act.valueExpression);
-      out[act.key] = typeof coerced === 'boolean' ? coerced : String(coerced).toLowerCase() === 'true';
+      out[act.key] =
+        typeof coerced === 'boolean' ? coerced : String(coerced).toLowerCase() === 'true';
     } else {
-      out[act.key] = coerceScalar(act.valueExpression);
+      out[act.key] = act.valueExpression;
     }
   }
   return out;
@@ -177,12 +220,13 @@ export function evaluateRuleSpec(
   let matched = false;
   let finalOutput: Record<string, unknown> = {};
   try {
-    matched = evaluateConditionNode(rule.conditionRoot, input, traces);
+    matched = evaluateConditionNode(rule.conditionRoot, rule, input, traces);
     finalOutput = matched
       ? resolveOutputs(rule.thenOutputs, input)
       : resolveOutputs(rule.elseOutputs, input);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Deterministic expression evaluation failed.';
+    const message =
+      err instanceof Error ? err.message : 'Deterministic expression evaluation failed.';
     return {
       id: nextExecutionId('exec'),
       workspaceId: rule.workspaceId,
@@ -223,8 +267,8 @@ export function evaluateRuleSpec(
     {
       stepIndex: 1,
       phase: 'validation',
-      label: 'Schema Validation',
-      detail: `Validated ${rule.inputSchema.length} schema field(s) for ${rule.name} (${rule.version}).`,
+      label: 'Schema & AST Validation',
+      detail: `Validated ${rule.inputSchema.length} schema field(s) and condition tree for ${rule.name} (${rule.version}).`,
       passed: true,
     },
     ...buildConditionTraceSteps(traces, 'condition', 2),

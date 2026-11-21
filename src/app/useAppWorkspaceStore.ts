@@ -2266,23 +2266,32 @@ export function useAppWorkspaceStore() {
     });
   }, []);
 
-  const saveRuleset = useCallback((rs: RulesetSpec) => {
+  const saveRuleset = useCallback((rs: RulesetSpec, note?: string) => {
     setState((prev) => {
-      const exists = prev.decisions.rulesets.some((r) => r.id === rs.id);
-      const nextRulesets = exists
-        ? prev.decisions.rulesets.map((r) => (r.id === rs.id ? rs : r))
-        : [rs, ...prev.decisions.rulesets];
+      const existing = prev.decisions.rulesets.find((r) => r.id === rs.id);
+      const preservedHistory = existing
+        ? [
+            ...rs.versionHistory.filter(
+              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
+            ),
+            ...existing.versionHistory,
+          ]
+        : rs.versionHistory;
+      const safeRs: RulesetSpec = { ...rs, versionHistory: preservedHistory };
+      const nextRulesets = existing
+        ? prev.decisions.rulesets.map((r) => (r.id === rs.id ? safeRs : r))
+        : [safeRs, ...prev.decisions.rulesets];
       return {
         ...prev,
         decisions: { ...prev.decisions, rulesets: nextRulesets },
         auditLog: [
           {
             id: `aud-${Date.now()}`,
-            workspaceId: rs.workspaceId,
+            workspaceId: safeRs.workspaceId,
             timestamp: 'Just now',
             actor: 'Decision Author',
-            action: `${exists ? 'Updated' : 'Created'} ruleset ${rs.version} (${rs.status})`,
-            target: rs.name,
+            action: note || `${existing ? 'Updated' : 'Created'} ruleset ${safeRs.version} (${safeRs.status})`,
+            target: safeRs.name,
             outcome: 'Updated',
           },
           ...prev.auditLog,
@@ -2291,23 +2300,32 @@ export function useAppWorkspaceStore() {
     });
   }, []);
 
-  const saveRuleChain = useCallback((chain: RuleChainSpec) => {
+  const saveRuleChain = useCallback((chain: RuleChainSpec, note?: string) => {
     setState((prev) => {
-      const exists = prev.decisions.chains.some((c) => c.id === chain.id);
-      const nextChains = exists
-        ? prev.decisions.chains.map((c) => (c.id === chain.id ? chain : c))
-        : [chain, ...prev.decisions.chains];
+      const existing = prev.decisions.chains.find((c) => c.id === chain.id);
+      const preservedHistory = existing
+        ? [
+            ...chain.versionHistory.filter(
+              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
+            ),
+            ...existing.versionHistory,
+          ]
+        : chain.versionHistory;
+      const safeChain: RuleChainSpec = { ...chain, versionHistory: preservedHistory };
+      const nextChains = existing
+        ? prev.decisions.chains.map((c) => (c.id === chain.id ? safeChain : c))
+        : [safeChain, ...prev.decisions.chains];
       return {
         ...prev,
         decisions: { ...prev.decisions, chains: nextChains },
         auditLog: [
           {
             id: `aud-${Date.now()}`,
-            workspaceId: chain.workspaceId,
+            workspaceId: safeChain.workspaceId,
             timestamp: 'Just now',
             actor: 'Decision Author',
-            action: `${exists ? 'Updated' : 'Created'} rule chain ${chain.version}`,
-            target: chain.name,
+            action: note || `${existing ? 'Updated' : 'Created'} rule chain ${safeChain.version} (${safeChain.status})`,
+            target: safeChain.name,
             outcome: 'Updated',
           },
           ...prev.auditLog,
@@ -2316,23 +2334,32 @@ export function useAppWorkspaceStore() {
     });
   }, []);
 
-  const saveScorecard = useCallback((sc: ScorecardSpec) => {
+  const saveScorecard = useCallback((sc: ScorecardSpec, note?: string) => {
     setState((prev) => {
-      const exists = prev.decisions.scorecards.some((s) => s.id === sc.id);
-      const nextScorecards = exists
-        ? prev.decisions.scorecards.map((s) => (s.id === sc.id ? sc : s))
-        : [sc, ...prev.decisions.scorecards];
+      const existing = prev.decisions.scorecards.find((s) => s.id === sc.id);
+      const preservedHistory = existing
+        ? [
+            ...sc.versionHistory.filter(
+              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
+            ),
+            ...existing.versionHistory,
+          ]
+        : sc.versionHistory;
+      const safeSc: ScorecardSpec = { ...sc, versionHistory: preservedHistory };
+      const nextScorecards = existing
+        ? prev.decisions.scorecards.map((s) => (s.id === sc.id ? safeSc : s))
+        : [safeSc, ...prev.decisions.scorecards];
       return {
         ...prev,
         decisions: { ...prev.decisions, scorecards: nextScorecards },
         auditLog: [
           {
             id: `aud-${Date.now()}`,
-            workspaceId: sc.workspaceId,
+            workspaceId: safeSc.workspaceId,
             timestamp: 'Just now',
             actor: 'Decision Author',
-            action: `${exists ? 'Updated' : 'Created'} scorecard ${sc.version}`,
-            target: sc.name,
+            action: note || `${existing ? 'Updated' : 'Created'} scorecard ${safeSc.version} (${safeSc.status})`,
+            target: safeSc.name,
             outcome: 'Updated',
           },
           ...prev.auditLog,

@@ -387,9 +387,11 @@ test('13. Circular-chain rejection prevents infinite loops deterministically', (
     stages: [
       { id: 's1', stepOrder: 1, label: 'Call Chain B', targetType: 'chain', targetId: 'chain-b', onOutcome: 'continue' },
     ],
+    testCases: [],
     version: 'v0.1',
     environment: 'development',
     status: 'Draft',
+    versionHistory: [],
     updatedAt: 'Now',
   };
   const chainB: RuleChainSpec = {
@@ -401,9 +403,11 @@ test('13. Circular-chain rejection prevents infinite loops deterministically', (
     stages: [
       { id: 's2', stepOrder: 1, label: 'Call Chain A', targetType: 'chain', targetId: 'chain-a', onOutcome: 'continue' },
     ],
+    testCases: [],
     version: 'v0.1',
     environment: 'development',
     status: 'Draft',
+    versionHistory: [],
     updatedAt: 'Now',
   };
 

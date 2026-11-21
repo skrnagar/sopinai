@@ -154,7 +154,44 @@ export function evaluateRuleChainSpec(
       }
     }
 
-    if (!stageExec) continue;
+    if (!stageExec) {
+      const errMsg = `Stage ${stage.stepOrder} target "${stage.targetId}" (${stage.targetType}) could not be resolved.`;
+      return {
+        id: nextExecutionId('exec'),
+        workspaceId: chain.workspaceId,
+        artifactType: 'chain',
+        artifactId: chain.id,
+        artifactName: chain.name,
+        versionUsed: chain.version,
+        environment: chain.environment,
+        sourceTrigger,
+        inputPayload: input,
+        inputSummary,
+        evaluatedConditions: traces,
+        matchedConditions: traces.filter((t) => t.passed),
+        matchedRules,
+        matchedTableRows: matchedRows,
+        executionPath,
+        executionTrace: [
+          ...traceSteps,
+          {
+            stepIndex: traceSteps.length + 1,
+            phase: 'error',
+            label: `Stage ${stage.stepOrder} Missing Target`,
+            detail: errMsg,
+            passed: false,
+          },
+        ],
+        finalOutput: {},
+        explanation: errMsg,
+        status: 'Error',
+        errorCode: 'MISSING_CHAIN_STAGE_TARGET',
+        validationErrors: [errMsg],
+        durationMs: Math.max(0.1, Math.round((performance.now() - started) * 100) / 100),
+        executedAt: 'Just now',
+      };
+    }
+
     traces.push(...stageExec.evaluatedConditions);
     matchedRules.push(...stageExec.matchedRules.map((m) => `Stage ${stage.stepOrder}: ${m}`));
     matchedRows.push(...stageExec.matchedTableRows);
@@ -183,7 +220,6 @@ export function evaluateRuleChainSpec(
       };
     }
 
-    // Pass either explicitly selected output keys or all stage outputs into subsequent context
     const forwardedOutputs: Record<string, unknown> =
       stage.passOutputKeys && stage.passOutputKeys.length > 0
         ? Object.fromEntries(

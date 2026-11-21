@@ -1,32 +1,50 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  Activity,
+  AlertTriangle,
   CheckCircle2,
   FlaskConical,
+  GitCompare,
   History,
   Lock,
   Play,
+  Plus,
   RotateCcw,
   ShieldCheck,
   XCircle,
 } from 'lucide-react';
-import { Plus } from 'lucide-react';
 import {
+  DecisionArtifactSpec,
+  DecisionArtifactType,
   DecisionEnvironment,
   DecisionExecutionSpec,
   DecisionSettings,
   DecisionTableSpec,
   DecisionTestCase,
+  DecisionVersionSnapshot,
   RuleChainSpec,
   RuleSpec,
   RulesetSpec,
   ScorecardSpec,
 } from '../types';
-import { runBatchTestCases, runSingleTestCase } from '../evaluator';
+import {
+  checkEditPermission,
+  checkTestEvidenceFreshness,
+  compareVersionSnapshots,
+  computeArtifactSpecHash,
+  evaluatePublishGovernancePolicy,
+  isPublishedSnapshotStatus,
+  rollbackArtifactToSnapshot,
+  runBatchTestCases,
+  runSingleTestCase,
+  verifySnapshotIntegrity,
+} from '../evaluator';
+import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
+import { HighlightedCode } from '../../components/ui/HighlightedCode';
 
 interface SimulationAndMonitoringProps {
   mode: 'testing' | 'executions' | 'versions' | 'settings';
+  workspaceRole?: string;
   rules: RuleSpec[];
   tables: DecisionTableSpec[];
   rulesets: RulesetSpec[];
@@ -36,11 +54,21 @@ interface SimulationAndMonitoringProps {
   settings: DecisionSettings;
   onUpdateRule: (rule: RuleSpec, note?: string) => void;
   onUpdateTable: (table: DecisionTableSpec, note?: string) => void;
+  onUpdateRuleset?: (rs: RulesetSpec, note?: string) => void;
+  onUpdateChain?: (chain: RuleChainSpec, note?: string) => void;
+  onUpdateScorecard?: (sc: ScorecardSpec, note?: string) => void;
   onUpdateSettings: (partial: Partial<DecisionSettings>) => void;
+}
+
+interface UnifiedArtifactEntry {
+  type: DecisionArtifactType;
+  label: string;
+  spec: DecisionArtifactSpec;
 }
 
 export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = ({
   mode,
+  workspaceRole = 'Workspace Maintainer',
   rules,
   tables,
   rulesets,
@@ -50,10 +78,24 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
   settings,
   onUpdateRule,
   onUpdateTable,
+  onUpdateRuleset,
+  onUpdateChain,
+  onUpdateScorecard,
   onUpdateSettings,
 }) => {
+  const allArtifacts: UnifiedArtifactEntry[] = useMemo(
+    () => [
+      ...rules.map((spec) => ({ type: 'rule' as const, label: 'Rule', spec })),
+      ...tables.map((spec) => ({ type: 'table' as const, label: 'Table', spec })),
+      ...rulesets.map((spec) => ({ type: 'ruleset' as const, label: 'Ruleset', spec })),
+      ...chains.map((spec) => ({ type: 'chain' as const, label: 'Chain', spec })),
+      ...scorecards.map((spec) => ({ type: 'scorecard' as const, label: 'Scorecard', spec })),
+    ],
+    [rules, tables, rulesets, chains, scorecards]
+  );
+
   const [selectedTestTargetId, setSelectedTestTargetId] = useState<string>(
-    () => rules[0]?.id ?? tables[0]?.id ?? ''
+    () => rules[0]?.id ?? tables[0]?.id ?? rulesets[0]?.id ?? chains[0]?.id ?? scorecards[0]?.id ?? ''
   );
   const [batchSummary, setBatchSummary] = useState<string>('');
   const [execFilter, setExecFilter] = useState<'All' | 'Matched' | 'Fallback' | 'Error'>('All');
@@ -63,6 +105,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
   const [addFixtureOpen, setAddFixtureOpen] = useState(false);
   const [fixtureName, setFixtureName] = useState('Custom Boundary Fixture');
+  const [fixtureBoundary, setFixtureBoundary] = useState(true);
   const [fixtureInputJson, setFixtureInputJson] = useState(
     '{\n  "invoiceAmount": 50000,\n  "vendorVerified": true,\n  "duplicateFound": false\n}'
   );
@@ -71,72 +114,96 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
   );
   const [fixtureErr, setFixtureErr] = useState('');
 
+  // Versions & Environments state
+  const [versionTypeFilter, setVersionTypeFilter] = useState<'all' | DecisionArtifactType>('all');
+  const [versionNotice, setVersionNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [diffSelection, setDiffSelection] = useState<{
+    artifactId: string;
+    snapA: DecisionVersionSnapshot;
+    snapB: DecisionVersionSnapshot;
+  } | null>(null);
+  const [rollbackConfirm, setRollbackConfirm] = useState<{
+    entry: UnifiedArtifactEntry;
+    snapshot: DecisionVersionSnapshot;
+  } | null>(null);
+  const [promoteConfirm, setPromoteConfirm] = useState<{
+    entry: UnifiedArtifactEntry;
+    targetEnv: DecisionEnvironment;
+  } | null>(null);
+  const [promoteApprovalChecked, setPromoteApprovalChecked] = useState(false);
+
+  const collections = useMemo(
+    () => ({ rules, tables, rulesets, chains, scorecards }),
+    [rules, tables, rulesets, chains, scorecards]
+  );
+
+  const persistArtifactUpdate = (type: DecisionArtifactType, nextSpec: DecisionArtifactSpec, note?: string) => {
+    if (type === 'rule') onUpdateRule(nextSpec as RuleSpec, note);
+    else if (type === 'table') onUpdateTable(nextSpec as DecisionTableSpec, note);
+    else if (type === 'ruleset') onUpdateRuleset?.(nextSpec as RulesetSpec, note);
+    else if (type === 'chain') onUpdateChain?.(nextSpec as RuleChainSpec, note);
+    else if (type === 'scorecard') onUpdateScorecard?.(nextSpec as ScorecardSpec, note);
+  };
+
   // 7. TEST & SIMULATION
   if (mode === 'testing') {
-    const targetRule = rules.find((r) => r.id === selectedTestTargetId);
-    const targetTable = tables.find((t) => t.id === selectedTestTargetId);
-    const activeCases = targetRule?.testCases ?? targetTable?.testCases ?? [];
-    const collections = { rules, tables, rulesets, chains, scorecards };
+    const activeEntry =
+      allArtifacts.find((a) => a.spec.id === selectedTestTargetId) ?? allArtifacts[0];
+    const activeCases: DecisionTestCase[] = activeEntry?.spec.testCases ?? [];
+    const freshness = activeEntry
+      ? checkTestEvidenceFreshness(activeEntry.type, activeEntry.spec)
+      : null;
+    const passedCount = activeCases.filter((tc) => tc.lastPassed === true).length;
+    const boundaryCount = activeCases.filter((tc) => tc.isBoundaryOrNegative).length;
 
     const handleRunSingle = (tc: DecisionTestCase) => {
-      if (targetRule) {
-        const { updatedCase } = runSingleTestCase('rule', targetRule.id, tc, collections);
-        const nextCases = targetRule.testCases.map((c) => (c.id === tc.id ? updatedCase : c));
-        onUpdateRule(
-          { ...targetRule, testCases: nextCases, updatedAt: 'Just now' },
-          `Ran single test case "${tc.name}" (${updatedCase.lastPassed ? 'PASS' : 'FAIL'})`
-        );
-        setBatchSummary(
-          `Single test "${tc.name}": ${updatedCase.lastPassed ? 'PASSED' : 'FAILED'}.`
-        );
-      } else if (targetTable) {
-        const { updatedCase } = runSingleTestCase('table', targetTable.id, tc, collections);
-        const nextCases = targetTable.testCases.map((c) => (c.id === tc.id ? updatedCase : c));
-        onUpdateTable(
-          { ...targetTable, testCases: nextCases, updatedAt: 'Just now' },
-          `Ran single table test "${tc.name}" (${updatedCase.lastPassed ? 'PASS' : 'FAIL'})`
-        );
-        setBatchSummary(
-          `Single test "${tc.name}": ${updatedCase.lastPassed ? 'PASSED' : 'FAILED'}.`
-        );
-      }
+      if (!activeEntry) return;
+      const { updatedCase } = runSingleTestCase(
+        activeEntry.type,
+        activeEntry.spec.id,
+        tc,
+        collections
+      );
+      const nextCases = activeCases.map((c) => (c.id === tc.id ? updatedCase : c));
+      persistArtifactUpdate(
+        activeEntry.type,
+        { ...activeEntry.spec, testCases: nextCases, updatedAt: 'Just now' } as DecisionArtifactSpec,
+        `Ran ${activeEntry.label} test case "${tc.name}" (${updatedCase.lastPassed ? 'PASS' : 'FAIL'})`
+      );
+      setBatchSummary(
+        `Single test "${tc.name}": ${updatedCase.lastPassed ? 'PASSED' : 'FAILED'} (${activeEntry.spec.version}).`
+      );
     };
 
     const handleRunSuite = () => {
-      if (targetRule) {
-        const res = runBatchTestCases('rule', targetRule.id, targetRule.testCases, collections);
-        onUpdateRule(
-          {
-            ...targetRule,
-            testCases: res.updatedCases,
-            status:
-              res.failedCount === 0 && targetRule.status === 'Draft' ? 'Tested' : targetRule.status,
-            updatedAt: 'Just now',
-          },
-          `Ran regression suite (${res.passedCount}/${res.updatedCases.length} pass)`
-        );
-        setBatchSummary(
-          `Batch suite complete for "${targetRule.name}": ${res.passedCount} passed, ${res.failedCount} failed.`
-        );
-      } else if (targetTable) {
-        const res = runBatchTestCases('table', targetTable.id, targetTable.testCases, collections);
-        onUpdateTable(
-          {
-            ...targetTable,
-            testCases: res.updatedCases,
-            status:
-              res.failedCount === 0 && targetTable.status === 'Draft' ? 'Tested' : targetTable.status,
-            updatedAt: 'Just now',
-          },
-          `Ran table regression suite (${res.passedCount}/${res.updatedCases.length} pass)`
-        );
-        setBatchSummary(
-          `Batch suite complete for "${targetTable.name}": ${res.passedCount} passed, ${res.failedCount} failed.`
-        );
-      }
+      if (!activeEntry) return;
+      const res = runBatchTestCases(
+        activeEntry.type,
+        activeEntry.spec.id,
+        activeCases,
+        collections
+      );
+      const shouldPromoteToTested =
+        res.failedCount === 0 &&
+        res.updatedCases.length > 0 &&
+        (activeEntry.spec.status === 'Draft' || activeEntry.spec.status === 'Validated');
+      persistArtifactUpdate(
+        activeEntry.type,
+        {
+          ...activeEntry.spec,
+          testCases: res.updatedCases,
+          status: shouldPromoteToTested ? 'Tested' : activeEntry.spec.status,
+          updatedAt: 'Just now',
+        } as DecisionArtifactSpec,
+        `Ran ${activeEntry.label} regression suite (${res.passedCount}/${res.updatedCases.length} pass)`
+      );
+      setBatchSummary(
+        `Batch suite complete for "${activeEntry.spec.name}": ${res.passedCount} passed, ${res.failedCount} failed (against ${activeEntry.spec.version}).`
+      );
     };
 
     const handleAddFixture = () => {
+      if (!activeEntry) return;
       setFixtureErr('');
       try {
         const inputJson = JSON.parse(fixtureInputJson) as Record<string, unknown>;
@@ -146,20 +213,19 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
           name: fixtureName.trim() || 'Custom Regression Case',
           inputJson,
           expectedOutput,
+          isBoundaryOrNegative: fixtureBoundary,
         };
-        if (targetRule) {
-          onUpdateRule(
-            { ...targetRule, testCases: [newCase, ...targetRule.testCases], updatedAt: 'Just now' },
-            `Added test fixture "${newCase.name}"`
-          );
-        } else if (targetTable) {
-          onUpdateTable(
-            { ...targetTable, testCases: [newCase, ...targetTable.testCases], updatedAt: 'Just now' },
-            `Added table fixture "${newCase.name}"`
-          );
-        }
+        persistArtifactUpdate(
+          activeEntry.type,
+          {
+            ...activeEntry.spec,
+            testCases: [newCase, ...activeCases],
+            updatedAt: 'Just now',
+          } as DecisionArtifactSpec,
+          `Added ${fixtureBoundary ? 'boundary ' : ''}test fixture "${newCase.name}"`
+        );
         setAddFixtureOpen(false);
-        setBatchSummary(`Added test fixture "${newCase.name}". Run case or batch suite to verify.`);
+        setBatchSummary(`Added test fixture "${newCase.name}". Run suite to record evidence against ${activeEntry.spec.version}.`);
       } catch {
         setFixtureErr('Input and Expected Output must be valid JSON objects.');
       }
@@ -170,25 +236,20 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
         <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <label htmlFor="test-suite-target" className="block text-xs font-semibold">
-              Select Rule or Decision Table Regression Suite
+              Select Decision Artifact Regression Suite (All 5 Types)
             </label>
             <select
               id="test-suite-target"
-              value={selectedTestTargetId}
+              value={activeEntry?.spec.id ?? ''}
               onChange={(e) => {
                 setSelectedTestTargetId(e.target.value);
                 setBatchSummary('');
               }}
-              className="min-h-[44px] px-3 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+              className="min-h-[44px] px-3 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm max-w-full"
             >
-              {rules.map((r) => (
-                <option key={r.id} value={r.id}>
-                  Rule · {r.name} ({r.testCases.length} cases)
-                </option>
-              ))}
-              {tables.map((t) => (
-                <option key={t.id} value={t.id}>
-                  Table · {t.name} ({t.testCases.length} cases)
+              {allArtifacts.map((entry) => (
+                <option key={entry.spec.id} value={entry.spec.id}>
+                  {entry.label} · {entry.spec.name} ({entry.spec.testCases.length} cases · {entry.spec.version})
                 </option>
               ))}
             </select>
@@ -215,16 +276,57 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
           </div>
         </div>
 
+        {activeEntry && freshness && (
+          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <StatusText
+              items={[
+                `${activeEntry.label}: ${activeEntry.spec.version}`,
+                `Status: ${activeEntry.spec.status}`,
+                `Passing: ${passedCount}/${activeCases.length}`,
+                `Boundary/Neg: ${boundaryCount}`,
+              ]}
+              accentLast
+            />
+            <span
+              className={`font-mono text-[11px] font-semibold ${
+                freshness.allPassed && freshness.allCurrentForSpec
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : freshness.staleCaseCount > 0 || freshness.failedCaseCount > 0
+                  ? 'text-amber-600 dark:text-amber-300'
+                  : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+              }`}
+            >
+              {freshness.allPassed && freshness.allCurrentForSpec
+                ? `Evidence Current (${freshness.currentSpecHash.slice(0, 18)}...)`
+                : freshness.staleCaseCount > 0
+                ? `${freshness.staleCaseCount} Stale Case(s) — Re-run Required`
+                : freshness.failedCaseCount > 0
+                ? `${freshness.failedCaseCount} Failing Case(s)`
+                : 'Unrun / Pending Evidence'}
+            </span>
+          </div>
+        )}
+
         {addFixtureOpen && (
           <div className="rounded-2xl border border-[#6252E8]/35 bg-white dark:bg-[#101126] p-4 space-y-3">
             <div className="text-xs font-semibold">Define Custom Input Fixture &amp; Expected Output</div>
-            <input
-              type="text"
-              aria-label="Test fixture name"
-              value={fixtureName}
-              onChange={(e) => setFixtureName(e.target.value)}
-              className="w-full min-h-[40px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
-            />
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                type="text"
+                aria-label="Test fixture name"
+                value={fixtureName}
+                onChange={(e) => setFixtureName(e.target.value)}
+                className="flex-1 min-w-[200px] min-h-[40px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+              />
+              <label className="inline-flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={fixtureBoundary}
+                  onChange={(e) => setFixtureBoundary(e.target.checked)}
+                />
+                <span>Boundary / Negative Fixture</span>
+              </label>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <textarea
                 rows={4}
@@ -276,81 +378,122 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
               No golden test cases registered for this asset yet. Add a fixture above to define regression tests.
             </div>
           ) : (
-            activeCases.map((tc) => (
-              <div
-                key={tc.id}
-                className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <FlaskConical className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
-                    <span className="text-xs sm:text-sm font-semibold">{tc.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {tc.lastPassed !== undefined && (
-                      <span
-                        className={`inline-flex items-center gap-1 font-mono text-xs font-semibold ${
-                          tc.lastPassed ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'
-                        }`}
-                      >
-                        {tc.lastPassed ? (
-                          <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
-                        ) : (
-                          <XCircle className="w-4 h-4" aria-hidden="true" />
-                        )}
-                        <span>{tc.lastPassed ? 'PASS' : 'FAIL'}</span>
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleRunSingle(tc)}
-                      className="min-h-[34px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
-                    >
-                      <Play className="w-3 h-3 text-[#6252E8]" aria-hidden="true" />
-                      <span>Run Case</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] font-mono">
-                  <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-2.5">
-                    <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Input JSON</div>
-                    <pre className="overflow-x-auto">{JSON.stringify(tc.inputJson, null, 2)}</pre>
-                  </div>
-                  <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-2.5">
-                    <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Expected Output</div>
-                    <pre className="overflow-x-auto">{JSON.stringify(tc.expectedOutput, null, 2)}</pre>
-                  </div>
-                  <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-2.5">
-                    <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Actual Output</div>
-                    <pre className="overflow-x-auto">
-                      {tc.lastActualOutput
-                        ? JSON.stringify(tc.lastActualOutput, null, 2)
-                        : 'Not run in session'}
-                    </pre>
-                  </div>
-                </div>
-
-                {tc.diffNotes && tc.diffNotes.length > 0 && (
-                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-2.5 text-[11px] font-mono text-red-700 dark:text-red-300 space-y-1">
-                    {tc.diffNotes.map((note, idx) => (
-                      <div key={idx}>Diff: {note}</div>
-                    ))}
-                  </div>
-                )}
-
-                {tc.failedConditions && tc.failedConditions.length > 0 && (
-                  <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-2.5 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5] space-y-0.5">
-                    <div className="font-semibold text-[#101014] dark:text-white">
-                      Conditions Evaluated FALSE / Diagnostics:
+            activeCases.map((tc) => {
+              const isStale =
+                freshness &&
+                tc.lastPassed !== undefined &&
+                ((tc.testedVersion !== undefined && tc.testedVersion !== activeEntry?.spec.version) ||
+                  (tc.testedSpecHash !== undefined && tc.testedSpecHash !== freshness.currentSpecHash));
+              return (
+                <div
+                  key={tc.id}
+                  className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <FlaskConical className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                      <span className="text-xs sm:text-sm font-semibold">{tc.name}</span>
+                      {tc.isBoundaryOrNegative && (
+                        <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+                          · Boundary/Neg
+                        </span>
+                      )}
+                      {isStale && (
+                        <span className="font-mono text-[10px] uppercase text-amber-600 dark:text-amber-300">
+                          · Stale ({tc.testedVersion})
+                        </span>
+                      )}
                     </div>
-                    {tc.failedConditions.map((fc, idx) => (
-                      <div key={idx}>• {fc}</div>
-                    ))}
+                    <div className="flex items-center gap-2">
+                      {tc.lastPassed !== undefined && (
+                        <span
+                          className={`inline-flex items-center gap-1 font-mono text-xs font-semibold ${
+                            tc.lastPassed ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'
+                          }`}
+                        >
+                          {tc.lastPassed ? (
+                            <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+                          ) : (
+                            <XCircle className="w-4 h-4" aria-hidden="true" />
+                          )}
+                          <span>{tc.lastPassed ? 'PASS' : 'FAIL'}</span>
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRunSingle(tc)}
+                        className="min-h-[34px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
+                      >
+                        <Play className="w-3 h-3 text-[#6252E8]" aria-hidden="true" />
+                        <span>Run Case</span>
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            ))
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] font-mono">
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 p-2.5">
+                      <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Input JSON</div>
+                      <pre className="overflow-x-auto">
+                        <HighlightedCode
+                          code={JSON.stringify(tc.inputJson, null, 2)}
+                          language="json"
+                          surface="auto"
+                        />
+                      </pre>
+                    </div>
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 p-2.5">
+                      <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Expected Output</div>
+                      <pre className="overflow-x-auto">
+                        <HighlightedCode
+                          code={JSON.stringify(tc.expectedOutput, null, 2)}
+                          language="json"
+                          surface="auto"
+                        />
+                      </pre>
+                    </div>
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 p-2.5">
+                      <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Actual Output</div>
+                      <pre className="overflow-x-auto">
+                        {tc.lastActualOutput ? (
+                          <HighlightedCode
+                            code={JSON.stringify(tc.lastActualOutput, null, 2)}
+                            language="json"
+                            surface="auto"
+                          />
+                        ) : (
+                          <span className="text-[#5E5E6E] dark:text-[#9A9AB0]">Not run in session</span>
+                        )}
+                      </pre>
+                    </div>
+                  </div>
+
+                  {tc.diffNotes && tc.diffNotes.length > 0 && (
+                    <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-2.5 text-[11px] font-mono text-red-700 dark:text-red-300 space-y-1">
+                      {tc.diffNotes.map((note, idx) => (
+                        <div key={idx}>Diff: {note}</div>
+                      ))}
+                    </div>
+                  )}
+
+                  {tc.failedConditions && tc.failedConditions.length > 0 && (
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-2.5 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5] space-y-0.5">
+                      <div className="font-semibold text-[#101014] dark:text-white">
+                        Conditions Evaluated FALSE / Diagnostics:
+                      </div>
+                      {tc.failedConditions.map((fc, idx) => (
+                        <div key={idx}>• {fc}</div>
+                      ))}
+                    </div>
+                  )}
+
+                  {tc.runHistory && tc.runHistory.length > 0 && (
+                    <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] px-3 py-2 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
+                      Run History: {tc.runHistory.slice(0, 3).map((rh) => `${rh.passed ? 'PASS' : 'FAIL'}@${rh.testedVersion} (${rh.actualStatus})`).join(' · ')}
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       </div>
@@ -410,7 +553,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                     </span>
                   </div>
                   <StatusText
-                    items={[ex.sourceTrigger, ex.versionUsed, ex.environment, ex.executedAt]}
+                    items={[ex.artifactType, ex.sourceTrigger, ex.versionUsed, ex.environment, ex.executedAt]}
                   />
                 </button>
               );
@@ -424,6 +567,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   <div>
                     <div className="font-mono text-[11px] text-[#B894FF]">
                       EXECUTION INSPECTOR · {activeExec.id}
+                      {activeExec.errorCode ? ` · ${activeExec.errorCode}` : ''}
                     </div>
                     <h3 className="font-display text-base font-semibold mt-0.5">
                       {activeExec.artifactName}
@@ -439,16 +583,24 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 <p className="text-xs text-[#D8D8E6] leading-relaxed">{activeExec.explanation}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="rounded-xl border border-white/10 bg-[#101014] p-3">
+                  <div className="rounded-xl border border-white/10 bg-[#0D1021] p-3">
                     <div className="font-mono text-[11px] text-[#9A9AB0] mb-1">Input Payload</div>
                     <pre className="font-mono text-[11px] overflow-x-auto">
-                      {JSON.stringify(activeExec.inputPayload, null, 2)}
+                      <HighlightedCode
+                        code={JSON.stringify(activeExec.inputPayload, null, 2)}
+                        language="json"
+                        surface="dark"
+                      />
                     </pre>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-[#101014] p-3">
+                  <div className="rounded-xl border border-white/10 bg-[#0D1021] p-3">
                     <div className="font-mono text-[11px] text-[#9A9AB0] mb-1">Final Decision Output</div>
-                    <pre className="font-mono text-[11px] text-emerald-300 overflow-x-auto">
-                      {JSON.stringify(activeExec.finalOutput, null, 2)}
+                    <pre className="font-mono text-[11px] overflow-x-auto">
+                      <HighlightedCode
+                        code={JSON.stringify(activeExec.finalOutput, null, 2)}
+                        language="json"
+                        surface="dark"
+                      />
                     </pre>
                   </div>
                 </div>
@@ -523,124 +675,499 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
   // 9. VERSIONS & ENVIRONMENTS
   if (mode === 'versions') {
+    const visibleArtifacts = allArtifacts.filter(
+      (entry) => versionTypeFilter === 'all' || entry.type === versionTypeFilter
+    );
+
+    const requestPromote = (entry: UnifiedArtifactEntry, targetEnv: DecisionEnvironment) => {
+      if (targetEnv === entry.spec.environment) return;
+      if (targetEnv === 'production') {
+        setPromoteApprovalChecked(false);
+        setPromoteConfirm({ entry, targetEnv });
+        return;
+      }
+      const check = evaluatePublishGovernancePolicy(
+        entry.type,
+        entry.spec,
+        targetEnv,
+        workspaceRole,
+        settings,
+        collections
+      );
+      if (!check.allowed) {
+        setVersionNotice({
+          kind: 'err',
+          text: `Cannot promote "${entry.spec.name}" to ${targetEnv}: ${check.reasons.join(' ')}`,
+        });
+        return;
+      }
+      persistArtifactUpdate(
+        entry.type,
+        {
+          ...entry.spec,
+          environment: targetEnv,
+          updatedAt: 'Just now',
+        } as DecisionArtifactSpec,
+        `Promoted ${entry.label} "${entry.spec.name}" (${entry.spec.version}) to ${targetEnv}`
+      );
+      setVersionNotice({
+        kind: 'ok',
+        text: `Promoted "${entry.spec.name}" (${entry.spec.version}) to ${targetEnv}.`,
+      });
+    };
+
+    const confirmProductionPromote = () => {
+      if (!promoteConfirm) return;
+      const { entry, targetEnv } = promoteConfirm;
+      const check = evaluatePublishGovernancePolicy(
+        entry.type,
+        entry.spec,
+        targetEnv,
+        workspaceRole,
+        settings,
+        collections,
+        promoteApprovalChecked
+      );
+      if (!check.allowed) {
+        setVersionNotice({
+          kind: 'err',
+          text: `Production promotion blocked: ${check.reasons.join(' ')}`,
+        });
+        return;
+      }
+      const nextStatus = isPublishedSnapshotStatus(entry.spec.status) ? 'Promoted' : 'Published';
+      persistArtifactUpdate(
+        entry.type,
+        {
+          ...entry.spec,
+          environment: targetEnv,
+          status: nextStatus,
+          reviewApproval: settings.requireControlApprovalForProd
+            ? {
+                approved: promoteApprovalChecked,
+                reviewerLabel: `${workspaceRole} (Local Gate)`,
+                approvedAt: 'Just now',
+                note: `Promoted ${entry.spec.version} to production`,
+                controlRequired: true,
+              }
+            : entry.spec.reviewApproval,
+          updatedAt: 'Just now',
+        } as DecisionArtifactSpec,
+        `Promoted ${entry.label} "${entry.spec.name}" (${entry.spec.version}) to production`
+      );
+      setPromoteConfirm(null);
+      setVersionNotice({
+        kind: 'ok',
+        text: `Promoted "${entry.spec.name}" (${entry.spec.version}) to production cleanly.`,
+      });
+    };
+
+    const confirmRollback = () => {
+      if (!rollbackConfirm) return;
+      const { entry, snapshot } = rollbackConfirm;
+      const { rolledBack, error } = rollbackArtifactToSnapshot(
+        entry.type,
+        entry.spec,
+        snapshot.version,
+        `${workspaceRole} (Local Rollback)`
+      );
+      if (!rolledBack) {
+        setRollbackConfirm(null);
+        setVersionNotice({
+          kind: 'err',
+          text: error || 'Rollback failed snapshot verification.',
+        });
+        return;
+      }
+      persistArtifactUpdate(
+        entry.type,
+        rolledBack,
+        `Rolled back ${entry.label} "${entry.spec.name}" to ${snapshot.version}`
+      );
+      setRollbackConfirm(null);
+      setVersionNotice({
+        kind: 'ok',
+        text: `Restored full ${entry.label} specification from snapshot ${snapshot.version} while preserving immutable version history.`,
+      });
+    };
+
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4">
-          <h3 className="font-display text-sm font-semibold">
-            Immutable Versions, Promotion &amp; Rollback
-          </h3>
-          <p className="mt-1 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
-            Published versions are immutable serialized snapshots stored in local browser prototype persistence (not server-side enterprise database persistence). Production workflows execute pinned immutable published snapshots.
-          </p>
+        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <div>
+            <h3 className="font-display text-sm font-semibold">
+              Immutable Versions, SHA-256 Verification, Diff &amp; Rollback (All 5 Artifact Types)
+            </h3>
+            <p className="mt-1 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+              Published snapshots store canonical SHA-256 hashes and serialized specs in local browser storage. Rollback restores full logic &amp; preserves history; promotions obey local governance gates.
+            </p>
+          </div>
+          <div className="flex overflow-x-auto no-scrollbar gap-1.5">
+            {(
+              [
+                { id: 'all', label: `All (${allArtifacts.length})` },
+                { id: 'rule', label: `Rules (${rules.length})` },
+                { id: 'table', label: `Tables (${tables.length})` },
+                { id: 'ruleset', label: `Rulesets (${rulesets.length})` },
+                { id: 'chain', label: `Chains (${chains.length})` },
+                { id: 'scorecard', label: `Scorecards (${scorecards.length})` },
+              ] as const
+            ).map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setVersionTypeFilter(f.id)}
+                className={`min-h-[38px] px-3 rounded-xl text-xs font-semibold whitespace-nowrap ${
+                  versionTypeFilter === f.id
+                    ? 'bg-[#6252E8] text-white'
+                    : 'border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014]'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {rules.map((rule) => (
+        {versionNotice && (
           <div
-            key={rule.id}
-            className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3"
+            role="status"
+            className={`rounded-xl border px-4 py-2.5 flex items-center justify-between gap-2 text-xs font-semibold ${
+              versionNotice.kind === 'err'
+                ? 'border-red-500/45 bg-red-500/10 text-red-700 dark:text-red-200'
+                : 'border-[#6252E8]/35 bg-[#6252E8]/10'
+            }`}
           >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <div className="text-sm font-semibold">{rule.name}</div>
-                <StatusText items={[rule.version, rule.status, `Env: ${rule.environment}`]} accentLast />
+            <span>{versionNotice.text}</span>
+            <button type="button" onClick={() => setVersionNotice(null)} className="text-xs underline">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {visibleArtifacts.map((entry) => {
+          const currentHash = computeArtifactSpecHash(entry.type, entry.spec);
+          return (
+            <div
+              key={entry.spec.id}
+              className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold">{entry.spec.name}</div>
+                  <StatusText
+                    items={[
+                      entry.label,
+                      entry.spec.version,
+                      entry.spec.status,
+                      `Env: ${entry.spec.environment}`,
+                    ]}
+                    accentLast
+                  />
+                  <div className="mt-1 font-mono text-[10px] text-[#5E5E6E] dark:text-[#9A9AB0] truncate">
+                    Live Spec Digest: {currentHash}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {(['development', 'staging', 'production'] as DecisionEnvironment[]).map((env) => (
+                    <button
+                      key={env}
+                      type="button"
+                      onClick={() => requestPromote(entry, env)}
+                      className={`min-h-[36px] px-3 rounded-lg text-[11px] font-semibold capitalize ${
+                        entry.spec.environment === env
+                          ? 'bg-[#6252E8] text-white'
+                          : 'border border-[#101014]/15 dark:border-white/15'
+                      }`}
+                    >
+                      {env}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1.5">
-                {(['development', 'staging', 'production'] as DecisionEnvironment[]).map((env) => (
-                  <button
-                    key={env}
-                    type="button"
-                    onClick={() =>
-                      onUpdateRule({ ...rule, environment: env, updatedAt: 'Just now' }, `Promoted to ${env}`)
-                    }
-                    className={`min-h-[36px] px-3 rounded-lg text-[11px] font-semibold capitalize ${
-                      rule.environment === env
-                        ? 'bg-[#6252E8] text-white'
-                        : 'border border-[#101014]/15 dark:border-white/15'
-                    }`}
-                  >
-                    {env}
-                  </button>
-                ))}
+              {entry.spec.versionHistory.length === 0 ? (
+                <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] px-3 py-2 text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0] font-mono">
+                  No immutable published snapshots recorded yet (Draft / pre-release).
+                </div>
+              ) : (
+                <div className="space-y-2 pt-2 border-t border-[#101014]/10 dark:border-white/10">
+                  {entry.spec.versionHistory.map((snap, idx) => {
+                    const integrity = verifySnapshotIntegrity(snap);
+                    const nextOlder = entry.spec.versionHistory[idx + 1];
+                    return (
+                      <div
+                        key={snap.version}
+                        className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2 text-xs"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="font-mono font-semibold text-[#6252E8] dark:text-[#B894FF] flex flex-wrap items-center gap-2">
+                              <span>
+                                {snap.version} · {snap.environment} · {snap.status}
+                              </span>
+                              <span
+                                className={`text-[10px] ${
+                                  integrity.valid
+                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                    : 'text-red-500'
+                                }`}
+                              >
+                                [{integrity.valid ? `Hash OK (${integrity.algorithm})` : integrity.reason}]
+                              </span>
+                            </div>
+                            <div className="font-mono text-[10px] text-[#5E5E6E] dark:text-[#9A9AB0] truncate">
+                              {snap.snapshotHash}
+                            </div>
+                            <div className="text-[#5E5E6E] dark:text-[#A4A4B5] mt-0.5">
+                              {snap.releaseNotes || snap.summary} ({snap.publishedBy}, {snap.publishedAt})
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {nextOlder && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDiffSelection({
+                                    artifactId: entry.spec.id,
+                                    snapA: nextOlder,
+                                    snapB: snap,
+                                  })
+                                }
+                                className="min-h-[36px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
+                              >
+                                <GitCompare className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                                <span>Diff vs {nextOlder.version}</span>
+                              </button>
+                            )}
+                            {snap.version !== entry.spec.version && snap.serializedSpec && (
+                              <button
+                                type="button"
+                                onClick={() => setRollbackConfirm({ entry, snapshot: snap })}
+                                className="min-h-[36px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                                <span>Rollback</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {diffSelection?.artifactId === entry.spec.id &&
+                          diffSelection.snapB.version === snap.version && (() => {
+                            const diffReport = compareVersionSnapshots(
+                              diffSelection.snapA,
+                              diffSelection.snapB
+                            );
+                            return (
+                              <div className="rounded-lg border border-[#6252E8]/35 bg-white dark:bg-[#101126] p-3 space-y-1.5 text-[11px] font-mono">
+                                <div className="flex items-center justify-between font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                                  <span>
+                                    Canonical Diff: {diffSelection.snapA.version} → {diffSelection.snapB.version}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setDiffSelection(null)}
+                                    className="underline"
+                                  >
+                                    Close Diff
+                                  </button>
+                                </div>
+                                {diffReport.changes.length === 0 ? (
+                                  <div className="text-[#5E5E6E] dark:text-[#9A9AB0]">
+                                    No structural spec body differences (metadata/environment change only).
+                                  </div>
+                                ) : (
+                                  diffReport.changes.map((diff) => (
+                                    <div key={diff.key} className="space-y-0.5 pt-1 border-t border-[#101014]/10 dark:border-white/10">
+                                      <div className="font-semibold text-[#101014] dark:text-white">
+                                        {diff.key}:
+                                      </div>
+                                      <div className="text-red-600 dark:text-red-300 truncate">
+                                        - {diff.before}
+                                      </div>
+                                      <div className="text-emerald-600 dark:text-emerald-300 truncate">
+                                        + {diff.after}
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            );
+                          })()}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Rollback Confirmation BottomSheet */}
+        <BottomSheet
+          open={Boolean(rollbackConfirm)}
+          onClose={() => setRollbackConfirm(null)}
+          title={
+            rollbackConfirm
+              ? `Rollback "${rollbackConfirm.entry.spec.name}" to ${rollbackConfirm.snapshot.version}?`
+              : 'Confirm Rollback'
+          }
+          subtitle="Restores full serialized decision logic from immutable snapshot while keeping version history intact."
+        >
+          {rollbackConfirm && (
+            <div className="space-y-4 text-xs">
+              <div className="rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] p-3 font-mono space-y-1">
+                <div>Snapshot Hash: {rollbackConfirm.snapshot.snapshotHash}</div>
+                <div>Target Environment: {rollbackConfirm.snapshot.environment}</div>
+                <div>Published Summary: {rollbackConfirm.snapshot.summary}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setRollbackConfirm(null)}
+                  className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmRollback}
+                  className="min-h-[44px] rounded-xl bg-[#6252E8] text-white font-semibold"
+                >
+                  Confirm Full Rollback
+                </button>
               </div>
             </div>
+          )}
+        </BottomSheet>
 
-            {rule.versionHistory.length > 0 && (
-              <div className="space-y-2 pt-2 border-t border-[#101014]/10 dark:border-white/10">
-                {rule.versionHistory.map((snap) => (
-                  <div
-                    key={snap.version}
-                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 flex flex-wrap items-center justify-between gap-2 text-xs"
-                  >
-                    <div className="min-w-0">
-                      <div className="font-mono font-semibold text-[#6252E8] dark:text-[#B894FF]">
-                        {snap.version} · {snap.environment} · {snap.snapshotHash}
-                      </div>
-                      <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">
-                        {snap.summary} ({snap.publishedBy}, {snap.publishedAt})
-                      </div>
+        {/* Production Promotion Governance Confirmation BottomSheet */}
+        <BottomSheet
+          open={Boolean(promoteConfirm)}
+          onClose={() => setPromoteConfirm(null)}
+          title={
+            promoteConfirm
+              ? `Promote "${promoteConfirm.entry.spec.name}" to Production?`
+              : 'Confirm Production Promotion'
+          }
+          subtitle="Runs full production validation, test-evidence freshness, and SOPIN Control checks."
+        >
+          {promoteConfirm && (
+            <div className="space-y-4 text-xs">
+              {(() => {
+                const check = evaluatePublishGovernancePolicy(
+                  promoteConfirm.entry.type,
+                  promoteConfirm.entry.spec,
+                  'production',
+                  workspaceRole,
+                  settings,
+                  collections,
+                  promoteApprovalChecked
+                );
+                return !check.allowed ? (
+                  <div className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-red-700 dark:text-red-200 space-y-1">
+                    <div className="font-semibold inline-flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" aria-hidden="true" />
+                      <span>Promotion Blocked</span>
                     </div>
-                    {snap.version !== rule.version && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onUpdateRule(
-                            {
-                              ...rule,
-                              version: snap.version,
-                              environment: snap.environment,
-                              status: 'Published',
-                              updatedAt: 'Just now',
-                            },
-                            `Rolled back to ${snap.version}`
-                          )
-                        }
-                        className="min-h-[36px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>Rollback</span>
-                      </button>
-                    )}
+                    {check.reasons.map((r, i) => (
+                      <div key={i} className="font-mono text-[11px]">
+                        • {r}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="rounded-xl border border-emerald-500/35 bg-emerald-500/10 p-3 text-emerald-700 dark:text-emerald-200 font-semibold">
+                    All production validation, test freshness, and RBAC checks passed cleanly.
+                  </div>
+                );
+              })()}
+
+              {settings.requireControlApprovalForProd && (
+                <label className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/[0.06] p-3 flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={promoteApprovalChecked}
+                    onChange={(e) => setPromoteApprovalChecked(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <strong>SOPIN Control Approval (Local Gate):</strong> Confirm production release review as{' '}
+                    <span className="font-mono">{workspaceRole}</span>.
+                  </span>
+                </label>
+              )}
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setPromoteConfirm(null)}
+                  className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmProductionPromote}
+                  className="min-h-[44px] rounded-xl bg-[#6252E8] text-white font-semibold"
+                >
+                  Confirm Production Promotion
+                </button>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          )}
+        </BottomSheet>
       </div>
     );
   }
 
   // 10. SETTINGS & GOVERNANCE BOUNDARIES
+  const currentEditPerm = checkEditPermission(workspaceRole, settings);
+  const currentPubRoleOk = evaluatePublishGovernancePolicy(
+    'rule',
+    rules[0] ?? ({ id: 'tmp', name: 'tmp', testCases: [], versionHistory: [] } as unknown as RuleSpec),
+    'staging',
+    workspaceRole,
+    settings
+  );
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <ShieldCheck className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
-          <span>SOPIN Decisions Governance &amp; Safety Policies</span>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <ShieldCheck className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+            <span>SOPIN Decisions Governance &amp; Safety Policies</span>
+          </div>
+          <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+            Active Role: {workspaceRole} ({currentEditPerm.allowed ? 'Can Edit' : 'Read-Only'})
+          </span>
         </div>
 
         {(
           [
             {
               key: 'requireTestPassBeforePublish' as const,
-              label: 'Require Regression Tests Before Publish Gate',
-              desc: 'Warn/block promoting a rule to Production when golden test assertions fail.',
+              label: 'Require Fresh Regression Tests Before Publish Gate',
+              desc: 'Blocks publishing if tests are missing, failing, or stale against edited draft specs.',
             },
             {
               key: 'requireControlApprovalForProd' as const,
               label: 'Require SOPIN Control Approval for Production Promotion',
-              desc: 'Separate author role from publisher role; AI agents cannot bypass Control.',
+              desc: 'Requires explicit local Control review sign-off checkbox before production publish/promote.',
             },
             {
               key: 'strictInputSchemaValidation' as const,
               label: 'Strict Input Schema Validation',
-              desc: 'Reject malformed payloads cleanly with deterministic validation diagnostics.',
+              desc: 'Rejects malformed or missing required payloads cleanly with deterministic diagnostics.',
             },
             {
               key: 'restrictExpressionsToSafeSubset' as const,
               label: 'Restricted Expression Sandbox Mode',
-              desc: 'Allow only pure deterministic arithmetic/comparison ASTs (future backend: CEL).',
+              desc: 'Allows only pure deterministic arithmetic/comparison ASTs (zero eval/Function).',
             },
           ] as const
         ).map((item) => {
@@ -708,15 +1235,21 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
             </select>
           </div>
         </div>
+
+        {currentPubRoleOk.reasons.some((r) => r.includes('Publish Authority')) && (
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200 font-mono">
+            Active role "{workspaceRole}" currently cannot publish under "{settings.allowedPublishersRole}" policy.
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-2 text-xs">
         <div className="font-mono text-[#B894FF] flex items-center gap-1.5">
           <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Prototype Runtime vs Planned Backend Architecture</span>
+          <span>Local Prototype Simulation vs Planned Backend Architecture</span>
         </div>
         <p className="text-[#C5C5D6] leading-relaxed">
-          Currently running with TypeScript deterministic local rule evaluation and persisted browser workspace state. Target production backend architecture: Python FastAPI + Pydantic v2 validation + PostgreSQL immutable version store + CEL restricted evaluator + Temporal workflow workers + OpenTelemetry traces.
+          Running TypeScript deterministic local rule evaluation, synchronous canonical SHA-256 snapshot verification, local governance policy simulation, and browser workspace persistence. Attribution labels (publishedBy / approvedBy) represent local prototype placeholders until server-side identity, RBAC, PostgreSQL immutable version storage, CEL sandbox, and Temporal workers are connected.
         </p>
       </div>
     </div>

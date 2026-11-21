@@ -1,50 +1,179 @@
 import {
+  DecisionArtifactSpec,
+  DecisionArtifactStatus,
+  DecisionArtifactType,
   DecisionEnvironment,
+  DecisionReviewApproval,
   DecisionTableSpec,
   DecisionVersionSnapshot,
+  RuleChainSpec,
   RuleSpec,
   RulesetSpec,
+  ScorecardSpec,
 } from '../types';
-import { computeDeterministicHash } from './executionTrace';
+import {
+  canonicalSerialize,
+  computeCanonicalSpecHash,
+  verifySnapshotIntegrity,
+} from './executionTrace';
 import { isPlainObject, resolveInputField } from './operators';
+
+export function extractVersionableSpecBody(
+  type: DecisionArtifactType,
+  spec: DecisionArtifactSpec
+): Record<string, unknown> {
+  if (type === 'rule') {
+    const r = spec as RuleSpec;
+    return {
+      inputSchema: r.inputSchema,
+      conditionRoot: r.conditionRoot,
+      thenOutputs: r.thenOutputs,
+      elseOutputs: r.elseOutputs,
+      priority: r.priority,
+      executionConfig: r.executionConfig,
+    };
+  }
+  if (type === 'table') {
+    const t = spec as DecisionTableSpec;
+    return {
+      hitPolicy: t.hitPolicy,
+      inputColumns: t.inputColumns,
+      outputColumns: t.outputColumns,
+      rows: t.rows,
+      defaultOutput: t.defaultOutput,
+    };
+  }
+  if (type === 'ruleset') {
+    const rs = spec as RulesetSpec;
+    return {
+      executionOrder: rs.executionOrder,
+      conflictResolution: rs.conflictResolution,
+      stopOnMatch: rs.stopOnMatch ?? false,
+      defaultOutput: rs.defaultOutput ?? {},
+      members: rs.members,
+    };
+  }
+  if (type === 'chain') {
+    const c = spec as RuleChainSpec;
+    return {
+      stages: c.stages,
+      terminalOutcomes: c.terminalOutcomes ?? [],
+    };
+  }
+  const sc = spec as ScorecardSpec;
+  return {
+    baseScore: sc.baseScore,
+    criteria: sc.criteria,
+    thresholds: sc.thresholds,
+  };
+}
+
+export function computeArtifactSpecHash(
+  type: DecisionArtifactType,
+  spec: DecisionArtifactSpec
+): string {
+  return computeCanonicalSpecHash(extractVersionableSpecBody(type, spec));
+}
+
+function nextSemanticVersion(currentVersion: string, explicitVersion?: string): string {
+  if (explicitVersion) return explicitVersion;
+  const numericCurrent = Number(currentVersion.replace(/[^0-9.]/g, '')) || 0.0;
+  return `v${(numericCurrent + 0.1).toFixed(1)}`;
+}
+
+function buildSnapshotObject(
+  type: DecisionArtifactType,
+  spec: DecisionArtifactSpec,
+  environment: DecisionEnvironment,
+  summary: string,
+  publishedBy: string,
+  nextVer: string,
+  targetStatus: DecisionArtifactStatus,
+  reviewApproval?: DecisionReviewApproval
+): DecisionVersionSnapshot {
+  const specBody = extractVersionableSpecBody(type, spec);
+  const serializedSpec = canonicalSerialize(specBody);
+  const snapshotHash = computeCanonicalSpecHash(specBody);
+  const cleanSummary = summary.trim() || `Published immutable ${type} snapshot ${nextVer}.`;
+  return {
+    version: nextVer,
+    publishedAt: 'Just now',
+    publishedBy,
+    environment,
+    summary: cleanSummary,
+    releaseNotes: cleanSummary,
+    status: targetStatus,
+    lifecycleState: targetStatus,
+    snapshotHash,
+    canonicalAlgorithm: 'canonical-json-sha256',
+    serializedSpec,
+    reviewApproval,
+    attributionPlaceholder: {
+      authorLabel: `${publishedBy} (Local Prototype Author)`,
+      publisherLabel: `${publishedBy} (Local Policy Actor)`,
+      reviewerLabel: reviewApproval?.reviewerLabel,
+      prototypeNote: 'Local prototype attribution placeholder (no server identity backend).',
+    },
+  };
+}
+
+export function buildPublishedArtifactVersion<T extends DecisionArtifactSpec>(
+  type: DecisionArtifactType,
+  spec: T,
+  environment: DecisionEnvironment,
+  summary: string,
+  publishedBy = 'Workspace Maintainer',
+  explicitVersion?: string,
+  reviewApproval?: DecisionReviewApproval
+): T {
+  const nextVer = nextSemanticVersion(spec.version, explicitVersion);
+  const targetStatus: DecisionArtifactStatus =
+    environment === 'production' && spec.status === 'Published' ? 'Promoted' : 'Published';
+  const snapshot = buildSnapshotObject(
+    type,
+    spec,
+    environment,
+    summary,
+    publishedBy,
+    nextVer,
+    environment === 'production' && reviewApproval?.approved ? 'Promoted' : 'Published',
+    reviewApproval
+  );
+
+  // Preserve prior immutable snapshots untouched; deduplicate version tag only if exact same version doesn't exist
+  const existingHistory = Array.isArray(spec.versionHistory) ? spec.versionHistory : [];
+  const nextHistory = existingHistory.some((h) => h.version === nextVer)
+    ? existingHistory
+    : [snapshot, ...existingHistory];
+
+  return {
+    ...spec,
+    version: nextVer,
+    environment,
+    status: snapshot.status ?? targetStatus,
+    reviewApproval: reviewApproval ?? spec.reviewApproval,
+    versionHistory: nextHistory,
+    updatedAt: 'Just now',
+  };
+}
 
 export function buildPublishedRuleVersion(
   rule: RuleSpec,
   environment: DecisionEnvironment,
   summary: string,
   publishedBy = 'Workspace Maintainer',
-  explicitVersion?: string
+  explicitVersion?: string,
+  reviewApproval?: DecisionReviewApproval
 ): RuleSpec {
-  const numericCurrent = Number(rule.version.replace(/[^0-9.]/g, '')) || 0.0;
-  const nextVer = explicitVersion || `v${(numericCurrent + 0.1).toFixed(1)}`;
-  const specBody = {
-    inputSchema: rule.inputSchema,
-    conditionRoot: rule.conditionRoot,
-    thenOutputs: rule.thenOutputs,
-    elseOutputs: rule.elseOutputs,
-    priority: rule.priority,
-    executionConfig: rule.executionConfig,
-  };
-  const serializedSpec = JSON.stringify(specBody);
-  const snapshot: DecisionVersionSnapshot = {
-    version: nextVer,
-    publishedAt: 'Just now',
+  return buildPublishedArtifactVersion(
+    'rule',
+    rule,
+    environment,
+    summary,
     publishedBy,
-    environment,
-    summary: summary.trim() || `Published immutable snapshot ${nextVer}.`,
-    status: 'Published',
-    snapshotHash: computeDeterministicHash(serializedSpec),
-    serializedSpec,
-  };
-
-  return {
-    ...rule,
-    version: nextVer,
-    environment,
-    status: 'Published',
-    versionHistory: [snapshot, ...rule.versionHistory],
-    updatedAt: 'Just now',
-  };
+    explicitVersion,
+    reviewApproval
+  );
 }
 
 export function buildPublishedTableVersion(
@@ -52,37 +181,18 @@ export function buildPublishedTableVersion(
   environment: DecisionEnvironment,
   summary: string,
   publishedBy = 'Workspace Maintainer',
-  explicitVersion?: string
+  explicitVersion?: string,
+  reviewApproval?: DecisionReviewApproval
 ): DecisionTableSpec {
-  const numericCurrent = Number(table.version.replace(/[^0-9.]/g, '')) || 0.0;
-  const nextVer = explicitVersion || `v${(numericCurrent + 0.1).toFixed(1)}`;
-  const specBody = {
-    hitPolicy: table.hitPolicy,
-    inputColumns: table.inputColumns,
-    outputColumns: table.outputColumns,
-    rows: table.rows,
-    defaultOutput: table.defaultOutput,
-  };
-  const serializedSpec = JSON.stringify(specBody);
-  const snapshot: DecisionVersionSnapshot = {
-    version: nextVer,
-    publishedAt: 'Just now',
+  return buildPublishedArtifactVersion(
+    'table',
+    table,
+    environment,
+    summary,
     publishedBy,
-    environment,
-    summary: summary.trim() || `Published immutable decision table snapshot ${nextVer}.`,
-    status: 'Published',
-    snapshotHash: computeDeterministicHash(serializedSpec),
-    serializedSpec,
-  };
-
-  return {
-    ...table,
-    version: nextVer,
-    environment,
-    status: 'Published',
-    versionHistory: [snapshot, ...table.versionHistory],
-    updatedAt: 'Just now',
-  };
+    explicitVersion,
+    reviewApproval
+  );
 }
 
 export function buildPublishedRulesetVersion(
@@ -90,173 +200,319 @@ export function buildPublishedRulesetVersion(
   environment: DecisionEnvironment,
   summary: string,
   publishedBy = 'Workspace Maintainer',
-  explicitVersion?: string
+  explicitVersion?: string,
+  reviewApproval?: DecisionReviewApproval
 ): RulesetSpec {
-  const numericCurrent = Number(ruleset.version.replace(/[^0-9.]/g, '')) || 0.0;
-  const nextVer = explicitVersion || `v${(numericCurrent + 0.1).toFixed(1)}`;
-  const specBody = {
-    executionOrder: ruleset.executionOrder,
-    conflictResolution: ruleset.conflictResolution,
-    stopOnMatch: ruleset.stopOnMatch,
-    defaultOutput: ruleset.defaultOutput,
-    members: ruleset.members,
-  };
-  const serializedSpec = JSON.stringify(specBody);
-  const snapshot: DecisionVersionSnapshot = {
-    version: nextVer,
-    publishedAt: 'Just now',
+  return buildPublishedArtifactVersion(
+    'ruleset',
+    ruleset,
+    environment,
+    summary,
     publishedBy,
-    environment,
-    summary: summary.trim() || `Published immutable ruleset snapshot ${nextVer}.`,
-    status: 'Published',
-    snapshotHash: computeDeterministicHash(serializedSpec),
-    serializedSpec,
-  };
+    explicitVersion,
+    reviewApproval
+  );
+}
 
-  return {
-    ...ruleset,
-    version: nextVer,
+export function buildPublishedChainVersion(
+  chain: RuleChainSpec,
+  environment: DecisionEnvironment,
+  summary: string,
+  publishedBy = 'Workspace Maintainer',
+  explicitVersion?: string,
+  reviewApproval?: DecisionReviewApproval
+): RuleChainSpec {
+  return buildPublishedArtifactVersion(
+    'chain',
+    chain,
     environment,
-    status: 'Published',
-    versionHistory: [snapshot, ...ruleset.versionHistory],
-    updatedAt: 'Just now',
-  };
+    summary,
+    publishedBy,
+    explicitVersion,
+    reviewApproval
+  );
+}
+
+export function buildPublishedScorecardVersion(
+  scorecard: ScorecardSpec,
+  environment: DecisionEnvironment,
+  summary: string,
+  publishedBy = 'Workspace Maintainer',
+  explicitVersion?: string,
+  reviewApproval?: DecisionReviewApproval
+): ScorecardSpec {
+  return buildPublishedArtifactVersion(
+    'scorecard',
+    scorecard,
+    environment,
+    summary,
+    publishedBy,
+    explicitVersion,
+    reviewApproval
+  );
+}
+
+const PUBLISHED_LIFECYCLE_SET = new Set<DecisionArtifactStatus>(['Published', 'Promoted']);
+
+export function isPublishedSnapshotStatus(status: DecisionArtifactStatus): boolean {
+  return PUBLISHED_LIFECYCLE_SET.has(status);
+}
+
+function hydrateFromSnapshot<T extends DecisionArtifactSpec>(
+  type: DecisionArtifactType,
+  base: T,
+  snap: DecisionVersionSnapshot
+): T | null {
+  try {
+    const parsed = JSON.parse(snap.serializedSpec);
+    if (!isPlainObject(parsed)) return null;
+
+    if (type === 'rule' && parsed.conditionRoot && Array.isArray(parsed.thenOutputs)) {
+      const r = base as RuleSpec;
+      return {
+        ...r,
+        version: snap.version,
+        environment: snap.environment,
+        status: snap.status,
+        inputSchema: Array.isArray(parsed.inputSchema) ? parsed.inputSchema : r.inputSchema,
+        conditionRoot: parsed.conditionRoot as RuleSpec['conditionRoot'],
+        thenOutputs: parsed.thenOutputs as RuleSpec['thenOutputs'],
+        elseOutputs: Array.isArray(parsed.elseOutputs) ? parsed.elseOutputs : r.elseOutputs,
+        priority: typeof parsed.priority === 'number' ? parsed.priority : r.priority,
+        executionConfig: isPlainObject(parsed.executionConfig)
+          ? (parsed.executionConfig as RuleSpec['executionConfig'])
+          : r.executionConfig,
+      } as T;
+    }
+
+    if (type === 'table' && Array.isArray(parsed.rows) && Array.isArray(parsed.inputColumns)) {
+      const t = base as DecisionTableSpec;
+      return {
+        ...t,
+        version: snap.version,
+        environment: snap.environment,
+        status: snap.status,
+        hitPolicy: (parsed.hitPolicy as DecisionTableSpec['hitPolicy']) ?? t.hitPolicy,
+        inputColumns: parsed.inputColumns as DecisionTableSpec['inputColumns'],
+        outputColumns: Array.isArray(parsed.outputColumns)
+          ? (parsed.outputColumns as DecisionTableSpec['outputColumns'])
+          : t.outputColumns,
+        rows: parsed.rows as DecisionTableSpec['rows'],
+        defaultOutput: isPlainObject(parsed.defaultOutput) ? parsed.defaultOutput : t.defaultOutput,
+      } as T;
+    }
+
+    if (type === 'ruleset' && Array.isArray(parsed.members)) {
+      const rs = base as RulesetSpec;
+      return {
+        ...rs,
+        version: snap.version,
+        environment: snap.environment,
+        status: snap.status,
+        executionOrder: (parsed.executionOrder as RulesetSpec['executionOrder']) ?? rs.executionOrder,
+        conflictResolution:
+          (parsed.conflictResolution as RulesetSpec['conflictResolution']) ?? rs.conflictResolution,
+        stopOnMatch: typeof parsed.stopOnMatch === 'boolean' ? parsed.stopOnMatch : rs.stopOnMatch,
+        defaultOutput: isPlainObject(parsed.defaultOutput) ? parsed.defaultOutput : rs.defaultOutput,
+        members: parsed.members as RulesetSpec['members'],
+      } as T;
+    }
+
+    if (type === 'chain' && Array.isArray(parsed.stages)) {
+      const c = base as RuleChainSpec;
+      return {
+        ...c,
+        version: snap.version,
+        environment: snap.environment,
+        status: snap.status,
+        stages: parsed.stages as RuleChainSpec['stages'],
+        terminalOutcomes: Array.isArray(parsed.terminalOutcomes)
+          ? (parsed.terminalOutcomes as string[])
+          : c.terminalOutcomes,
+      } as T;
+    }
+
+    if (type === 'scorecard' && Array.isArray(parsed.criteria) && Array.isArray(parsed.thresholds)) {
+      const sc = base as ScorecardSpec;
+      return {
+        ...sc,
+        version: snap.version,
+        environment: snap.environment,
+        status: snap.status,
+        baseScore: typeof parsed.baseScore === 'number' ? parsed.baseScore : sc.baseScore,
+        criteria: parsed.criteria as ScorecardSpec['criteria'],
+        thresholds: parsed.thresholds as ScorecardSpec['thresholds'],
+      } as T;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 /**
- * Resolves an immutable published RuleSpec snapshot when available so Draft edits
- * never silently alter production/workflow outcomes.
+ * Unified immutable snapshot resolver across all 5 SOPIN Decisions artifact types.
+ * Draft edits on the working copy never alter execution when resolving a published/pinned version.
  */
-export function resolvePublishedRuleSpec(
-  rule: RuleSpec,
+export function resolvePublishedArtifact<T extends DecisionArtifactSpec>(
+  type: DecisionArtifactType,
+  spec: T,
   targetVersion?: string
-): { resolved: RuleSpec | null; error?: string } {
+): { resolved: T | null; error?: string } {
+  const history = Array.isArray(spec.versionHistory) ? spec.versionHistory : [];
+
   if (targetVersion) {
-    const snap = rule.versionHistory.find((v) => v.version === targetVersion);
+    const snap = history.find((v) => v.version === targetVersion);
     if (snap) {
-      try {
-        const parsed = JSON.parse(snap.serializedSpec);
-        if (isPlainObject(parsed) && parsed.conditionRoot && Array.isArray(parsed.thenOutputs)) {
-          return {
-            resolved: {
-              ...rule,
-              version: snap.version,
-              environment: snap.environment,
-              status: snap.status,
-              inputSchema: Array.isArray(parsed.inputSchema) ? parsed.inputSchema : rule.inputSchema,
-              conditionRoot: parsed.conditionRoot as RuleSpec['conditionRoot'],
-              thenOutputs: parsed.thenOutputs as RuleSpec['thenOutputs'],
-              elseOutputs: Array.isArray(parsed.elseOutputs) ? parsed.elseOutputs : rule.elseOutputs,
-              priority: typeof parsed.priority === 'number' ? parsed.priority : rule.priority,
-              executionConfig: isPlainObject(parsed.executionConfig)
-                ? (parsed.executionConfig as RuleSpec['executionConfig'])
-                : rule.executionConfig,
-            },
-          };
-        }
-      } catch {
-        // Fallback to direct version check below
+      const integrity = verifySnapshotIntegrity(snap);
+      if (!integrity.valid) {
+        return {
+          resolved: null,
+          error: `Integrity check failed for ${type} "${spec.name}" ${targetVersion}: ${integrity.reason}`,
+        };
       }
-      if (rule.version === targetVersion && rule.status === 'Published') {
-        return { resolved: rule };
+      const hydrated = hydrateFromSnapshot(type, spec, snap);
+      if (hydrated) return { resolved: hydrated };
+      if (spec.version === targetVersion && isPublishedSnapshotStatus(spec.status)) {
+        return { resolved: spec };
       }
       return {
         resolved: null,
-        error: `Snapshot "${targetVersion}" for rule "${rule.name}" does not contain a full serialized rule body.`,
+        error: `Snapshot "${targetVersion}" for ${type} "${spec.name}" does not contain a full serialized body.`,
       };
     }
-    if (rule.version === targetVersion && rule.status === 'Published') {
-      return { resolved: rule };
+    if (spec.version === targetVersion && isPublishedSnapshotStatus(spec.status)) {
+      return { resolved: spec };
     }
     return {
       resolved: null,
-      error: `Published version "${targetVersion}" not found for rule "${rule.name}".`,
+      error: `Published version "${targetVersion}" not found for ${type} "${spec.name}".`,
     };
   }
 
-  const latestPublishedSnap = rule.versionHistory.find((v) => v.status === 'Published');
+  const latestPublishedSnap = history.find((v) => isPublishedSnapshotStatus(v.status));
   if (latestPublishedSnap) {
-    try {
-      const parsed = JSON.parse(latestPublishedSnap.serializedSpec);
-      if (isPlainObject(parsed) && parsed.conditionRoot && Array.isArray(parsed.thenOutputs)) {
-        return resolvePublishedRuleSpec(rule, latestPublishedSnap.version);
-      }
-    } catch {
-      // ignore partial seed summary snapshot
+    const integrity = verifySnapshotIntegrity(latestPublishedSnap);
+    if (!integrity.valid) {
+      return {
+        resolved: null,
+        error: `Integrity check failed for ${type} "${spec.name}" ${latestPublishedSnap.version}: ${integrity.reason}`,
+      };
     }
+    const hydrated = hydrateFromSnapshot(type, spec, latestPublishedSnap);
+    if (hydrated) return { resolved: hydrated };
   }
 
-  if (rule.status === 'Published') {
-    return { resolved: rule };
+  if (isPublishedSnapshotStatus(spec.status)) {
+    return { resolved: spec };
   }
 
   return {
     resolved: null,
-    error: `Rule "${rule.name}" has no published immutable version (current status: ${rule.status}).`,
+    error: `${type} "${spec.name}" has no published immutable version (current status: ${spec.status}).`,
   };
+}
+
+export function resolvePublishedRuleSpec(
+  rule: RuleSpec,
+  targetVersion?: string
+): { resolved: RuleSpec | null; error?: string } {
+  return resolvePublishedArtifact('rule', rule, targetVersion);
 }
 
 export function resolvePublishedTableSpec(
   table: DecisionTableSpec,
   targetVersion?: string
 ): { resolved: DecisionTableSpec | null; error?: string } {
-  if (targetVersion) {
-    const snap = table.versionHistory.find((v) => v.version === targetVersion);
-    if (snap) {
-      try {
-        const parsed = JSON.parse(snap.serializedSpec);
-        if (isPlainObject(parsed) && Array.isArray(parsed.rows) && Array.isArray(parsed.inputColumns)) {
-          return {
-            resolved: {
-              ...table,
-              version: snap.version,
-              environment: snap.environment,
-              status: snap.status,
-              hitPolicy: (parsed.hitPolicy as DecisionTableSpec['hitPolicy']) ?? table.hitPolicy,
-              inputColumns: parsed.inputColumns as DecisionTableSpec['inputColumns'],
-              outputColumns: Array.isArray(parsed.outputColumns)
-                ? (parsed.outputColumns as DecisionTableSpec['outputColumns'])
-                : table.outputColumns,
-              rows: parsed.rows as DecisionTableSpec['rows'],
-              defaultOutput: isPlainObject(parsed.defaultOutput) ? parsed.defaultOutput : table.defaultOutput,
-            },
-          };
-        }
-      } catch {
-        // Fallback below
-      }
-      if (table.version === targetVersion && table.status === 'Published') {
-        return { resolved: table };
-      }
-    }
-    if (table.version === targetVersion && table.status === 'Published') {
-      return { resolved: table };
-    }
+  return resolvePublishedArtifact('table', table, targetVersion);
+}
+
+/**
+ * Restores full serialized specification fields from an immutable snapshot rather than
+ * merely overwriting version metadata. Preserves full versionHistory immutability.
+ */
+export function rollbackArtifactToSnapshot<T extends DecisionArtifactSpec>(
+  type: DecisionArtifactType,
+  currentSpec: T,
+  targetVersion: string,
+  actorLabel = 'Workspace Maintainer'
+): { rolledBack: T | null; error?: string } {
+  const history = Array.isArray(currentSpec.versionHistory) ? currentSpec.versionHistory : [];
+  const snap = history.find((s) => s.version === targetVersion);
+  if (!snap) {
+    return { rolledBack: null, error: `Snapshot "${targetVersion}" not found.` };
+  }
+  const integrity = verifySnapshotIntegrity(snap);
+  if (!integrity.valid) {
+    return { rolledBack: null, error: `Cannot rollback to corrupted snapshot ${targetVersion}: ${integrity.reason}` };
+  }
+  const hydrated = hydrateFromSnapshot(type, currentSpec, snap);
+  if (!hydrated) {
     return {
-      resolved: null,
-      error: `Published version "${targetVersion}" not found for decision table "${table.name}".`,
+      rolledBack: null,
+      error: `Snapshot "${targetVersion}" is a partial seed metadata record without a full serialized spec body.`,
     };
   }
 
-  const latestPublishedSnap = table.versionHistory.find((v) => v.status === 'Published');
-  if (latestPublishedSnap) {
-    try {
-      const parsed = JSON.parse(latestPublishedSnap.serializedSpec);
-      if (isPlainObject(parsed) && Array.isArray(parsed.rows)) {
-        return resolvePublishedTableSpec(table, latestPublishedSnap.version);
-      }
-    } catch {
-      // ignore partial summary
+  return {
+    rolledBack: {
+      ...hydrated,
+      version: snap.version,
+      environment: snap.environment,
+      status: snap.status === 'Archived' ? 'Published' : snap.status,
+      updatedAt: `Restored from ${snap.version} by ${actorLabel}`,
+      versionHistory: currentSpec.versionHistory,
+    },
+  };
+}
+
+export interface SnapshotDiffEntry {
+  key: string;
+  before: string;
+  after: string;
+}
+
+export function compareVersionSnapshots(
+  older: DecisionVersionSnapshot,
+  newer: DecisionVersionSnapshot
+): {
+  identical: boolean;
+  olderHash: string;
+  newerHash: string;
+  changes: SnapshotDiffEntry[];
+} {
+  let objA: Record<string, unknown> = {};
+  let objB: Record<string, unknown> = {};
+  try {
+    objA = JSON.parse(older.serializedSpec) as Record<string, unknown>;
+  } catch {
+    objA = { raw: older.serializedSpec };
+  }
+  try {
+    objB = JSON.parse(newer.serializedSpec) as Record<string, unknown>;
+  } catch {
+    objB = { raw: newer.serializedSpec };
+  }
+
+  const allKeys = Array.from(new Set([...Object.keys(objA), ...Object.keys(objB)])).sort();
+  const changes: SnapshotDiffEntry[] = [];
+  for (const key of allKeys) {
+    const serA = canonicalSerialize(objA[key]);
+    const serB = canonicalSerialize(objB[key]);
+    if (serA !== serB) {
+      changes.push({
+        key,
+        before: JSON.stringify(objA[key], null, 2) ?? 'undefined',
+        after: JSON.stringify(objB[key], null, 2) ?? 'undefined',
+      });
     }
   }
 
-  if (table.status === 'Published') {
-    return { resolved: table };
-  }
-
   return {
-    resolved: null,
-    error: `Decision table "${table.name}" has no published immutable version (current status: ${table.status}).`,
+    identical: changes.length === 0,
+    olderHash: older.snapshotHash,
+    newerHash: newer.snapshotHash,
+    changes,
   };
 }
 

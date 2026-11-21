@@ -9,6 +9,7 @@ import {
 import { buildInputSummary, nextExecutionId } from './executionTrace';
 import { evaluateDecisionTableSpec } from './decisionTableEvaluator';
 import { evaluateRuleSpec } from './ruleEvaluator';
+import { validateRulesetSpec } from './validators';
 
 export function evaluateRulesetSpec(
   ruleset: RulesetSpec,
@@ -19,9 +20,9 @@ export function evaluateRulesetSpec(
 ): DecisionExecutionSpec {
   const started = performance.now();
   const inputSummary = buildInputSummary(input && typeof input === 'object' ? input : {});
-  const enabledMembers = ruleset.members.filter((m) => m.enabled);
-
-  if (enabledMembers.length === 0) {
+  const specCheck = validateRulesetSpec(ruleset, { rules, tables });
+  if (!specCheck.valid) {
+    const isEmpty = ruleset.members.filter((m) => m.enabled).length === 0;
     return {
       id: nextExecutionId('exec'),
       workspaceId: ruleset.workspaceId,
@@ -37,25 +38,24 @@ export function evaluateRulesetSpec(
       matchedConditions: [],
       matchedRules: [],
       matchedTableRows: [],
-      executionTrace: [
-        {
-          stepIndex: 1,
-          phase: 'error',
-          label: 'Empty Ruleset',
-          detail: `Ruleset "${ruleset.name}" has no enabled members.`,
-          passed: false,
-        },
-      ],
+      executionTrace: specCheck.errors.map((err, i) => ({
+        stepIndex: i + 1,
+        phase: 'error',
+        label: isEmpty ? 'Empty Ruleset' : 'Invalid Ruleset Config',
+        detail: err,
+        passed: false,
+      })),
       finalOutput: ruleset.defaultOutput ?? {},
-      explanation: `Ruleset "${ruleset.name}" has no enabled members.`,
+      explanation: `Ruleset "${ruleset.name}" rejected: ${specCheck.errors.join(' ')}`,
       status: 'Error',
-      errorCode: 'EMPTY_RULESET',
-      validationErrors: [`Ruleset "${ruleset.name}" has 0 enabled members.`],
+      errorCode: isEmpty ? 'EMPTY_RULESET' : 'INVALID_RULESET_SPEC',
+      validationErrors: specCheck.errors,
       durationMs: Math.max(0.1, Math.round((performance.now() - started) * 100) / 100),
       executedAt: 'Just now',
     };
   }
 
+  const enabledMembers = ruleset.members.filter((m) => m.enabled);
   const ordered =
     ruleset.executionOrder === 'priority-asc'
       ? [...enabledMembers].sort((a, b) => a.priority - b.priority)
@@ -82,14 +82,40 @@ export function evaluateRulesetSpec(
     }
 
     if (!subExec) {
-      traceSteps.push({
-        stepIndex: traceSteps.length + 1,
-        phase: 'error',
-        label: `Missing member ${member.targetType}:${member.targetId}`,
-        detail: `Referenced target "${member.targetId}" not found.`,
-        passed: false,
-      });
-      continue;
+      const missingErr = `Referenced member ${member.targetType}:${member.targetId} not found.`;
+      return {
+        id: nextExecutionId('exec'),
+        workspaceId: ruleset.workspaceId,
+        artifactType: 'ruleset',
+        artifactId: ruleset.id,
+        artifactName: ruleset.name,
+        versionUsed: ruleset.version,
+        environment: ruleset.environment,
+        sourceTrigger,
+        inputPayload: input,
+        inputSummary,
+        evaluatedConditions: traces,
+        matchedConditions: traces.filter((t) => t.passed),
+        matchedRules,
+        matchedTableRows: matchedRows,
+        executionTrace: [
+          ...traceSteps,
+          {
+            stepIndex: traceSteps.length + 1,
+            phase: 'error',
+            label: `Missing member ${member.targetType}:${member.targetId}`,
+            detail: missingErr,
+            passed: false,
+          },
+        ],
+        finalOutput: {},
+        explanation: missingErr,
+        status: 'Error',
+        errorCode: 'MISSING_RULESET_MEMBER',
+        validationErrors: [missingErr],
+        durationMs: Math.max(0.1, Math.round((performance.now() - started) * 100) / 100),
+        executedAt: 'Just now',
+      };
     }
 
     traces.push(...subExec.evaluatedConditions);

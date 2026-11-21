@@ -1,6 +1,15 @@
-export type DecisionArtifactStatus = 'Draft' | 'Tested' | 'Published' | 'Archived';
+export type DecisionArtifactStatus =
+  | 'Draft'
+  | 'Validated'
+  | 'Tested'
+  | 'Review'
+  | 'Published'
+  | 'Promoted'
+  | 'Archived';
+
 export type DecisionEnvironment = 'development' | 'staging' | 'production';
 export type DecisionArtifactType = 'rule' | 'table' | 'ruleset' | 'chain' | 'scorecard';
+export type ValidationLevel = 'draft' | 'test-readiness' | 'publication' | 'production-promotion';
 
 export type DecisionSectionId =
   | 'overview'
@@ -60,6 +69,7 @@ export interface DecisionPredicateNode {
   valueEnd?: string;
   expression?: string;
   reusableLabel?: string;
+  caseSensitive?: boolean;
 }
 
 export interface DecisionGroupNode {
@@ -77,18 +87,41 @@ export interface DecisionActionOutput {
   type: 'string' | 'number' | 'boolean' | 'expression';
 }
 
+export interface DecisionTestRunRecord {
+  runId: string;
+  runAt: string;
+  passed: boolean;
+  actualStatus: 'Matched' | 'Fallback' | 'Error';
+  actualOutput: Record<string, unknown>;
+  testedVersion: string;
+  testedSpecHash: string;
+  diffNotes: string[];
+}
+
 export interface DecisionTestCase {
   id: string;
   name: string;
   inputJson: Record<string, unknown>;
   expectedOutput: Record<string, unknown>;
   expectedStatus?: 'Matched' | 'Fallback' | 'Error';
+  isBoundaryOrNegative?: boolean;
   lastActualOutput?: Record<string, unknown>;
   lastActualStatus?: 'Matched' | 'Fallback' | 'Error';
   lastPassed?: boolean;
   failedConditions?: string[];
   diffNotes?: string[];
   lastRunAt?: string;
+  testedVersion?: string;
+  testedSpecHash?: string;
+  runHistory?: DecisionTestRunRecord[];
+}
+
+export interface DecisionReviewApproval {
+  approved: boolean;
+  reviewerLabel: string;
+  approvedAt: string;
+  note?: string;
+  controlRequired?: boolean;
 }
 
 export interface DecisionVersionSnapshot {
@@ -97,9 +130,19 @@ export interface DecisionVersionSnapshot {
   publishedBy: string;
   environment: DecisionEnvironment;
   summary: string;
+  releaseNotes?: string;
   status: DecisionArtifactStatus;
+  lifecycleState?: DecisionArtifactStatus;
   snapshotHash: string;
+  canonicalAlgorithm?: 'canonical-json-sha256' | 'legacy-seed';
   serializedSpec: string;
+  reviewApproval?: DecisionReviewApproval;
+  attributionPlaceholder?: {
+    authorLabel: string;
+    publisherLabel: string;
+    reviewerLabel?: string;
+    prototypeNote: string;
+  };
 }
 
 /**
@@ -123,22 +166,25 @@ export interface RuleSpec {
     stopOnMatch: boolean;
     strictInputValidation: boolean;
     expressionMode: 'restricted-safe-evaluator';
+    caseSensitiveStrings?: boolean;
   };
   version: string;
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
+  reviewApproval?: DecisionReviewApproval;
   testCases: DecisionTestCase[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
 }
 
-export type HitPolicy = 'first-match' | 'priority' | 'collect-all' | 'unique';
+export type HitPolicy = 'first-match' | 'priority' | 'collect-all' | 'unique' | 'any';
 
 export interface DecisionTableColumn {
   id: string;
   field: string;
   label: string;
   type: DecisionFieldType;
+  required?: boolean;
 }
 
 export interface DecisionTableRow {
@@ -168,6 +214,7 @@ export interface DecisionTableSpec {
   version: string;
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
+  reviewApproval?: DecisionReviewApproval;
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
 }
@@ -198,6 +245,7 @@ export interface RulesetSpec {
   version: string;
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
+  reviewApproval?: DecisionReviewApproval;
   testCases: DecisionTestCase[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
@@ -232,7 +280,9 @@ export interface RuleChainSpec {
   version: string;
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
-  versionHistory?: DecisionVersionSnapshot[];
+  reviewApproval?: DecisionReviewApproval;
+  testCases: DecisionTestCase[];
+  versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
 }
 
@@ -240,8 +290,10 @@ export interface ScorecardCriterion {
   id: string;
   label: string;
   field: string;
+  fieldType?: DecisionFieldType;
   operator: ConditionOperator;
   value: string;
+  valueEnd?: string;
   weight: number;
   pointsIfMatched: number;
   pointsIfMissed: number;
@@ -271,7 +323,40 @@ export interface ScorecardSpec {
   version: string;
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
+  reviewApproval?: DecisionReviewApproval;
+  testCases: DecisionTestCase[];
+  versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
+}
+
+export type DecisionArtifactSpec =
+  | RuleSpec
+  | DecisionTableSpec
+  | RulesetSpec
+  | RuleChainSpec
+  | ScorecardSpec;
+
+export interface ArtifactValidationIssue {
+  code: string;
+  severity: 'error' | 'warning';
+  message: string;
+  artifactId: string;
+  field?: string;
+  rowId?: string;
+  columnField?: string;
+  nodeId?: string;
+  suggestedCorrection?: string;
+}
+
+export interface ArtifactValidationResult {
+  isValid: boolean;
+  valid: boolean;
+  level: ValidationLevel;
+  errors: ArtifactValidationIssue[];
+  warnings: ArtifactValidationIssue[];
+  affectedArtifactIds: string[];
+  affectedFields: string[];
+  suggestedCorrections: string[];
 }
 
 export interface ConditionEvalTrace {
@@ -280,6 +365,7 @@ export interface ConditionEvalTrace {
   passed: boolean;
   actualValue: string;
   expectedSpec: string;
+  explanation?: string;
 }
 
 export interface ScoreCriterionTrace {

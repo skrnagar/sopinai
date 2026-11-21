@@ -1,23 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Play, Plus, Save, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  AlertTriangle,
+  CheckCircle2,
+  Lock,
+  Play,
+  Plus,
+  Save,
+  ShieldCheck,
+  Trash2,
+} from 'lucide-react';
+import {
+  DecisionEnvironment,
   DecisionExecutionSpec,
+  DecisionSettings,
   DecisionTableRow,
   DecisionTableSpec,
   HitPolicy,
 } from '../types';
 import {
   buildPublishedTableVersion,
+  canonicalSerialize,
+  checkEditPermission,
+  checkTestEvidenceFreshness,
   evaluateDecisionTableSpec,
+  evaluatePublishGovernancePolicy,
+  extractVersionableSpecBody,
+  validateDecisionTableArtifact,
   validateDecisionTableSpec,
 } from '../evaluator';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
+import { HighlightedCode } from '../../components/ui/HighlightedCode';
 
 interface DecisionTableEditorProps {
   workspaceId: string;
+  workspaceRole?: string;
   tables: DecisionTableSpec[];
   selectedTableId?: string;
+  settings?: DecisionSettings;
   onSaveTable: (table: DecisionTableSpec, note?: string) => void;
   onRecordExecution: (exec: DecisionExecutionSpec) => void;
 }
@@ -68,11 +88,22 @@ function createEmptyTable(workspaceId: string): DecisionTableSpec {
 
 export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
   workspaceId,
+  workspaceRole = 'Workspace Maintainer',
   tables,
   selectedTableId,
+  settings,
   onSaveTable,
   onRecordExecution,
 }) => {
+  const effectiveSettings: DecisionSettings = settings ?? {
+    requireTestPassBeforePublish: true,
+    requireControlApprovalForProd: true,
+    strictInputSchemaValidation: true,
+    restrictExpressionsToSafeSubset: true,
+    allowedEditorsRole: 'Builders & Maintainers',
+    allowedPublishersRole: 'Workspace Maintainer',
+  };
+
   const [table, setTable] = useState<DecisionTableSpec>(() => {
     const found = tables.find((t) => t.id === selectedTableId) ?? tables[0];
     return found ? structuredClone(found) : createEmptyTable(workspaceId);
@@ -95,6 +126,49 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
   const [parseErr, setParseErr] = useState('');
   const [notice, setNotice] = useState('');
   const [editingRow, setEditingRow] = useState<DecisionTableRow | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishEnv, setPublishEnv] = useState<DecisionEnvironment>('production');
+  const [publishSummary, setPublishSummary] = useState('Verified decision table hit policy, thresholds, and fallback defaults.');
+  const [controlApprovalChecked, setControlApprovalChecked] = useState(false);
+
+  const editPermission = useMemo(
+    () => checkEditPermission(workspaceRole, effectiveSettings),
+    [workspaceRole, effectiveSettings]
+  );
+
+  const liveValidation = useMemo(
+    () => validateDecisionTableArtifact(table, 'publication'),
+    [table]
+  );
+
+  const testEvidence = useMemo(
+    () => checkTestEvidenceFreshness('table', table),
+    [table]
+  );
+
+  const publishPolicy = useMemo(
+    () =>
+      evaluatePublishGovernancePolicy(
+        'table',
+        table,
+        publishEnv,
+        workspaceRole,
+        effectiveSettings,
+        {},
+        controlApprovalChecked
+      ),
+    [table, publishEnv, workspaceRole, effectiveSettings, controlApprovalChecked]
+  );
+
+  const isDirty = useMemo(() => {
+    const saved = tables.find((t) => t.id === table.id);
+    if (!saved) return true;
+    return (
+      canonicalSerialize(extractVersionableSpecBody('table', table)) !==
+        canonicalSerialize(extractVersionableSpecBody('table', saved)) ||
+      table.name !== saved.name
+    );
+  }, [table, tables]);
 
   useEffect(() => {
     if (!selectedTableId) return;
@@ -173,30 +247,57 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
     }
   };
 
-  const handleSave = (publish: boolean) => {
-    const check = validateDecisionTableSpec(table);
-    if (!check.valid) {
-      setNotice(`Cannot ${publish ? 'publish' : 'save'} ambiguous table: ${check.errors.join(' ')}`);
+  const handleSaveDraft = (targetStatus: 'Draft' | 'Review' = 'Draft') => {
+    if (!editPermission.allowed) {
+      setNotice(editPermission.reasons[0] || 'Role cannot edit decision tables under governance policy.');
       return;
     }
-    const next = publish
-      ? buildPublishedTableVersion(table, 'production', `Published Decision Table snapshot`)
-      : {
-          ...table,
-          version:
-            table.status === 'Published' && !table.version.includes('-draft')
-              ? `${table.version}-draft`
-              : table.version,
-          status: 'Draft' as const,
-          updatedAt: 'Just now',
-        };
+    const check = validateDecisionTableSpec(table);
+    if (!check.valid) {
+      setNotice(`Cannot save ambiguous table: ${check.errors.join(' ')}`);
+      return;
+    }
+    const nextVersion =
+      (table.status === 'Published' || table.status === 'Promoted') && !table.version.includes('-draft')
+        ? `${table.version}-draft`
+        : table.version;
+    const next: DecisionTableSpec = {
+      ...table,
+      version: nextVersion,
+      status: targetStatus,
+      updatedAt: 'Just now',
+    };
     setTable(next);
-    onSaveTable(next, publish ? `Published Table ${next.version}` : `Saved Table Draft ${next.version}`);
-    setNotice(
-      publish
-        ? `Published immutable Decision Table ${next.version}.`
-        : `Saved Decision Table Draft (${next.version}) locally.`
+    onSaveTable(next, `Saved Table ${targetStatus} (${next.version})`);
+    setNotice(`Saved Decision Table ${targetStatus} (${next.version}) locally; published snapshots remain immutable.`);
+  };
+
+  const handlePublishConfirm = () => {
+    if (!publishPolicy.allowed) {
+      setNotice(`Publish blocked: ${publishPolicy.reasons.join(' ')}`);
+      return;
+    }
+    const next = buildPublishedTableVersion(
+      table,
+      publishEnv,
+      publishSummary.trim() || 'Published Decision Table snapshot',
+      `${workspaceRole} (Local Prototype)`,
+      undefined,
+      publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd
+        ? {
+            approved: controlApprovalChecked,
+            reviewerLabel: `${workspaceRole} (Local Gate)`,
+            approvedAt: 'Just now',
+            note: publishSummary.trim(),
+            controlRequired: true,
+          }
+        : undefined
     );
+    setTable(next);
+    onSaveTable(next, `Published Table ${next.version} to ${publishEnv}`);
+    setPublishOpen(false);
+    setControlApprovalChecked(false);
+    setNotice(`Published immutable Decision Table ${next.version} (${publishEnv}).`);
   };
 
   return (
@@ -253,11 +354,66 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
         </div>
       )}
 
+      {/* Validation & Lifecycle Banner */}
+      {(!editPermission.allowed ||
+        liveValidation.errors.length > 0 ||
+        liveValidation.warnings.length > 0 ||
+        isDirty) && (
+        <div
+          className={`rounded-2xl border p-3.5 text-xs space-y-1.5 ${
+            !editPermission.allowed || liveValidation.errors.length > 0
+              ? 'border-red-500/40 bg-red-500/[0.06] text-red-800 dark:text-red-200'
+              : 'border-amber-500/35 bg-amber-500/[0.08] text-amber-900 dark:text-amber-100'
+          }`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 font-semibold">
+            <span className="inline-flex items-center gap-1.5">
+              {!editPermission.allowed ? (
+                <Lock className="w-4 h-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />
+              )}
+              <span>
+                {!editPermission.allowed
+                  ? 'Read-Only Governance Policy'
+                  : liveValidation.errors.length > 0
+                  ? `${liveValidation.errors.length} Table Validation Error(s)`
+                  : `${liveValidation.warnings.length} Table Warning(s)`}
+              </span>
+            </span>
+            {isDirty && (
+              <span className="font-mono text-[11px] uppercase">Unsaved Draft Edits</span>
+            )}
+          </div>
+          {!editPermission.allowed && (
+            <div className="font-mono text-[11px]">• {editPermission.reasons[0]}</div>
+          )}
+          {liveValidation.errors.slice(0, 4).map((err, i) => (
+            <div key={`terr-${i}`} className="font-mono text-[11px]">
+              • {err.message}
+            </div>
+          ))}
+          {liveValidation.warnings.slice(0, 2).map((w, i) => (
+            <div key={`twarn-${i}`} className="font-mono text-[11px] opacity-90">
+              • Warning: {w.message}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Header & Hit Policy Configuration */}
       <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <StatusText
-            items={[table.version, table.status, `Hit Policy: ${table.hitPolicy}`, table.isDemoData ? 'Demo Seed' : 'Custom']}
+            items={[
+              table.version,
+              table.status,
+              `Hit Policy: ${table.hitPolicy}`,
+              isDirty ? 'Unsaved Edits' : 'Synced',
+              testEvidence.allPassed && testEvidence.allCurrentForSpec
+                ? 'Tests Current'
+                : 'Tests Pending',
+            ]}
             accentLast
           />
           <div className="flex flex-wrap items-center gap-2">
@@ -312,6 +468,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
               <option value="priority">priority (Explicit priority column asc)</option>
               <option value="collect-all">collect-all (Return array of all matches)</option>
               <option value="unique">unique (Error on overlapping rows)</option>
+              <option value="any">any (Overlapping matches must agree on outputs)</option>
             </select>
           </div>
         </div>
@@ -350,11 +507,14 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                 const isMatched = execResult?.matchedTableRows.some((m) =>
                   m.startsWith(`Row #${row.priority}`)
                 );
+                const rowErrors = liveValidation.errors.filter((e) => e.rowId === row.id);
                 return (
                   <tr
                     key={row.id}
                     className={
-                      isMatched
+                      rowErrors.length > 0
+                        ? 'bg-red-500/[0.07] dark:bg-red-500/15'
+                        : isMatched
                         ? 'bg-[#6252E8]/12 dark:bg-[#6252E8]/25'
                         : !row.enabled
                         ? 'opacity-50'
@@ -377,49 +537,63 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                         className="w-14 min-h-[38px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-transparent font-mono text-xs"
                       />
                     </td>
-                    {table.inputColumns.map((col) => (
-                      <td key={`${row.id}-${col.id}`} className="px-2 py-2 min-w-[140px]">
-                        <input
-                          type="text"
-                          aria-label={`Row ${row.priority} ${col.label}`}
-                          value={row.cells[col.field] ?? '*'}
-                          onChange={(e) =>
-                            setTable({
-                              ...table,
-                              rows: table.rows.map((r) =>
-                                r.id === row.id
-                                  ? { ...r, cells: { ...r.cells, [col.field]: e.target.value } }
-                                  : r
-                              ),
-                            })
-                          }
-                          className="w-full min-h-[38px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
-                        />
-                      </td>
-                    ))}
-                    {table.outputColumns.map((col) => (
-                      <td
-                        key={`${row.id}-${col.id}`}
-                        className="px-2 py-2 min-w-[130px] border-l border-[#101014]/10 dark:border-white/10"
-                      >
-                        <input
-                          type="text"
-                          aria-label={`Row ${row.priority} output ${col.label}`}
-                          value={row.outputs[col.field] ?? ''}
-                          onChange={(e) =>
-                            setTable({
-                              ...table,
-                              rows: table.rows.map((r) =>
-                                r.id === row.id
-                                  ? { ...r, outputs: { ...r.outputs, [col.field]: e.target.value } }
-                                  : r
-                              ),
-                            })
-                          }
-                          className="w-full min-h-[38px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] font-mono text-xs"
-                        />
-                      </td>
-                    ))}
+                    {table.inputColumns.map((col) => {
+                      const cellErr = rowErrors.some((e) => e.columnField === col.field);
+                      return (
+                        <td key={`${row.id}-${col.id}`} className="px-2 py-2 min-w-[140px]">
+                          <input
+                            type="text"
+                            aria-label={`Row ${row.priority} ${col.label}`}
+                            value={row.cells[col.field] ?? '*'}
+                            onChange={(e) =>
+                              setTable({
+                                ...table,
+                                rows: table.rows.map((r) =>
+                                  r.id === row.id
+                                    ? { ...r, cells: { ...r.cells, [col.field]: e.target.value } }
+                                    : r
+                                ),
+                              })
+                            }
+                            className={`w-full min-h-[38px] px-2.5 rounded border font-mono text-xs ${
+                              cellErr
+                                ? 'border-red-500 bg-red-500/10'
+                                : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014]'
+                            }`}
+                          />
+                        </td>
+                      );
+                    })}
+                    {table.outputColumns.map((col) => {
+                      const outErr = rowErrors.some((e) => e.columnField === col.field);
+                      return (
+                        <td
+                          key={`${row.id}-${col.id}`}
+                          className="px-2 py-2 min-w-[130px] border-l border-[#101014]/10 dark:border-white/10"
+                        >
+                          <input
+                            type="text"
+                            aria-label={`Row ${row.priority} output ${col.label}`}
+                            value={row.outputs[col.field] ?? ''}
+                            onChange={(e) =>
+                              setTable({
+                                ...table,
+                                rows: table.rows.map((r) =>
+                                  r.id === row.id
+                                    ? { ...r, outputs: { ...r.outputs, [col.field]: e.target.value } }
+                                    : r
+                                ),
+                              })
+                            }
+                            className={`w-full min-h-[38px] px-2.5 rounded border font-mono text-xs ${
+                              outErr
+                                ? 'border-red-500 bg-red-500/10'
+                                : 'border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126]'
+                            }`}
+                          />
+                        </td>
+                      );
+                    })}
                     <td className="px-3 py-2 text-right whitespace-nowrap">
                       <div className="inline-flex items-center gap-1">
                         <button
@@ -461,23 +635,60 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
               When 0 rows match
             </span>
           </div>
-          <pre className="p-3 rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 font-mono text-xs overflow-x-auto">
-            {JSON.stringify(table.defaultOutput, null, 2)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {table.outputColumns.map((col) => (
+              <div key={`fb-${col.id}`}>
+                <label className="block font-mono text-[10px] text-[#5E5E6E] dark:text-[#A4A4B5] mb-1">
+                  Fallback · {col.field}
+                </label>
+                <input
+                  type="text"
+                  value={String(table.defaultOutput[col.field] ?? '')}
+                  onChange={(e) =>
+                    setTable({
+                      ...table,
+                      defaultOutput: {
+                        ...table.defaultOutput,
+                        [col.field]: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full min-h-[38px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                />
+              </div>
+            ))}
+          </div>
+          <pre className="p-3 rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 font-mono text-xs overflow-x-auto">
+            <HighlightedCode
+              code={JSON.stringify(table.defaultOutput, null, 2)}
+              language="json"
+              surface="auto"
+            />
           </pre>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <button
               type="button"
-              onClick={() => handleSave(false)}
-              className="min-h-[44px] px-4 rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+              disabled={!editPermission.allowed}
+              onClick={() => handleSaveDraft('Draft')}
+              className="min-h-[44px] px-4 rounded-xl border border-[#101014]/15 dark:border-white/15 disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
             >
               <Save className="w-4 h-4" aria-hidden="true" />
               <span>Save Draft</span>
             </button>
             <button
               type="button"
-              onClick={() => handleSave(true)}
-              className="min-h-[44px] px-4 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+              disabled={!editPermission.allowed || !liveValidation.isValid}
+              onClick={() => handleSaveDraft('Review')}
+              className="min-h-[44px] px-4 rounded-xl border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+              <span>Submit Review</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPublishOpen(true)}
+              className="min-h-[44px] px-4 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
             >
               <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
               <span>Publish Table</span>
@@ -521,8 +732,12 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                   {execResult.validationErrors.join(' ')}
                 </div>
               )}
-              <pre className="p-2.5 rounded-lg bg-[#101014] border border-white/10 font-mono text-[11px] overflow-x-auto">
-                {JSON.stringify(execResult.finalOutput, null, 2)}
+              <pre className="p-2.5 rounded-lg bg-[#0D1021] border border-white/10 font-mono text-[11px] overflow-x-auto">
+                <HighlightedCode
+                  code={JSON.stringify(execResult.finalOutput, null, 2)}
+                  language="json"
+                  surface="dark"
+                />
               </pre>
               <p className="text-[11px] text-[#C5C5D6]">{execResult.explanation}</p>
             </div>
@@ -604,6 +819,92 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
             </button>
           </div>
         )}
+      </BottomSheet>
+
+      {/* Explicit Governed Table Publishing Confirmation Sheet */}
+      <BottomSheet
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        title="Publish Immutable Decision Table?"
+        subtitle="Publishes a verified canonical SHA-256 snapshot for SOPIN Flow & Gateway."
+      >
+        <div className="space-y-4">
+          {!publishPolicy.allowed && (
+            <div
+              role="alert"
+              className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-xs text-red-700 dark:text-red-200 space-y-1"
+            >
+              <div className="font-semibold">Publish Blocked by Governance &amp; Table Validation</div>
+              {publishPolicy.reasons.map((r, i) => (
+                <div key={i} className="font-mono text-[11px]">
+                  • {r}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="dt-pub-env" className="block text-xs font-semibold mb-1.5">
+              Target Environment
+            </label>
+            <select
+              id="dt-pub-env"
+              value={publishEnv}
+              onChange={(e) => setPublishEnv(e.target.value as DecisionEnvironment)}
+              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+            >
+              <option value="development">development</option>
+              <option value="staging">staging</option>
+              <option value="production">production</option>
+            </select>
+          </div>
+
+          {publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd && (
+            <label className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/[0.06] p-3 flex items-start gap-2.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={controlApprovalChecked}
+                onChange={(e) => setControlApprovalChecked(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                <strong>SOPIN Control Review Approval (Local Prototype Gate):</strong> Confirm peer review sign-off for production deployment as{' '}
+                <span className="font-mono">{workspaceRole}</span>.
+              </span>
+            </label>
+          )}
+
+          <div>
+            <label htmlFor="dt-pub-note" className="block text-xs font-semibold mb-1.5">
+              Release Notes / Change Summary
+            </label>
+            <input
+              id="dt-pub-note"
+              type="text"
+              value={publishSummary}
+              onChange={(e) => setPublishSummary(e.target.value)}
+              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={() => setPublishOpen(false)}
+              className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={!publishPolicy.allowed}
+              onClick={handlePublishConfirm}
+              className="min-h-[44px] rounded-xl bg-[#6252E8] disabled:opacity-40 text-white text-xs font-semibold"
+            >
+              Confirm Publish
+            </button>
+          </div>
+        </div>
       </BottomSheet>
     </div>
   );

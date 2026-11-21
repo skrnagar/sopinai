@@ -6,8 +6,20 @@ import {
   DecisionTraceStep,
 } from '../types';
 import { buildInputSummary, nextExecutionId } from './executionTrace';
-import { coerceScalar, evaluateTableCell, resolveInputField } from './operators';
-import { validateDecisionTableSpec } from './validators';
+import { coerceScalar, evaluateTableCell, parseTypedExpectedValue, resolveInputField } from './operators';
+import { validateDecisionTableSpec, validateInputAgainstSchema } from './validators';
+
+function buildTypedRowOutput(
+  table: DecisionTableSpec,
+  row: DecisionTableRow
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, raw] of Object.entries(row.outputs)) {
+    const col = table.outputColumns.find((c) => c.field === k);
+    out[k] = col ? parseTypedExpectedValue(raw, col.type) : coerceScalar(raw);
+  }
+  return out;
+}
 
 export function evaluateDecisionTableSpec(
   table: DecisionTableSpec,
@@ -17,7 +29,14 @@ export function evaluateDecisionTableSpec(
   const started = performance.now();
   const inputSummary = buildInputSummary(input && typeof input === 'object' ? input : {});
   const tableCheck = validateDecisionTableSpec(table);
-  if (!tableCheck.valid) {
+  const nonOverlapStructuralErrors = (tableCheck.structured?.errors ?? []).filter(
+    (e) =>
+      e.code !== 'UNIQUE_OVERLAP_CONFLICT' &&
+      e.code !== 'UNIQUE_WILDCARD_OVERLAP' &&
+      e.code !== 'ANY_POLICY_OUTPUT_CONFLICT'
+  );
+  if (nonOverlapStructuralErrors.length > 0) {
+    const messages = nonOverlapStructuralErrors.map((e) => e.message);
     return {
       id: nextExecutionId('exec'),
       workspaceId: table.workspaceId,
@@ -33,7 +52,7 @@ export function evaluateDecisionTableSpec(
       matchedConditions: [],
       matchedRules: [],
       matchedTableRows: [],
-      executionTrace: tableCheck.errors.map((err, i) => ({
+      executionTrace: messages.map((err, i) => ({
         stepIndex: i + 1,
         phase: 'error',
         label: 'Ambiguous / Invalid Table Config',
@@ -41,10 +60,53 @@ export function evaluateDecisionTableSpec(
         passed: false,
       })),
       finalOutput: {},
-      explanation: `Decision Table configuration rejected: ${tableCheck.errors.join(' ')}`,
+      explanation: `Decision Table configuration rejected: ${messages.join(' ')}`,
       status: 'Error',
       errorCode: 'AMBIGUOUS_TABLE_CONFIG',
-      validationErrors: tableCheck.errors,
+      validationErrors: messages,
+      durationMs: Math.max(0.1, Math.round((performance.now() - started) * 100) / 100),
+      executedAt: 'Just now',
+    };
+  }
+
+  // Validate present input values (and explicitly required columns) against table column types
+  const columnSchemaErrors = validateInputAgainstSchema(
+    table.inputColumns.map((col) => ({
+      name: col.field,
+      type: col.type,
+      required: Boolean(col.required),
+      description: col.label,
+    })),
+    input
+  );
+  if (columnSchemaErrors.length > 0) {
+    return {
+      id: nextExecutionId('exec'),
+      workspaceId: table.workspaceId,
+      artifactType: 'table',
+      artifactId: table.id,
+      artifactName: table.name,
+      versionUsed: table.version,
+      environment: table.environment,
+      sourceTrigger,
+      inputPayload: input,
+      inputSummary,
+      evaluatedConditions: [],
+      matchedConditions: [],
+      matchedRules: [],
+      matchedTableRows: [],
+      executionTrace: columnSchemaErrors.map((err, i) => ({
+        stepIndex: i + 1,
+        phase: 'validation',
+        label: 'Table Input Type Validation',
+        detail: err,
+        passed: false,
+      })),
+      finalOutput: {},
+      explanation: `Decision Table input validation failed: ${columnSchemaErrors.join(' ')}`,
+      status: 'Error',
+      errorCode: 'SCHEMA_VALIDATION_ERROR',
+      validationErrors: columnSchemaErrors,
       durationMs: Math.max(0.1, Math.round((performance.now() - started) * 100) / 100),
       executedAt: 'Just now',
     };
@@ -67,13 +129,17 @@ export function evaluateDecisionTableSpec(
     for (const col of table.inputColumns) {
       const cellSpec = row.cells[col.field] ?? '*';
       const resolved = resolveInputField(input, col.field);
-      const cellPassed = evaluateTableCell(cellSpec, resolved.value, resolved.exists);
+      const cellPassed = evaluateTableCell(cellSpec, resolved.value, resolved.exists, col.type);
+      const actualLabel = !resolved.exists ? 'missing' : JSON.stringify(resolved.value);
       const item: ConditionEvalTrace = {
         nodeId: `${row.id}:${col.field}`,
         label: `Row #${row.priority} · ${col.label}`,
         passed: cellPassed,
-        actualValue: !resolved.exists ? 'missing' : JSON.stringify(resolved.value),
+        actualValue: actualLabel,
         expectedSpec: cellSpec,
+        explanation: `Row #${row.priority} (${col.field}): actual=${actualLabel} vs "${cellSpec}" => ${
+          cellPassed ? 'MATCH' : 'MISS'
+        }`,
       };
       traces.push(item);
       rowTraces.push(item);
@@ -139,10 +205,58 @@ export function evaluateDecisionTableSpec(
     };
   }
 
+  if (table.hitPolicy === 'any' && matchedRows.length > 1) {
+    const firstOut = JSON.stringify(buildTypedRowOutput(table, matchedRows[0]));
+    const conflict = matchedRows.some(
+      (r) => JSON.stringify(buildTypedRowOutput(table, r)) !== firstOut
+    );
+    if (conflict) {
+      return {
+        id: nextExecutionId('exec'),
+        workspaceId: table.workspaceId,
+        artifactType: 'table',
+        artifactId: table.id,
+        artifactName: table.name,
+        versionUsed: table.version,
+        environment: table.environment,
+        sourceTrigger,
+        inputPayload: input,
+        inputSummary,
+        evaluatedConditions: traces,
+        matchedConditions: traces.filter((t) => t.passed),
+        matchedRules: [],
+        matchedTableRows: matchedRows.map((r) => `Row #${r.priority}`),
+        executionTrace: [
+          ...traceSteps,
+          {
+            stepIndex: traceSteps.length + 1,
+            phase: 'error',
+            label: 'Any Hit Policy Output Conflict',
+            detail: `Rows ${matchedRows.map((r) => `#${r.priority}`).join(', ')} matched with conflicting outputs.`,
+            passed: false,
+          },
+        ],
+        finalOutput: {},
+        explanation: `Any hit policy violation: matching rows ${matchedRows.map((r) => `#${r.priority}`).join(', ')} produced differing outputs.`,
+        status: 'Error',
+        errorCode: 'ANY_HIT_POLICY_CONFLICT',
+        validationErrors: [
+          `Any hit-policy violation: overlapping rows ${matchedRows.map((r) => `#${r.priority}`).join(', ')} produced conflicting outputs.`,
+        ],
+        durationMs: Math.max(0.1, Math.round((performance.now() - started) * 100) / 100),
+        executedAt: 'Just now',
+      };
+    }
+  }
+
   let finalOutput: Record<string, unknown> = Object.fromEntries(
-    Object.entries(table.defaultOutput).map(([k, v]) =>
-      typeof v === 'string' ? [k, coerceScalar(v)] : [k, v]
-    )
+    Object.entries(table.defaultOutput).map(([k, v]) => {
+      const col = table.outputColumns.find((c) => c.field === k);
+      if (typeof v === 'string') {
+        return [k, col ? parseTypedExpectedValue(v, col.type) : coerceScalar(v)];
+      }
+      return [k, v];
+    })
   );
   let status: DecisionExecutionSpec['status'] = 'Fallback';
   let explanation = `No row in "${table.name}" matched input; returned explicit default fallback output: ${JSON.stringify(finalOutput)}.`;
@@ -153,7 +267,7 @@ export function evaluateDecisionTableSpec(
       const outcomes = matchedRows.map((r) => ({
         rowPriority: r.priority,
         ...(r.note ? { rowNote: r.note } : {}),
-        ...Object.fromEntries(Object.entries(r.outputs).map(([k, v]) => [k, coerceScalar(v)])),
+        ...buildTypedRowOutput(table, r),
       }));
       finalOutput = {
         matchedCount: matchedRows.length,
@@ -162,9 +276,7 @@ export function evaluateDecisionTableSpec(
       explanation = `Decision Table "${table.name}" (collect-all) matched ${matchedRows.length} rows (${matchedRows.map((r) => `#${r.priority}`).join(', ')}).`;
     } else {
       const winner = matchedRows[0];
-      finalOutput = Object.fromEntries(
-        Object.entries(winner.outputs).map(([k, v]) => [k, coerceScalar(v)])
-      );
+      finalOutput = buildTypedRowOutput(table, winner);
       explanation = `Decision Table "${table.name}" (${table.hitPolicy}) selected Row #${winner.priority}${winner.note ? ` — ${winner.note}` : ''}.`;
     }
   }

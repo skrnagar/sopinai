@@ -30,12 +30,13 @@ import { SimulationAndMonitoring } from '../../decisions/components/SimulationAn
 
 interface AppDecisionsViewProps {
   workspaceId: string;
+  workspaceRole?: string;
   decisions: DecisionsWorkspaceSlice;
   onSaveRule: (rule: RuleSpec, note?: string) => void;
   onSaveTable: (table: DecisionTableSpec, note?: string) => void;
-  onSaveRuleset: (rs: RulesetSpec) => void;
-  onSaveChain: (chain: RuleChainSpec) => void;
-  onSaveScorecard: (sc: ScorecardSpec) => void;
+  onSaveRuleset: (rs: RulesetSpec, note?: string) => void;
+  onSaveChain: (chain: RuleChainSpec, note?: string) => void;
+  onSaveScorecard: (sc: ScorecardSpec, note?: string) => void;
   onRecordExecution: (exec: DecisionExecutionSpec) => void;
   onUpdateSettings: (partial: Partial<DecisionSettings>) => void;
 }
@@ -59,6 +60,7 @@ const DECISIONS_TABS: {
 
 export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
   workspaceId,
+  workspaceRole = 'Workspace Maintainer',
   decisions,
   onSaveRule,
   onSaveTable,
@@ -112,6 +114,8 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
           rules={decisions.rules}
           tables={decisions.tables}
           rulesets={decisions.rulesets}
+          chains={decisions.chains}
+          scorecards={decisions.scorecards}
           executions={decisions.executions}
           onSwitchSection={(s) => setSection(s)}
           onSelectRule={(id) => {
@@ -133,9 +137,11 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
       {section === 'rules' && (
         <RuleBuilderEditor
           workspaceId={workspaceId}
+          workspaceRole={workspaceRole}
           rules={decisions.rules}
           selectedRuleId={selectedRuleId}
           requireTestPassBeforePublish={decisions.settings.requireTestPassBeforePublish}
+          settings={decisions.settings}
           aiDrawerDefaultOpen={openAiOnMount}
           onSaveRule={onSaveRule}
           onRecordExecution={onRecordExecution}
@@ -145,8 +151,10 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
       {section === 'tables' && (
         <DecisionTableEditor
           workspaceId={workspaceId}
+          workspaceRole={workspaceRole}
           tables={decisions.tables}
           selectedTableId={selectedTableId}
+          settings={decisions.settings}
           onSaveTable={onSaveTable}
           onRecordExecution={onRecordExecution}
         />
@@ -156,11 +164,13 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
         <RulesetsChainsScorecards
           mode={section}
           workspaceId={workspaceId}
+          workspaceRole={workspaceRole}
           rules={decisions.rules}
           tables={decisions.tables}
           rulesets={decisions.rulesets}
           chains={decisions.chains}
           scorecards={decisions.scorecards}
+          settings={decisions.settings}
           onSaveRuleset={onSaveRuleset}
           onSaveChain={onSaveChain}
           onSaveScorecard={onSaveScorecard}
@@ -174,6 +184,7 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
         section === 'settings') && (
         <SimulationAndMonitoring
           mode={section}
+          workspaceRole={workspaceRole}
           rules={decisions.rules}
           tables={decisions.tables}
           rulesets={decisions.rulesets}
@@ -183,6 +194,9 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
           settings={decisions.settings}
           onUpdateRule={onSaveRule}
           onUpdateTable={onSaveTable}
+          onUpdateRuleset={onSaveRuleset}
+          onUpdateChain={onSaveChain}
+          onUpdateScorecard={onSaveScorecard}
           onUpdateSettings={onUpdateSettings}
         />
       )}

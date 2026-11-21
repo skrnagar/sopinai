@@ -408,6 +408,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
             <AppDecisionsView
               key={`decisions-${activeWorkspace.id}`}
               workspaceId={activeWorkspace.id}
+              workspaceRole={activeWorkspace.role}
               decisions={wsDecisions}
               onSaveRule={saveDecisionRule}
               onSaveTable={saveDecisionTable}

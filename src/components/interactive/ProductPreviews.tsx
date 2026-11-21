@@ -20,6 +20,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { StatusText } from '../ui/EditorialPrimitives';
+import { HighlightedCode } from '../ui/HighlightedCode';
 
 export type PreviewSurfaceId =
   | 'studio'
@@ -885,11 +886,15 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       <div className="mt-1 font-mono text-white">{currentSandbox.filesystem}</div>
                     </div>
                   </div>
-                  <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+                  <div className="rounded-lg border border-white/10 bg-[#0D1021] p-3">
                     <div className="text-[11px] text-[#9A9AB0] mb-1">Scoped Command</div>
-                    <code className="block font-mono text-xs text-[#E8E8F2] break-words">
-                      {currentSandbox.command}
-                    </code>
+                    <HighlightedCode
+                      code={currentSandbox.command}
+                      language="bash"
+                      surface="dark"
+                      wrap
+                      className="text-xs"
+                    />
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#C5C5D6]">
@@ -970,13 +975,17 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3.5 space-y-1.5">
+                <div className="rounded-lg border border-white/10 bg-[#0D1021] p-3.5 space-y-1.5">
                   <div className="text-[11px] text-[#9A9AB0]">
-                    Contract: <span className="font-mono text-white">{currentGateway.schema}</span>
+                    Contract: <span className="font-mono text-[#4EC9B0]">{currentGateway.schema}</span>
                   </div>
-                  <code className="block font-mono text-xs text-[#E8E8F2] break-words">
-                    {currentGateway.samplePayload}
-                  </code>
+                  <HighlightedCode
+                    code={currentGateway.samplePayload}
+                    language="json"
+                    surface="dark"
+                    wrap
+                    className="text-xs"
+                  />
                 </div>
               </div>
             </motion.div>
@@ -1038,7 +1047,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 })}
               </div>
 
-              <div className="rounded-xl border border-white/12 bg-[#101014] p-4">
+              <div className="rounded-xl border border-white/12 bg-[#0D1021] p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="inline-flex items-center gap-2 font-mono text-xs text-[#B894FF]">
                     <Terminal className="w-3.5 h-3.5" aria-hidden="true" />
@@ -1046,9 +1055,13 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </span>
                   <span className="text-xs text-[#9A9AB0]">{currentSpan.durationLabel}</span>
                 </div>
-                <code className="block font-mono text-xs text-[#E8E8F2] break-words">
-                  {currentSpan.payload}
-                </code>
+                <HighlightedCode
+                  code={currentSpan.payload}
+                  language="json"
+                  surface="dark"
+                  wrap
+                  className="text-xs"
+                />
               </div>
             </motion.div>
           )}

@@ -31,6 +31,7 @@ import {
 import { DecisionExecutionSpec } from '../../decisions/types';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StateDisplay, StatusText } from '../../components/ui/EditorialPrimitives';
+import { HighlightedCode } from '../../components/ui/HighlightedCode';
 
 interface AppRunViewProps {
   runs: ExecutionRun[];
@@ -879,8 +880,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   {shareFeedback}
                 </p>
               )}
-              <pre className="whitespace-pre-wrap font-mono text-xs bg-[#101014] text-[#E8E8F2] rounded-xl p-3.5 overflow-x-auto leading-relaxed">
-                {activeRun.artifactMarkdown}
+              <pre className="font-mono text-xs bg-[#0D1021] rounded-xl p-3.5 overflow-x-auto leading-relaxed border border-white/10">
+                <HighlightedCode
+                  code={activeRun.artifactMarkdown}
+                  language="markdown"
+                  surface="dark"
+                  wrap
+                />
               </pre>
             </div>
           )}

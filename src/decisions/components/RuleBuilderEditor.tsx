@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
+  Lock,
   Play,
   Plus,
   Save,
+  ShieldCheck,
   Sparkles,
   Trash2,
 } from 'lucide-react';
@@ -17,22 +19,32 @@ import {
   DecisionFieldType,
   DecisionGroupNode,
   DecisionInputField,
+  DecisionSettings,
   RuleSpec,
 } from '../types';
 import {
   buildPublishedRuleVersion,
+  canonicalSerialize,
+  checkEditPermission,
+  checkTestEvidenceFreshness,
+  evaluatePublishGovernancePolicy,
   evaluateRuleSpec,
+  extractVersionableSpecBody,
   synthesizeRuleDraftFromNL,
+  validateRuleArtifact,
   validateRuleSpec,
 } from '../evaluator';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
+import { HighlightedCode } from '../../components/ui/HighlightedCode';
 
 interface RuleBuilderEditorProps {
   workspaceId: string;
+  workspaceRole?: string;
   rules: RuleSpec[];
   selectedRuleId?: string;
   requireTestPassBeforePublish: boolean;
+  settings?: DecisionSettings;
   aiDrawerDefaultOpen?: boolean;
   onSaveRule: (rule: RuleSpec, summaryNote?: string) => void;
   onRecordExecution: (exec: DecisionExecutionSpec) => void;
@@ -140,13 +152,24 @@ function summarizeGroup(group: DecisionGroupNode): string {
 
 export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
   workspaceId,
+  workspaceRole = 'Workspace Maintainer',
   rules,
   selectedRuleId,
   requireTestPassBeforePublish,
+  settings,
   aiDrawerDefaultOpen = false,
   onSaveRule,
   onRecordExecution,
 }) => {
+  const effectiveSettings: DecisionSettings = settings ?? {
+    requireTestPassBeforePublish,
+    requireControlApprovalForProd: true,
+    strictInputSchemaValidation: true,
+    restrictExpressionsToSafeSubset: true,
+    allowedEditorsRole: 'Builders & Maintainers',
+    allowedPublishersRole: 'Workspace Maintainer',
+  };
+
   const [draft, setDraft] = useState<RuleSpec>(() => {
     const found = rules.find((r) => r.id === selectedRuleId) ?? rules[0];
     return found ? structuredClone(found) : createEmptyRule(workspaceId);
@@ -184,6 +207,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishEnv, setPublishEnv] = useState<DecisionEnvironment>('production');
   const [publishSummary, setPublishSummary] = useState('Verified deterministic policy thresholds and fallback lane.');
+  const [controlApprovalChecked, setControlApprovalChecked] = useState(false);
 
   // SOPIN Studio AI-Assisted Draft Synthesizer
   const [aiOpen, setAiOpen] = useState(aiDrawerDefaultOpen);
@@ -191,6 +215,46 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
     'Approve an invoice automatically when the amount is below ₹50,000, the vendor is verified, and no duplicate invoice exists. Otherwise, send it for manual approval.'
   );
   const [aiSynthesis, setAiSynthesis] = useState<AiRuleDraftSynthesis | null>(null);
+
+  const editPermission = useMemo(
+    () => checkEditPermission(workspaceRole, effectiveSettings),
+    [workspaceRole, effectiveSettings]
+  );
+
+  const liveValidation = useMemo(
+    () => validateRuleArtifact(draft, 'publication'),
+    [draft]
+  );
+
+  const testEvidence = useMemo(
+    () => checkTestEvidenceFreshness('rule', draft),
+    [draft]
+  );
+
+  const publishPolicy = useMemo(
+    () =>
+      evaluatePublishGovernancePolicy(
+        'rule',
+        draft,
+        publishEnv,
+        workspaceRole,
+        effectiveSettings,
+        {},
+        controlApprovalChecked
+      ),
+    [draft, publishEnv, workspaceRole, effectiveSettings, controlApprovalChecked]
+  );
+
+  const isDirty = useMemo(() => {
+    const saved = rules.find((r) => r.id === draft.id);
+    if (!saved) return true;
+    return (
+      canonicalSerialize(extractVersionableSpecBody('rule', draft)) !==
+        canonicalSerialize(extractVersionableSpecBody('rule', saved)) ||
+      draft.name !== saved.name ||
+      draft.description !== saved.description
+    );
+  }, [draft, rules]);
 
   const updateGroupRecursive = (
     node: DecisionGroupNode,
@@ -289,48 +353,67 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = (targetStatus?: 'Draft' | 'Validated' | 'Review') => {
+    if (!editPermission.allowed) {
+      setNotice(editPermission.reasons[0] || 'Role cannot edit rules under current governance policy.');
+      return;
+    }
     const check = validateRuleSpec(draft);
     if (!check.valid) {
       setNotice(`Cannot save invalid rule: ${check.errors.join(' ')}`);
       return;
     }
     const nextVersion =
-      draft.status === 'Published' && !draft.version.includes('-draft')
+      (draft.status === 'Published' || draft.status === 'Promoted') && !draft.version.includes('-draft')
         ? `${draft.version}-draft`
         : draft.version;
-    const next: RuleSpec = { ...draft, version: nextVersion, status: 'Draft', updatedAt: 'Just now' };
+    const resolvedStatus = targetStatus ?? (check.valid ? 'Validated' : 'Draft');
+    const next: RuleSpec = { ...draft, version: nextVersion, status: resolvedStatus, updatedAt: 'Just now' };
     setDraft(next);
-    onSaveRule(next, `Saved Draft specification (${nextVersion})`);
-    setNotice(`Rule saved as Draft (${nextVersion}) in local browser storage; published snapshots remain immutable.`);
+    onSaveRule(next, `Saved ${resolvedStatus} rule specification (${nextVersion})`);
+    setNotice(
+      `Rule saved as ${resolvedStatus} (${nextVersion}) in local browser storage; published snapshots remain immutable.`
+    );
   };
 
   const handlePublishConfirm = () => {
-    const check = validateRuleSpec(draft);
-    if (!check.valid) {
-      setPublishOpen(false);
-      setNotice(`Publish blocked by spec validation: ${check.errors.join(' ')}`);
+    if (!publishPolicy.allowed) {
+      setNotice(`Publish blocked: ${publishPolicy.reasons.join(' ')}`);
       return;
     }
     const next = buildPublishedRuleVersion(
       draft,
       publishEnv,
       publishSummary.trim() || 'Published from SOPIN Rule Builder.',
-      'Workspace Maintainer'
+      `${workspaceRole} (Local Prototype)`,
+      undefined,
+      publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd
+        ? {
+            approved: controlApprovalChecked,
+            reviewerLabel: `${workspaceRole} (Local Gate)`,
+            approvedAt: 'Just now',
+            note: publishSummary.trim(),
+            controlRequired: true,
+          }
+        : undefined
     );
     setDraft(next);
-    onSaveRule(next, `Published ${next.version} to ${publishEnv}`);
+    onSaveRule(next, `Published ${next.version} (${next.status}) to ${publishEnv}`);
     setPublishOpen(false);
+    setControlApprovalChecked(false);
     setNotice(`Published immutable version ${next.version} (${publishEnv}) cleanly.`);
   };
 
   const renderConditionGroup = (group: DecisionGroupNode, depth = 0, parentId?: string) => {
     const fieldNames = draft.inputSchema.map((f) => f.name);
+    const groupError = liveValidation.errors.find((e) => e.nodeId === group.id);
     return (
       <div
         key={group.id}
         className={`rounded-xl border p-3 space-y-2.5 ${
-          depth === 0
+          groupError
+            ? 'border-red-500/60 bg-red-500/[0.04]'
+            : depth === 0
             ? 'border-[#6252E8]/35 bg-[#F7F7FA] dark:bg-[#101014]'
             : 'border-[#965BFF]/40 bg-white dark:bg-[#101126]'
         }`}
@@ -398,16 +481,28 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           </div>
         </div>
 
+        {groupError && (
+          <div className="text-[11px] font-mono text-red-600 dark:text-red-400">
+            • {groupError.message}
+          </div>
+        )}
+
         <div className="space-y-2">
           {group.children.map((child) => {
             if (child.kind === 'group') {
               return renderConditionGroup(child, depth + 1, group.id);
             }
+            const nodeError = liveValidation.errors.find((e) => e.nodeId === child.id);
             return (
               <div
                 key={child.id}
-                className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-2.5 grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"
+                className={`rounded-xl border p-2.5 space-y-1.5 ${
+                  nodeError
+                    ? 'border-red-500/60 bg-red-500/[0.04]'
+                    : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                }`}
               >
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
                 <div className="sm:col-span-4">
                   <select
                     aria-label="Condition field"
@@ -505,6 +600,12 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
+                </div>
+                {nodeError && (
+                  <div className="text-[11px] font-mono text-red-600 dark:text-red-400">
+                    • {nodeError.message}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -661,15 +762,72 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* Left: Rule Spec Configuration */}
         <div className="lg:col-span-8 space-y-4">
+          {/* Validation & Lifecycle Banner */}
+          {(!editPermission.allowed ||
+            liveValidation.errors.length > 0 ||
+            liveValidation.warnings.length > 0 ||
+            isDirty) && (
+            <div
+              className={`rounded-2xl border p-3.5 text-xs space-y-1.5 ${
+                !editPermission.allowed || liveValidation.errors.length > 0
+                  ? 'border-red-500/40 bg-red-500/[0.06] text-red-800 dark:text-red-200'
+                  : 'border-amber-500/35 bg-amber-500/[0.08] text-amber-900 dark:text-amber-100'
+              }`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 font-semibold">
+                <span className="inline-flex items-center gap-1.5">
+                  {!editPermission.allowed ? (
+                    <Lock className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  )}
+                  <span>
+                    {!editPermission.allowed
+                      ? 'Read-Only Governance Policy'
+                      : liveValidation.errors.length > 0
+                      ? `${liveValidation.errors.length} Spec Validation Error(s) Block Publish`
+                      : `${liveValidation.warnings.length} Spec Warning(s)`}
+                  </span>
+                </span>
+                {isDirty && (
+                  <span className="font-mono text-[11px] uppercase">Unsaved Draft Edits</span>
+                )}
+              </div>
+              {!editPermission.allowed && (
+                <div className="font-mono text-[11px]">• {editPermission.reasons[0]}</div>
+              )}
+              {liveValidation.errors.slice(0, 4).map((err, i) => (
+                <div key={`err-${i}`} className="font-mono text-[11px]">
+                  • {err.message}
+                </div>
+              ))}
+              {liveValidation.warnings.slice(0, 2).map((w, i) => (
+                <div key={`warn-${i}`} className="font-mono text-[11px] opacity-90">
+                  • Warning: {w.message}
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Identity & Input Schema */}
           <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <StatusText
-                items={[draft.version, draft.status, draft.environment, draft.isDemoData ? 'Demo Seed' : 'Custom']}
+                items={[
+                  draft.version,
+                  draft.status,
+                  draft.environment,
+                  isDirty ? 'Unsaved Edits' : 'Synced',
+                ]}
                 accentLast
               />
               <span className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
-                Priority {draft.priority}
+                Priority {draft.priority} ·{' '}
+                {testEvidence.allPassed && testEvidence.allCurrentForSpec
+                  ? 'Tests Current'
+                  : testEvidence.staleCaseCount > 0
+                  ? 'Tests Stale'
+                  : 'Tests Pending'}
               </span>
             </div>
 
@@ -882,6 +1040,19 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                         }}
                         className="flex-1 min-w-0 min-h-[40px] px-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
                       />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDraft({
+                            ...draft,
+                            [panel.field]: draft[panel.field].filter((_, i) => i !== idx),
+                          })
+                        }
+                        aria-label={`Remove output ${out.key}`}
+                        className="w-9 h-9 rounded-lg text-[#5E5E6E] hover:text-red-500 inline-flex items-center justify-center shrink-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -889,24 +1060,53 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             ))}
           </section>
 
-          {/* Draft & Publish Action Bar */}
-          <div className="flex flex-wrap items-center justify-end gap-2.5">
-            <button
-              type="button"
-              onClick={handleSaveDraft}
-              className="min-h-[44px] px-4 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs font-semibold inline-flex items-center gap-1.5"
-            >
-              <Save className="w-4 h-4" aria-hidden="true" />
-              <span>Save Draft</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPublishOpen(true)}
-              className="min-h-[44px] px-5 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5"
-            >
-              <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
-              <span>Publish Version</span>
-            </button>
+          {/* Draft, Review & Publish Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <label className="inline-flex items-center gap-2 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+              <input
+                type="checkbox"
+                checked={draft.executionConfig.caseSensitiveStrings ?? false}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    executionConfig: {
+                      ...draft.executionConfig,
+                      caseSensitiveStrings: e.target.checked,
+                    },
+                  })
+                }
+              />
+              <span>Case-sensitive string comparisons</span>
+            </label>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={!editPermission.allowed}
+                onClick={() => handleSaveDraft('Draft')}
+                className="min-h-[44px] px-4 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <Save className="w-4 h-4" aria-hidden="true" />
+                <span>Save Draft</span>
+              </button>
+              <button
+                type="button"
+                disabled={!editPermission.allowed || !liveValidation.isValid}
+                onClick={() => handleSaveDraft('Review')}
+                className="min-h-[44px] px-4 rounded-xl border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+                <span>Submit Review</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPublishOpen(true)}
+                className="min-h-[44px] px-5 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+                <span>Publish Version</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -987,8 +1187,12 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
 
               <div>
                 <div className="font-mono text-[11px] text-[#A4A4B5] mb-1">Final Output</div>
-                <pre className="p-2.5 rounded-lg bg-[#101014] border border-white/10 font-mono text-[11px] text-[#E8E8F2] overflow-x-auto">
-                  {JSON.stringify(testResult.finalOutput, null, 2)}
+                <pre className="p-2.5 rounded-lg bg-[#0D1021] border border-white/10 font-mono text-[11px] overflow-x-auto">
+                  <HighlightedCode
+                    code={JSON.stringify(testResult.finalOutput, null, 2)}
+                    language="json"
+                    surface="dark"
+                  />
                 </pre>
               </div>
               <p className="text-[11px] text-[#C5C5D6] leading-relaxed">{testResult.explanation}</p>
@@ -1002,16 +1206,22 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
         open={publishOpen}
         onClose={() => setPublishOpen(false)}
         title="Publish Immutable Rule Version?"
-        subtitle="Published decisions are read-only snapshots referenced by SOPIN Flow & Gateway."
+        subtitle="Published decisions emit canonical SHA-256 snapshots referenced by SOPIN Flow & Gateway."
       >
         <div className="space-y-4">
-          {requireTestPassBeforePublish &&
-            draft.testCases.length > 0 &&
-            draft.testCases.some((tc) => tc.lastPassed === false) && (
-              <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
-                Warning: One or more regression test cases failed on their last run. Review in Test &amp; Simulation before promoting to Production.
-              </div>
-            )}
+          {!publishPolicy.allowed && (
+            <div
+              role="alert"
+              className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-xs text-red-700 dark:text-red-200 space-y-1"
+            >
+              <div className="font-semibold">Publish Blocked by Governance &amp; Engine Validation</div>
+              {publishPolicy.reasons.map((r, i) => (
+                <div key={i} className="font-mono text-[11px]">
+                  • {r}
+                </div>
+              ))}
+            </div>
+          )}
 
           <div>
             <label htmlFor="pub-env-select" className="block text-xs font-semibold mb-1.5">
@@ -1029,9 +1239,24 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             </select>
           </div>
 
+          {publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd && (
+            <label className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/[0.06] p-3 flex items-start gap-2.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={controlApprovalChecked}
+                onChange={(e) => setControlApprovalChecked(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                <strong>SOPIN Control Review Approval (Local Prototype Gate):</strong> Confirm peer review sign-off for production deployment as{' '}
+                <span className="font-mono">{workspaceRole}</span>.
+              </span>
+            </label>
+          )}
+
           <div>
             <label htmlFor="pub-note-input" className="block text-xs font-semibold mb-1.5">
-              Release / Change Summary
+              Release Notes / Change Summary
             </label>
             <input
               id="pub-note-input"
@@ -1052,8 +1277,9 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             </button>
             <button
               type="button"
+              disabled={!publishPolicy.allowed}
               onClick={handlePublishConfirm}
-              className="min-h-[44px] rounded-xl bg-[#6252E8] text-white text-xs font-semibold"
+              className="min-h-[44px] rounded-xl bg-[#6252E8] disabled:opacity-40 text-white text-xs font-semibold"
             >
               Confirm Publish
             </button>

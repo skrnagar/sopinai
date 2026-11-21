@@ -8,35 +8,71 @@ export {
   assertSafeExpression,
   coerceScalar,
   compareValues,
+  doTableCellsOverlap,
   evaluateRestrictedExpression,
   evaluateTableCell,
+  parseTypedExpectedValue,
   resolveInputField,
+  SUPPORTED_OPERATORS_BY_TYPE,
+  validateOperatorForFieldType,
+  validateRestrictedExpressionSyntax,
+  validateTableCellSyntax,
 } from './engine/operators';
 
 export {
+  validateArtifact,
+  validateDecisionTableArtifact,
   validateDecisionTableSpec,
   validateDecisionsSlice,
   validateInputAgainstSchema,
+  validateRuleArtifact,
+  validateRuleChainArtifact,
   validateRuleChainSpec,
   validateRuleSpec,
+  validateRulesetArtifact,
+  validateRulesetSpec,
+  validateScorecardArtifact,
+  validateScorecardSpec,
 } from './engine/validators';
-export type { ValidationReport } from './engine/validators';
+export type { ValidationCollections, ValidationReport } from './engine/validators';
 
 export {
   buildConditionTraceSteps,
   buildInputSummary,
+  canonicalSerialize,
+  computeCanonicalSpecHash,
   computeDeterministicHash,
+  computeSha256Hash,
   nextExecutionId,
+  sha256Hex,
+  verifySnapshotIntegrity,
 } from './engine/executionTrace';
 
 export {
+  buildPublishedArtifactVersion,
+  buildPublishedChainVersion,
   buildPublishedRuleVersion,
   buildPublishedRulesetVersion,
+  buildPublishedScorecardVersion,
   buildPublishedTableVersion,
+  compareVersionSnapshots,
+  computeArtifactSpecHash,
   extractMappedInputs,
+  extractVersionableSpecBody,
+  isPublishedSnapshotStatus,
+  resolvePublishedArtifact,
   resolvePublishedRuleSpec,
   resolvePublishedTableSpec,
+  rollbackArtifactToSnapshot,
 } from './engine/versioning';
+export type { SnapshotDiffEntry } from './engine/versioning';
+
+export {
+  checkEditPermission,
+  checkTestEvidenceFreshness,
+  evaluatePublishGovernancePolicy,
+} from './engine/governancePolicy';
+export type { GovernancePolicyCheck } from './engine/governancePolicy';
 
 export { evaluateRuleSpec } from './engine/ruleEvaluator';
 export { evaluateDecisionTableSpec } from './engine/decisionTableEvaluator';

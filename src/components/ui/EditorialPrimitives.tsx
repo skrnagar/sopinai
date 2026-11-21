@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Check, Copy, AlertCircle, Inbox, RefreshCw } from 'lucide-react';
+import {
+  CodeLanguage,
+  detectCodeLanguage,
+  getLanguageDisplayName,
+} from '../../utils/syntaxHighlight';
+import { HighlightedCode, copyTextToClipboard } from './HighlightedCode';
 
 interface SectionHeaderProps {
   kicker?: string;
@@ -99,38 +105,64 @@ export const StatusText: React.FC<StatusTextProps> = ({
 interface CodeBlockProps {
   code: string;
   label?: string;
+  language?: CodeLanguage;
+  showLineNumbers?: boolean;
   className?: string;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label, className = '' }) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({
+  code,
+  label,
+  language,
+  showLineNumbers = true,
+  className = '',
+}) => {
   const [copied, setCopied] = useState(false);
 
+  const detectedLanguage = useMemo(
+    () => language ?? detectCodeLanguage(label, code),
+    [language, label, code]
+  );
+  const languageName = getLanguageDisplayName(detectedLanguage);
+  const displayLabel = label || 'Specification';
+  const showLanguageTag =
+    detectedLanguage !== 'text' &&
+    !displayLabel.toLowerCase().includes(languageName.toLowerCase());
+
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
+    const ok = await copyTextToClipboard(code);
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
     }
   };
 
   return (
     <div
-      className={`w-full min-w-0 max-w-full rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#101126] text-[#FFFFFF] overflow-hidden ${className}`}
+      className={`w-full min-w-0 max-w-full flex flex-col rounded-xl border border-[#101014]/15 dark:border-white/10 bg-[#0D1021] text-[#E4E6F0] shadow-[0_1px_2px_rgba(16,16,20,0.12)] overflow-hidden ${className}`}
     >
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-white/10 bg-white/[0.03]">
-        <span className="font-mono text-xs text-[#A4A4B5] truncate">{label || 'Specification'}</span>
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-white/10 bg-[#14172C]">
+        <div className="flex items-center gap-2 min-w-0 font-mono text-xs truncate">
+          <span className="text-[#D4D6E6] truncate">{displayLabel}</span>
+          {showLanguageTag && (
+            <>
+              <span className="text-[#5C6382] shrink-0" aria-hidden="true">
+                ·
+              </span>
+              <span className="text-[#9CDCFE] shrink-0">{languageName}</span>
+            </>
+          )}
+        </div>
         <button
           type="button"
           onClick={handleCopy}
           aria-label="Copy code snippet"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C5C5D6] hover:text-white transition-colors px-2.5 min-h-[36px] sm:min-h-[32px] rounded-md hover:bg-white/10 whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C5C8DC] hover:text-white transition-colors px-2.5 min-h-[40px] sm:min-h-[32px] rounded-md hover:bg-white/10 whitespace-nowrap shrink-0"
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5 text-[#965BFF]" aria-hidden="true" />
-              <span>Copied</span>
+              <Check className="w-3.5 h-3.5 text-[#4EC9B0]" aria-hidden="true" />
+              <span className="text-[#4EC9B0]">Copied</span>
             </>
           ) : (
             <>
@@ -140,8 +172,13 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label, className = '
           )}
         </button>
       </div>
-      <pre className="p-4 overflow-x-auto text-[13px] leading-relaxed font-mono text-[#E8E8F2]">
-        <code>{code}</code>
+      <pre className="flex-1 p-4 overflow-x-auto text-[13px] font-mono">
+        <HighlightedCode
+          code={code}
+          language={detectedLanguage}
+          surface="dark"
+          showLineNumbers={showLineNumbers}
+        />
       </pre>
     </div>
   );
