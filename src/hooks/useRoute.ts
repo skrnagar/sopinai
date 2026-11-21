@@ -1,13 +1,28 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ROUTE_META } from '../data/sopinData';
-import { RoutePath } from '../types/navigation';
+import { PRODUCT_SPECS_BY_ROUTE } from '../data/productsData';
+import { DOC_SECTIONS, RESOURCE_ARTICLES } from '../data/contentCatalog';
+import { RoutePath, StaticRoutePath } from '../types/navigation';
 
-const VALID_ROUTES: Set<string> = new Set<RoutePath>([
+const SITE_ORIGIN = 'https://sopin.ai';
+
+const STATIC_VALID_ROUTES = new Set<string>([
   '/',
   '/platform',
   '/studio',
+  '/flow',
   '/workflow-automation',
+  '/decisions',
   '/context',
+  '/graph',
+  '/runtime',
+  '/gateway',
+  '/observe',
+  '/evaluate',
+  '/control',
+  '/cloud',
+  '/enterprise',
+  '/security',
   '/developers',
   '/solutions',
   '/resources',
@@ -20,10 +35,88 @@ const VALID_ROUTES: Set<string> = new Set<RoutePath>([
 
 function parsePath(pathname: string): { route: RoutePath; isNotFound: boolean } {
   const clean = pathname.replace(/\/+$/, '') || '/';
-  if (VALID_ROUTES.has(clean)) {
+  if (STATIC_VALID_ROUTES.has(clean)) {
     return { route: clean as RoutePath, isNotFound: false };
   }
+
+  if (clean.startsWith('/docs/')) {
+    const slug = clean.slice('/docs/'.length);
+    if (DOC_SECTIONS.some((d) => d.id === slug)) {
+      return { route: clean as RoutePath, isNotFound: false };
+    }
+  }
+
+  if (clean.startsWith('/resources/')) {
+    const slug = clean.slice('/resources/'.length);
+    if (RESOURCE_ARTICLES.some((r) => r.id === slug)) {
+      return { route: clean as RoutePath, isNotFound: false };
+    }
+  }
+
   return { route: '/', isNotFound: true };
+}
+
+function resolveRouteMeta(route: RoutePath, isNotFound: boolean) {
+  if (isNotFound) {
+    return {
+      title: 'Page Not Found — SOPIN',
+      description: 'The requested SOPIN page or specification route could not be located.',
+      canonicalPath: '/',
+      robots: 'noindex, nofollow',
+    };
+  }
+
+  if (route.startsWith('/docs/')) {
+    const slug = route.slice('/docs/'.length);
+    const doc = DOC_SECTIONS.find((d) => d.id === slug);
+    if (doc) {
+      return {
+        title: `${doc.title} — SOPIN Documentation`,
+        description: doc.summary,
+        canonicalPath: `/docs/${doc.id}`,
+        robots: 'index, follow',
+      };
+    }
+  }
+
+  if (route.startsWith('/resources/')) {
+    const slug = route.slice('/resources/'.length);
+    const article = RESOURCE_ARTICLES.find((a) => a.id === slug);
+    if (article) {
+      return {
+        title: `${article.title} — SOPIN Resources`,
+        description: article.summary,
+        canonicalPath: `/resources/${article.id}`,
+        robots: 'index, follow',
+      };
+    }
+  }
+
+  const productMeta = PRODUCT_SPECS_BY_ROUTE[route];
+  if (productMeta) {
+    return {
+      title: `${productMeta.name} — ${productMeta.tagline} | SOPIN`,
+      description: productMeta.summary,
+      canonicalPath: productMeta.route,
+      robots: 'index, follow',
+    };
+  }
+
+  const staticMeta = ROUTE_META[route as StaticRoutePath];
+  if (staticMeta) {
+    return {
+      ...staticMeta,
+      robots: route === '/app' ? 'noindex, nofollow' : staticMeta.robots || 'index, follow',
+    };
+  }
+
+  return {
+    title: 'SOPIN — Build AI agents that deliver work.',
+    description:
+      'Unified AI Agent Engineering and Execution Platform by SONIL Group.',
+    canonicalPath: '/',
+    robots: 'index, follow',
+  };
 }
 
 export function useRoute() {
@@ -33,46 +126,65 @@ export function useRoute() {
   const [activeSection, setActiveSection] = useState<string | null>(() =>
     window.location.hash ? window.location.hash.slice(1) : null
   );
+  const [searchQueryString, setSearchQueryString] = useState<string>(() => window.location.search);
 
   useEffect(() => {
     const handlePopState = () => {
       setRouteState(parsePath(window.location.pathname));
       setActiveSection(window.location.hash ? window.location.hash.slice(1) : null);
+      setSearchQueryString(window.location.search);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   useEffect(() => {
-    if (routeState.isNotFound) {
-      document.title = 'Page Not Found — SOPIN';
-      return;
-    }
-
-    const meta = ROUTE_META[routeState.route];
+    const meta = resolveRouteMeta(routeState.route, routeState.isNotFound);
     document.title = meta.title;
 
-    const setMetaTag = (selector: string, content: string) => {
-      const el = document.querySelector(selector);
-      if (el) {
-        el.setAttribute('content', content);
+    const upsertMeta = (attr: 'name' | 'property', key: string, content: string) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
       }
+      el.setAttribute('content', content);
     };
 
-    setMetaTag('meta[name="description"]', meta.description);
-    setMetaTag('meta[property="og:title"]', meta.title);
-    setMetaTag('meta[property="og:description"]', meta.description);
-    setMetaTag('meta[name="twitter:title"]', meta.title);
-    setMetaTag('meta[name="twitter:description"]', meta.description);
+    upsertMeta('name', 'description', meta.description);
+    upsertMeta('name', 'robots', meta.robots || 'index, follow');
+    upsertMeta('property', 'og:title', meta.title);
+    upsertMeta('property', 'og:description', meta.description);
+    upsertMeta('property', 'og:url', `${SITE_ORIGIN}${meta.canonicalPath}`);
+    upsertMeta('name', 'twitter:title', meta.title);
+    upsertMeta('name', 'twitter:description', meta.description);
+
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = `${SITE_ORIGIN}${meta.canonicalPath}`;
   }, [routeState]);
 
-  const navigate = useCallback((target: RoutePath, sectionId?: string) => {
-    const url = sectionId ? `${target}#${sectionId}` : target;
-    if (window.location.pathname !== target || window.location.hash !== (sectionId ? `#${sectionId}` : '')) {
+  const navigate = useCallback((target: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => {
+    const qs =
+      queryParams && Object.keys(queryParams).length > 0
+        ? `?${new URLSearchParams(queryParams).toString()}`
+        : '';
+    const hash = sectionId ? `#${sectionId}` : '';
+    const url = `${target}${qs}${hash}`;
+
+    if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== url) {
       window.history.pushState({}, '', url);
     }
-    setRouteState({ route: target, isNotFound: false });
+
+    const parsed = parsePath(target);
+    setRouteState(parsed);
     setActiveSection(sectionId ?? null);
+    setSearchQueryString(qs);
 
     if (sectionId) {
       requestAnimationFrame(() => {
@@ -90,5 +202,11 @@ export function useRoute() {
     }
   }, []);
 
-  return { route: routeState.route, isNotFound: routeState.isNotFound, activeSection, navigate };
+  return {
+    route: routeState.route,
+    isNotFound: routeState.isNotFound,
+    activeSection,
+    searchQueryString,
+    navigate,
+  };
 }

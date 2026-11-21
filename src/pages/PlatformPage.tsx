@@ -56,6 +56,13 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               </button>
               <button
                 type="button"
+                onClick={() => onNavigate('/decisions')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+              >
+                <span>Explore SOPIN Decisions</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => onNavigate('/docs')}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
@@ -77,11 +84,17 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                 description="Decouple agent logic from individual model vendors. Route by task profile, enforce typed JSON schemas, and apply pre-inference sanitization in one place."
               />
 
-              <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pt-2 pb-1 sm:pb-0">
+              <div
+                role="tablist"
+                aria-label="Gateway configuration modes"
+                className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pt-2 pb-1 sm:pb-0"
+              >
                 {(['routing', 'schema', 'fallback'] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
+                    role="tab"
+                    aria-selected={gatewayMode === tab}
                     onClick={() => setGatewayMode(tab)}
                     className={`px-3.5 py-2 rounded-lg text-xs font-semibold capitalize transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                       gatewayMode === tab
@@ -210,8 +223,8 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Execution & Control Surfaces"
-            title="Inspect execution spans, evaluations, and governance controls."
-            description="Switch across all eight realistic product previews—Studio, Flow, Context, Runtime, Gateway, Observe, Evaluate, and Control."
+            title="Inspect rules, execution spans, evaluations, and governance controls."
+            description="Switch across all nine realistic product previews—Studio, Flow, Decisions, Context, Runtime, Gateway, Observe, Evaluate, and Control."
           />
           <ProductPreviews initialTab="observe" />
         </div>

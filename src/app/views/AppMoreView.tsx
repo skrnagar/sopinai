@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Activity,
+  ArrowUpRight,
   CheckCircle2,
   Cpu,
   Download,
@@ -9,6 +10,7 @@ import {
   Network,
   Plug,
   RotateCcw,
+  Scale,
   Settings,
   ShieldCheck,
   Smartphone,
@@ -23,10 +25,12 @@ import {
   MoreSectionId,
   Workspace,
 } from '../types';
+import { DecisionExecutionSpec } from '../../decisions/types';
 import { ThemeMode } from '../../hooks/useTheme';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
+import { AgentPerformanceChart } from '../components/AgentPerformanceChart';
 
 interface AppMoreViewProps {
   workspace: Workspace;
@@ -34,13 +38,18 @@ interface AppMoreViewProps {
   runs: ExecutionRun[];
   tools: McpToolRecord[];
   auditLog: AuditEvent[];
+  decisionExecutions?: DecisionExecutionSpec[];
   settings: AppSettings;
   theme: ThemeMode;
   onToggleTheme: () => void;
   onToggleTool: (toolId: string) => void;
   onUpdateBudget: (tokens: number) => void;
   onUpdateSettings: (partial: Partial<AppSettings>) => void;
-  onRunAction: (runId: string, action: 'pause' | 'cancel' | 'approve' | 'reject') => void;
+  onRunAction: (
+    runId: string,
+    action: 'pause' | 'cancel' | 'approve' | 'reject' | 'escalate',
+    meta?: { reason?: string; reviewer?: string; escalateTo?: string }
+  ) => void;
   onResetPrototype: () => void;
 }
 
@@ -64,6 +73,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
   runs,
   tools,
   auditLog,
+  decisionExecutions = [],
   settings,
   theme,
   onToggleTheme,
@@ -77,10 +87,24 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
   const [confirmTool, setConfirmTool] = useState<McpToolRecord | null>(null);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [iosGuideOpen, setIosGuideOpen] = useState(false);
+  const [approvalReasons, setApprovalReasons] = useState<Record<string, string>>({});
+  const [escalateTargets, setEscalateTargets] = useState<Record<string, string>>({});
   const { canPromptInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
 
   const pendingApprovals = runs.filter((r) => r.status === 'awaiting-approval');
   const activeRuns = runs.filter((r) => r.status === 'running' || r.status === 'awaiting-approval');
+
+  const recentApprovalHistory = useMemo(
+    () =>
+      runs.flatMap((run) =>
+        (run.approvalHistory ?? []).map((entry) => ({
+          ...entry,
+          runId: run.id,
+          runTitle: run.title,
+        }))
+      ),
+    [runs]
+  );
 
   return (
     <div className="space-y-4">
@@ -126,34 +150,128 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                 No pending human gates right now.
               </p>
             ) : (
-              pendingApprovals.map((run) => (
-                <div
-                  key={run.id}
-                  className="rounded-xl border border-[#965BFF]/40 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2.5"
-                >
-                  <div className="text-xs font-semibold text-[#101014] dark:text-white">
-                    {run.approvalGate?.actionLabel || run.title}
+              pendingApprovals.map((run) => {
+                const reasonVal = approvalReasons[run.id] ?? '';
+                const escalateVal = escalateTargets[run.id] ?? 'CFO / Chief Compliance Officer';
+                return (
+                  <div
+                    key={run.id}
+                    className="rounded-xl border border-[#965BFF]/40 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2.5"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-xs font-semibold text-[#101014] dark:text-white">
+                        {run.approvalGate?.actionLabel || run.title}
+                      </div>
+                      <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                        {run.approvalGate?.requiredRole || 'Workspace Maintainer'}
+                      </span>
+                    </div>
+                    {run.approvalGate?.reason && (
+                      <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+                        {run.approvalGate.reason}
+                      </p>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={reasonVal}
+                        onChange={(e) =>
+                          setApprovalReasons((prev) => ({ ...prev, [run.id]: e.target.value }))
+                        }
+                        placeholder="Decision reason / compliance note..."
+                        aria-label={`Audit reason for ${run.id}`}
+                        className="min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs"
+                      />
+                      <input
+                        type="text"
+                        value={escalateVal}
+                        onChange={(e) =>
+                          setEscalateTargets((prev) => ({ ...prev, [run.id]: e.target.value }))
+                        }
+                        placeholder="Escalate target role..."
+                        aria-label={`Escalate role for ${run.id}`}
+                        className="min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onRunAction(run.id, 'approve', {
+                            reviewer: workspace.role,
+                            reason: reasonVal.trim() || undefined,
+                          })
+                        }
+                        className="min-h-[44px] rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onRunAction(run.id, 'escalate', {
+                            reviewer: workspace.role,
+                            reason: reasonVal.trim() || undefined,
+                            escalateTo: escalateVal.trim() || 'CFO / Chief Compliance Officer',
+                          })
+                        }
+                        className="min-h-[44px] rounded-lg border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] text-xs font-semibold inline-flex items-center justify-center gap-1"
+                      >
+                        <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Escalate</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onRunAction(run.id, 'reject', {
+                            reviewer: workspace.role,
+                            reason: reasonVal.trim() || undefined,
+                          })
+                        }
+                        className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+                      >
+                        Reject
+                      </button>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onRunAction(run.id, 'reject')}
-                      className="min-h-[40px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
-                    >
-                      Reject
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onRunAction(run.id, 'approve')}
-                      className="min-h-[40px] rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
-                    >
-                      Approve
-                    </button>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </section>
+
+          {/* Approval History */}
+          {recentApprovalHistory.length > 0 && (
+            <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
+              <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+                Approval &amp; Escalation History ({recentApprovalHistory.length})
+              </h3>
+              <div className="space-y-2">
+                {recentApprovalHistory.slice(0, 6).map((h) => (
+                  <div
+                    key={h.id}
+                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/[0.06] dark:border-white/10 p-3 text-xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-[#101014] dark:text-white capitalize">
+                        {h.decision} · {h.runTitle}
+                      </span>
+                      <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                        {h.timestamp}
+                      </span>
+                    </div>
+                    <p className="text-[#5E5E6E] dark:text-[#B5B5C5]">{h.reason}</p>
+                    <StatusText
+                      items={[
+                        h.actor,
+                        h.role,
+                        h.escalatedTo ? `Escalated → ${h.escalatedTo}` : h.runId,
+                      ]}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Tool Permissions with Confirmation Sheet */}
           <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
@@ -177,7 +295,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setConfirmTool(tool)}
-                    className={`min-h-[40px] px-3 rounded-lg text-xs font-semibold shrink-0 ${
+                    className={`min-h-[44px] px-3 rounded-lg text-xs font-semibold shrink-0 ${
                       tool.enabled
                         ? 'bg-[#6252E8] text-white'
                         : 'border border-[#101014]/20 dark:border-white/20 text-[#5E5E6E] dark:text-[#A4A4B5]'
@@ -214,7 +332,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onRunAction(run.id, 'cancel')}
-                    className="min-h-[40px] px-3 rounded-lg border border-red-500/40 text-red-600 dark:text-red-400 text-xs font-semibold shrink-0"
+                    className="min-h-[44px] px-3 rounded-lg border border-red-500/40 text-red-600 dark:text-red-400 text-xs font-semibold shrink-0"
                   >
                     Revoke Run
                   </button>
@@ -286,40 +404,102 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
         </div>
       )}
 
-      {/* 2. MODELS (SOPIN GATEWAY) */}
+      {/* 2. MODELS & ML REGISTRY (SOPIN GATEWAY) */}
       {section === 'models' && (
-        <div className="space-y-3">
-          {[
-            {
-              name: 'reasoning-structured',
-              fallback: 'deterministic-fast',
-              redaction: 'PII Pre-Inference Redaction',
-              schema: 'Strict JSON Enforcement',
-            },
-            {
-              name: 'citation-audit',
-              fallback: 'reject-ungrounded',
-              redaction: 'Corpus Classification Filter',
-              schema: 'CitationAuditResult',
-            },
-            {
-              name: 'deterministic-fast',
-              fallback: 'escalate-human-gate',
-              redaction: 'PII Pre-Inference Redaction',
-              schema: 'Constrained Enum Output',
-            },
-          ].map((m) => (
-            <div
-              key={m.name}
-              className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-1.5"
-            >
-              <div className="font-mono text-sm font-semibold text-[#101014] dark:text-white">
-                {m.name}
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {[
+              {
+                name: 'reasoning-structured',
+                fallback: 'deterministic-fast',
+                redaction: 'PII Pre-Inference Redaction',
+                schema: 'Strict JSON Enforcement',
+              },
+              {
+                name: 'citation-audit',
+                fallback: 'reject-ungrounded',
+                redaction: 'Corpus Classification Filter',
+                schema: 'CitationAuditResult',
+              },
+              {
+                name: 'deterministic-fast',
+                fallback: 'escalate-human-gate',
+                redaction: 'PII Pre-Inference Redaction',
+                schema: 'Constrained Enum Output',
+              },
+            ].map((m) => (
+              <div
+                key={m.name}
+                className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-1.5"
+              >
+                <div className="font-mono text-sm font-semibold text-[#101014] dark:text-white">
+                  {m.name}
+                </div>
+                <StatusText items={[m.schema, `Fallback: ${m.fallback}`]} accentLast />
+                <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">{m.redaction}</p>
               </div>
-              <StatusText items={[m.schema, `Fallback: ${m.fallback}`]} accentLast />
-              <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">{m.redaction}</p>
+            ))}
+          </div>
+
+          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+                ML Lifecycle &amp; Model Registry (Preview)
+              </h3>
+              <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                SOPIN Gateway · ML
+              </span>
             </div>
-          ))}
+
+            <div className="grid grid-cols-5 gap-1.5 text-center">
+              {['Dataset', 'Prep', 'Train', 'Eval F1', 'Gateway'].map((stepLabel, idx) => (
+                <div
+                  key={stepLabel}
+                  className="rounded-lg border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] py-2 px-1"
+                >
+                  <div className="font-mono text-[10px] text-[#6252E8] dark:text-[#965BFF]">
+                    0{idx + 1}
+                  </div>
+                  <div className="text-[11px] font-semibold text-[#101014] dark:text-white truncate">
+                    {stepLabel}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              {[
+                {
+                  modelId: 'domain-classifier:v3',
+                  artifact: 'tabular-gradient-boost · validation F1 0.94',
+                  route: 'gateway.route("ml/domain-classifier")',
+                },
+                {
+                  modelId: 'anomaly-scorer:v1',
+                  artifact: 'pytorch-encoder · calibration verified',
+                  route: 'gateway.route("ml/anomaly-scorer")',
+                },
+              ].map((ml) => (
+                <div
+                  key={ml.modelId}
+                  className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-semibold text-[#101014] dark:text-white">
+                      {ml.modelId}
+                    </span>
+                    <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                      Registered
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">{ml.artifact}</p>
+                  <div className="font-mono text-[11px] text-[#101014] dark:text-[#D8D8E6]">
+                    {ml.route}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       )}
 
@@ -365,12 +545,17 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
         </div>
       )}
 
-      {/* 5. MONITORING */}
+      {/* 5. MONITORING (SOPIN OBSERVE) */}
       {section === 'monitoring' && (
-        <div className="space-y-3">
+        <div className="space-y-4">
+          <AgentPerformanceChart
+            workspaceId={workspace.id}
+            agents={agents}
+            runs={runs}
+          />
           <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2">
             <h3 className="font-display text-sm font-semibold">Workspace Status Summary</h3>
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3">
                 <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">Registered Agents</div>
                 <div className="mt-1 font-display text-xl font-bold">{agents.length}</div>
@@ -379,10 +564,80 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                 <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">Trace Runs Stored</div>
                 <div className="mt-1 font-display text-xl font-bold">{runs.length}</div>
               </div>
+              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 col-span-2 sm:col-span-1">
+                <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">Decision Traces</div>
+                <div className="mt-1 font-display text-xl font-bold">{decisionExecutions.length}</div>
+              </div>
             </div>
           </div>
+
+          {/* Unified SOPIN Observe · Deterministic Decision Executions */}
+          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-display text-sm font-semibold inline-flex items-center gap-1.5">
+                <Scale className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                <span>SOPIN Observe · Decision Telemetry (PII-Redacted)</span>
+              </h3>
+              <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+                {decisionExecutions.length} Recorded
+              </span>
+            </div>
+            {decisionExecutions.length === 0 ? (
+              <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+                No deterministic decision executions recorded in this workspace yet.
+              </p>
+            ) : (
+              <div className="space-y-2.5">
+                {decisionExecutions.slice(0, 8).map((ex) => {
+                  const matchedLabel =
+                    ex.matchedTableRows[0] || ex.matchedRules[0] || ex.status;
+                  return (
+                    <div
+                      key={ex.id}
+                      className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 text-xs space-y-1.5"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold text-[#101014] dark:text-white">
+                          {ex.artifactName} ({ex.versionUsed})
+                        </span>
+                        <span
+                          className={`font-mono text-[11px] font-semibold shrink-0 ${
+                            ex.status === 'Error'
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-[#6252E8] dark:text-[#B894FF]'
+                          }`}
+                        >
+                          {ex.status} · {ex.durationMs.toFixed(1)}ms
+                        </span>
+                      </div>
+                      <StatusText
+                        items={[
+                          ex.id,
+                          ex.sourceTrigger,
+                          `Match: ${matchedLabel}`,
+                          ex.executedAt,
+                        ]}
+                      />
+                      <p className="text-[#5E5E6E] dark:text-[#B5B5C5] break-words">
+                        {ex.explanation}
+                      </p>
+                      <div className="font-mono text-[11px] text-[#101014] dark:text-[#D8D8E6] break-words">
+                        Input: {JSON.stringify(ex.inputPayload)} → Output: {JSON.stringify(ex.finalOutput)}
+                      </div>
+                      {ex.errorCode && (
+                        <div className="font-mono text-[11px] text-red-600 dark:text-red-400">
+                          Error Code: {ex.errorCode}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
           <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] px-1">
-            Full span waterfalls and multi-node telemetry connect in SOPIN Observe (Planned).
+            Unified workflow/graph/decision span waterfalls and PII-redacted decision telemetry persist locally in browser state; remote OpenTelemetry collector streaming requires a production backend.
           </p>
         </div>
       )}

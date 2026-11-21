@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
-import { CheckCircle2, AlertCircle, Send } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { AlertCircle, CheckCircle2, Send } from 'lucide-react';
 import { StatusText } from '../components/ui/EditorialPrimitives';
 
-export const ContactPage: React.FC = () => {
+interface ContactPageProps {
+  queryString?: string;
+}
+
+const VALID_TOPICS = [
+  'Design Partner Access',
+  'Developer Preview & SDK',
+  'SONIL Group Enterprise',
+  'Protocol & Partnership',
+];
+
+export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [organization, setOrganization] = useState('');
@@ -10,8 +21,19 @@ export const ContactPage: React.FC = () => {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorText, setErrorText] = useState('');
+  const [referenceId, setReferenceId] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const raw = queryString ?? (typeof window !== 'undefined' ? window.location.search : '');
+    if (!raw) return;
+    const params = new URLSearchParams(raw);
+    const paramTopic = params.get('topic');
+    if (paramTopic && VALID_TOPICS.includes(paramTopic)) {
+      setTopic(paramTopic);
+    }
+  }, [queryString]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorText('');
 
@@ -32,9 +54,33 @@ export const ContactPage: React.FC = () => {
     }
 
     setStatus('submitting');
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          organization: organization.trim(),
+          topic,
+          message: message.trim(),
+        }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        referenceId?: string;
+        error?: string;
+      };
+      if (!response.ok) {
+        setStatus('error');
+        setErrorText(payload.error || 'Unable to submit inquiry right now. Please try again or email hello@sopin.ai.');
+        return;
+      }
+      setReferenceId(payload.referenceId || '');
       setStatus('success');
-    }, 350);
+    } catch {
+      setStatus('error');
+      setErrorText('Network error while submitting your inquiry. Please verify connectivity or write to hello@sopin.ai.');
+    }
   };
 
   const handleReset = () => {
@@ -42,6 +88,7 @@ export const ContactPage: React.FC = () => {
     setEmail('');
     setOrganization('');
     setMessage('');
+    setReferenceId('');
     setStatus('idle');
     setErrorText('');
   };
@@ -75,12 +122,16 @@ export const ContactPage: React.FC = () => {
                   <div>hello@sopin.ai</div>
                 </div>
                 <div>
+                  <div className="font-medium text-[#101014] dark:text-white">Security &amp; Trust Disclosures</div>
+                  <div>security@sopin.ai</div>
+                </div>
+                <div>
                   <div className="font-medium text-[#101014] dark:text-white">Parent Organization</div>
                   <div>SONIL Group · Global AI Infrastructure</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[#101014] dark:text-white">Response Scope</div>
-                  <div>This prototype validates form inputs locally without transmitting data to a backend server.</div>
+                  <div className="font-medium text-[#101014] dark:text-white">Engineering Routing</div>
+                  <div>Inquiries are validated and routed directly to the SOPIN platform and enterprise onboarding queue.</div>
                 </div>
               </div>
             </div>
@@ -92,18 +143,25 @@ export const ContactPage: React.FC = () => {
                 <div className="py-6 text-center space-y-4" role="status">
                   <CheckCircle2 className="w-10 h-10 text-[#6252E8] mx-auto" aria-hidden="true" />
                   <h2 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
-                    Inquiry Ready for Review
+                    Inquiry Received
                   </h2>
                   <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5] max-w-md mx-auto leading-relaxed">
-                    Thank you, {name}. Your {topic.toLowerCase()} note for {organization || 'your team'} passed validation in this prototype preview.
+                    Thank you, {name}. Your {topic.toLowerCase()} note for {organization || 'your team'} has been logged cleanly for the SOPIN &amp; SONIL Group team.
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] text-white text-sm font-semibold hover:bg-[#5243d6] transition-colors"
-                  >
-                    Submit Another Note
-                  </button>
+                  {referenceId && (
+                    <div className="inline-block font-mono text-xs px-3 py-1 rounded-md bg-[#F7F7FA] dark:bg-[#101126] text-[#6252E8] dark:text-[#B894FF]">
+                      Reference ID: {referenceId}
+                    </div>
+                  )}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] text-white text-sm font-semibold hover:bg-[#5243d6] transition-colors"
+                    >
+                      Submit Another Note
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -176,10 +234,11 @@ export const ContactPage: React.FC = () => {
                         onChange={(e) => setTopic(e.target.value)}
                         className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
                       >
-                        <option value="Design Partner Access">Design Partner Access</option>
-                        <option value="Developer Preview & SDK">Developer Preview & SDK</option>
-                        <option value="SONIL Group Enterprise">SONIL Group Enterprise</option>
-                        <option value="Protocol & Partnership">Protocol & Partnership</option>
+                        {VALID_TOPICS.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -205,7 +264,7 @@ export const ContactPage: React.FC = () => {
                     className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] disabled:opacity-60 text-white text-sm font-semibold transition-colors"
                   >
                     <Send className="w-4 h-4" aria-hidden="true" />
-                    <span>{status === 'submitting' ? 'Validating...' : 'Send Inquiry'}</span>
+                    <span>{status === 'submitting' ? 'Sending...' : 'Send Inquiry'}</span>
                   </button>
                 </form>
               )}

@@ -35,7 +35,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
             onClick={() => onNavigate('/app')}
             className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors"
           >
-            <span>Open Mobile Workspace</span>
+            <span>Try SOPIN</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>

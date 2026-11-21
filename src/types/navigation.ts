@@ -1,9 +1,20 @@
-export type RoutePath =
+export type StaticRoutePath =
   | '/'
   | '/platform'
   | '/studio'
+  | '/flow'
   | '/workflow-automation'
+  | '/decisions'
   | '/context'
+  | '/graph'
+  | '/runtime'
+  | '/gateway'
+  | '/observe'
+  | '/evaluate'
+  | '/control'
+  | '/cloud'
+  | '/enterprise'
+  | '/security'
   | '/developers'
   | '/solutions'
   | '/resources'
@@ -13,12 +24,16 @@ export type RoutePath =
   | '/docs'
   | '/app';
 
+export type DynamicRoutePath = `/docs/${string}` | `/resources/${string}`;
+
+export type RoutePath = StaticRoutePath | DynamicRoutePath;
+
 export interface NavDropdownItem {
   label: string;
   description: string;
   href: RoutePath;
   sectionId?: string;
-  status?: 'Preview' | 'Planned' | 'Coming Soon';
+  status?: 'Preview' | 'Planned' | 'Coming Soon' | 'Roadmap';
 }
 
 export interface NavCategory {
@@ -31,5 +46,6 @@ export interface NavCategory {
 export interface RouteMeta {
   title: string;
   description: string;
-  canonicalPath: RoutePath;
+  canonicalPath: string;
+  robots?: string;
 }

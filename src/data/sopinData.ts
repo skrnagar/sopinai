@@ -1,6 +1,6 @@
-import { NavCategory, RouteMeta, RoutePath } from '../types/navigation';
+import { NavCategory, RouteMeta, RoutePath, StaticRoutePath } from '../types/navigation';
 
-export const ROUTE_META: Record<RoutePath, RouteMeta> = {
+export const ROUTE_META: Record<StaticRoutePath, RouteMeta> = {
   '/': {
     title: 'SOPIN — Build AI agents that deliver work.',
     description:
@@ -10,7 +10,7 @@ export const ROUTE_META: Record<RoutePath, RouteMeta> = {
   '/platform': {
     title: 'Platform Overview — SOPIN',
     description:
-      'Explore the SOPIN architecture: Agent Studio, Workflow Automation, Context and Memory, Model Gateway, Runtime, Evaluations, and Governance.',
+      'Explore the SOPIN architecture: Studio, Flow, Context, Graph, Gateway, Runtime, Observe, Evaluate, Control, Cloud, and Enterprise.',
     canonicalPath: '/platform',
   },
   '/studio': {
@@ -19,17 +19,83 @@ export const ROUTE_META: Record<RoutePath, RouteMeta> = {
       'Author multi-agent systems using Natural Language, Visual Workflow Builder, Advanced Agent Graph, or the TypeScript Developer SDK.',
     canonicalPath: '/studio',
   },
+  '/flow': {
+    title: 'SOPIN Flow — Deterministic AI Workflow Automation',
+    description:
+      'Deterministic workflow orchestration with conditional routing, bounded retries, tool execution, and human-in-the-loop checkpoints.',
+    canonicalPath: '/flow',
+  },
   '/workflow-automation': {
     title: 'Workflow Automation — SOPIN Flow',
     description:
       'Deterministic workflow orchestration with conditional routing, bounded retries, tool execution, and human-in-the-loop checkpoints.',
     canonicalPath: '/workflow-automation',
   },
+  '/decisions': {
+    title: 'SOPIN Decisions — Make Business Logic Executable | SOPIN',
+    description:
+      'Deterministic business rules, decision tables, rulesets, scorecards, and rule chains integrated with SOPIN Flow, Studio, Graph, and Control.',
+    canonicalPath: '/decisions',
+  },
   '/context': {
     title: 'Context & Memory — SOPIN Context',
     description:
       'Structured working memory, episodic session state, and grounded knowledge retrieval built for accountable agent execution.',
     canonicalPath: '/context',
+  },
+  '/graph': {
+    title: 'SOPIN Graph — Cyclic Multi-Agent & A2A Orchestration',
+    description:
+      'Stateful cyclic graphs with shared state schemas, bounded superstep limits, and Agent-to-Agent (A2A) delegation.',
+    canonicalPath: '/graph',
+  },
+  '/runtime': {
+    title: 'SOPIN Runtime — Sandboxed & Durable Execution',
+    description:
+      'Isolated ephemeral sandboxes with explicit network egress allowlists and durable checkpoint persistence.',
+    canonicalPath: '/runtime',
+  },
+  '/gateway': {
+    title: 'SOPIN Gateway — Unified Model, Multimodal & MCP Router',
+    description:
+      'Vendor-neutral model discovery, multimodal routing, custom ML serving, schema enforcement, and pre-inference PII redaction.',
+    canonicalPath: '/gateway',
+  },
+  '/observe': {
+    title: 'SOPIN Observe — Execution Tracing & Telemetry (Planned)',
+    description:
+      'OpenTelemetry span waterfalls, graph state diffs, 30-day reliability charts, and deterministic replay.',
+    canonicalPath: '/observe',
+  },
+  '/evaluate': {
+    title: 'SOPIN Evaluate — Automated Verification Harnesses (Planned)',
+    description:
+      'Golden datasets, deterministic assertions, grounding checks, and side-by-side model & ML benchmarks.',
+    canonicalPath: '/evaluate',
+  },
+  '/control': {
+    title: 'SOPIN Control — Enterprise Governance & RBAC (Planned)',
+    description:
+      'Organization RBAC, tool capability allowlists, human approval queues, spend ceilings, and audit logs.',
+    canonicalPath: '/control',
+  },
+  '/cloud': {
+    title: 'SOPIN Cloud — Managed Agent Infrastructure (Planned)',
+    description:
+      'Zero-ops managed workspaces, elastic runtime sandboxes, and BYOK or managed Gateway routing.',
+    canonicalPath: '/cloud',
+  },
+  '/enterprise': {
+    title: 'SOPIN Enterprise — Private VPC & Self-Hosted Infrastructure',
+    description:
+      'Private VPC, BYOC, and air-gapped enterprise AI deployments with SSO and SONIL Group engineering onboarding.',
+    canonicalPath: '/enterprise',
+  },
+  '/security': {
+    title: 'Trust & Security Center — SOPIN & SONIL Group',
+    description:
+      'Architectural security posture covering sandboxing, RBAC, KMS secrets vaulting, PII redaction, tenant isolation, and privacy.',
+    canonicalPath: '/security',
   },
   '/developers': {
     title: 'Developers — API, SDK, MCP & A2A — SOPIN',
@@ -40,7 +106,7 @@ export const ROUTE_META: Record<RoutePath, RouteMeta> = {
   '/solutions': {
     title: 'Solutions — Enterprise & Domain Agent Architectures — SOPIN',
     description:
-      'Reference architectures for Business Automation, AI Research, Software Engineering, Data and ML, and Enterprise AI governance.',
+      'Reference architectures for Business Automation, AI Research, Software Engineering, Document Intelligence, Data Intelligence, Machine Learning, Multi-Agent Systems, and Enterprise AI.',
     canonicalPath: '/solutions',
   },
   '/resources': {
@@ -58,7 +124,7 @@ export const ROUTE_META: Record<RoutePath, RouteMeta> = {
   '/about': {
     title: 'About SOPIN & SONIL Group',
     description:
-      'Learn about SOPIN, our engineering principles, and our mission under the SONIL Group to build verifiable AI execution infrastructure.',
+      'Learn about SOPIN, our vision and mission, engineering principles, and SONIL Group stewardship.',
     canonicalPath: '/about',
   },
   '/contact': {
@@ -78,6 +144,7 @@ export const ROUTE_META: Record<RoutePath, RouteMeta> = {
     description:
       'Interactive mobile-first SOPIN workspace prototype: build agents, design workflows, inspect execution timelines, manage knowledge, and govern permissions.',
     canonicalPath: '/app',
+    robots: 'noindex, nofollow',
   },
 };
 
@@ -90,48 +157,71 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
         label: 'Overview',
         description: 'Unified agent engineering and execution architecture.',
         href: '/platform',
-        sectionId: 'overview',
       },
       {
-        label: 'Agent Studio',
+        label: 'SOPIN Studio',
         description: 'Natural language, visual canvas, and graph authoring.',
         href: '/studio',
       },
       {
-        label: 'Workflow Automation',
-        description: 'Deterministic DAG pipelines with SOPIN Flow.',
-        href: '/workflow-automation',
+        label: 'SOPIN Flow',
+        description: 'Deterministic DAG automation & human gates.',
+        href: '/flow',
       },
       {
-        label: 'Context and Memory',
-        description: 'Scoped working memory and grounded retrieval.',
+        label: 'SOPIN Decisions',
+        description: 'Deterministic business rules, tables, scoring & chains.',
+        href: '/decisions',
+      },
+      {
+        label: 'SOPIN Context',
+        description: 'Three-tier memory & grounded RAG retrieval.',
         href: '/context',
       },
       {
-        label: 'Model Gateway',
-        description: 'Unified model routing, schemas, and fallback policy.',
-        href: '/platform',
-        sectionId: 'gateway',
+        label: 'SOPIN Graph',
+        description: 'Cyclic state machines & A2A agent teams.',
+        href: '/graph',
       },
       {
-        label: 'Runtime',
-        description: 'Isolated execution engine for long-running work.',
-        href: '/platform',
-        sectionId: 'runtime',
+        label: 'SOPIN Gateway',
+        description: 'Model, multimodal, ML registry & MCP router.',
+        href: '/gateway',
       },
       {
-        label: 'Evaluations',
-        description: 'Regression suites and assertion harnesses.',
-        href: '/platform',
-        sectionId: 'evaluations',
+        label: 'SOPIN Runtime',
+        description: 'Isolated sandboxes & durable checkpoints.',
+        href: '/runtime',
+      },
+      {
+        label: 'SOPIN Observe',
+        description: 'Span waterfalls, state diffs & telemetry.',
+        href: '/observe',
         status: 'Planned',
       },
       {
-        label: 'Governance',
-        description: 'Policy boundaries, approvals, and audit trails.',
-        href: '/platform',
-        sectionId: 'governance',
+        label: 'SOPIN Evaluate',
+        description: 'Regression datasets & grounding assertions.',
+        href: '/evaluate',
         status: 'Planned',
+      },
+      {
+        label: 'SOPIN Control',
+        description: 'RBAC policies, spend caps & approval queues.',
+        href: '/control',
+        status: 'Planned',
+      },
+      {
+        label: 'SOPIN Cloud',
+        description: 'Managed multi-region execution platform.',
+        href: '/cloud',
+        status: 'Planned',
+      },
+      {
+        label: 'SOPIN Enterprise',
+        description: 'Private VPC, BYOC & SONIL Group deployments.',
+        href: '/enterprise',
+        status: 'Roadmap',
       },
     ],
   },
@@ -141,9 +231,15 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
     items: [
       {
         label: 'Business Automation',
-        description: 'Structured operational triage and document routing.',
+        description: 'Structured operational triage and workflow routing.',
         href: '/solutions',
         sectionId: 'business-automation',
+      },
+      {
+        label: 'Document Intelligence',
+        description: 'OCR, schema extraction & verified document parsing.',
+        href: '/solutions',
+        sectionId: 'document-intelligence',
       },
       {
         label: 'AI Research',
@@ -153,15 +249,27 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
       },
       {
         label: 'Software Engineering',
-        description: 'Repository analysis, review, and test generation.',
+        description: 'Repository analysis, review, and sandboxed testing.',
         href: '/solutions',
         sectionId: 'software-engineering',
       },
       {
-        label: 'Data and ML',
-        description: 'Pipeline validation, SQL synthesis, and lineage checks.',
+        label: 'Data Intelligence',
+        description: 'Schema-grounded analytics and lineage checks.',
         href: '/solutions',
-        sectionId: 'data-ml',
+        sectionId: 'data-intelligence',
+      },
+      {
+        label: 'Machine Learning',
+        description: 'Dataset prep, training, eval & Gateway serving.',
+        href: '/solutions',
+        sectionId: 'machine-learning',
+      },
+      {
+        label: 'Multi-Agent Applications',
+        description: 'Bounded supervisor-worker & A2A topologies.',
+        href: '/solutions',
+        sectionId: 'multi-agent',
       },
       {
         label: 'Enterprise AI',
@@ -254,7 +362,29 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
   {
     id: 'company',
     label: 'Company',
-    href: '/about',
+    items: [
+      {
+        label: 'About SOPIN',
+        description: 'Vision, engineering thesis, and SONIL Group stewardship.',
+        href: '/about',
+      },
+      {
+        label: 'Trust & Security Center',
+        description: 'Sandboxing, RBAC, credential vaulting, and data privacy.',
+        href: '/security',
+      },
+      {
+        label: 'SOPIN Enterprise',
+        description: 'Private VPC, BYOC, and self-hosted architecture.',
+        href: '/enterprise',
+        status: 'Roadmap',
+      },
+      {
+        label: 'Contact SONIL Group',
+        description: 'Design partner intake, SDK access, and enterprise inquiries.',
+        href: '/contact',
+      },
+    ],
   },
 ];
 
@@ -731,9 +861,18 @@ export const ECOSYSTEM_MODULES: EcosystemModule[] = [
     name: 'SOPIN Flow',
     role: 'Workflow Engine',
     summary: 'Deterministic orchestration for branching pipelines, parallel execution, retries, and durable checkpoints.',
-    href: '/workflow-automation',
+    href: '/flow',
     status: 'Core Architecture',
-    capabilities: ['Conditional routing', 'Idempotent retries', 'Human-in-the-loop'],
+    capabilities: ['Conditional routing', 'Decision Nodes', 'Human-in-the-loop'],
+  },
+  {
+    id: 'decisions',
+    name: 'SOPIN Decisions',
+    role: 'Decision Automation',
+    summary: 'Executable business rules, decision tables, rulesets, scorecards, and rule chains with full execution traces.',
+    href: '/decisions',
+    status: 'Core Architecture',
+    capabilities: ['Rule Builder & Tables', 'Scoring & Chains', 'Versioned Simulation'],
   },
   {
     id: 'context',
@@ -745,32 +884,38 @@ export const ECOSYSTEM_MODULES: EcosystemModule[] = [
     capabilities: ['Scoped memory tiers', 'Hybrid retrieval', 'Provenance tracking'],
   },
   {
+    id: 'graph',
+    name: 'SOPIN Graph',
+    role: 'Cyclic State Engine',
+    summary: 'Bounded cyclic multi-agent graphs supporting planner-verifier loops and A2A peer handoffs.',
+    href: '/graph',
+    status: 'Core Architecture',
+    capabilities: ['Shared state schema', 'maxSteps loop caps', 'A2A handoffs'],
+  },
+  {
     id: 'runtime',
     name: 'SOPIN Runtime',
     role: 'Execution Sandbox',
     summary: 'Isolated compute environment for executing tools, code interpreters, and long-running agent graphs safely.',
-    href: '/platform',
-    sectionId: 'runtime',
+    href: '/runtime',
     status: 'Core Architecture',
     capabilities: ['Container isolation', 'Bounded egress', 'Durable state recovery'],
   },
   {
     id: 'gateway',
     name: 'SOPIN Gateway',
-    role: 'Model Router',
-    summary: 'Single control point for multi-provider model routing, structured output enforcement, and fallback policies.',
-    href: '/platform',
-    sectionId: 'gateway',
+    role: 'Model & ML Router',
+    summary: 'Single control point for multi-provider LLMs, multimodal parsing, custom ML models, and schema enforcement.',
+    href: '/gateway',
     status: 'Core Architecture',
-    capabilities: ['Provider abstraction', 'Schema enforcement', 'Policy routing'],
+    capabilities: ['Provider abstraction', 'Schema enforcement', 'ML registry routing'],
   },
   {
     id: 'observe',
     name: 'SOPIN Observe',
     role: 'Execution Tracing',
-    summary: 'Step-by-step trace inspection across prompts, tool calls, context chunks, and agent handoffs.',
-    href: '/platform',
-    sectionId: 'evaluations',
+    summary: 'Step-by-step trace inspection across prompts, tool calls, context chunks, and 30-day performance trends.',
+    href: '/observe',
     status: 'Planned',
     capabilities: ['Span-level traces', 'State diffing', 'Deterministic replay'],
   },
@@ -778,21 +923,37 @@ export const ECOSYSTEM_MODULES: EcosystemModule[] = [
     id: 'evaluate',
     name: 'SOPIN Evaluate',
     role: 'Verification Harnesses',
-    summary: 'Automated regression datasets, schema assertions, and grounding checks prior to workflow promotion.',
-    href: '/platform',
-    sectionId: 'evaluations',
+    summary: 'Automated regression datasets, schema assertions, and ML/LLM benchmarks prior to workflow promotion.',
+    href: '/evaluate',
     status: 'Planned',
-    capabilities: ['Golden test sets', 'Assertion gates', 'Prompt diff comparisons'],
+    capabilities: ['Golden test sets', 'Assertion gates', 'Model benchmarking'],
   },
   {
     id: 'control',
     name: 'SOPIN Control',
     role: 'Governance & Policy',
-    summary: 'Role-based permissions, approval workflows, tool allowlists, and auditable execution policies.',
-    href: '/platform',
-    sectionId: 'governance',
+    summary: 'Role-based permissions, approval workflows, tool allowlists, spend budgets, and auditable execution policies.',
+    href: '/control',
     status: 'Planned',
     capabilities: ['RBAC & tool scopes', 'Approval queues', 'Compliance audit log'],
+  },
+  {
+    id: 'cloud',
+    name: 'SOPIN Cloud',
+    role: 'Managed Infrastructure',
+    summary: 'Zero-ops multi-region cloud hosting for Studio workspaces, Context indexes, and elastic Runtime sandboxes.',
+    href: '/cloud',
+    status: 'Planned',
+    capabilities: ['Serverless sandboxes', 'BYOK vaulting', 'Workspace isolation'],
+  },
+  {
+    id: 'enterprise',
+    name: 'SOPIN Enterprise',
+    role: 'Private VPC & BYOC',
+    summary: 'Self-hosted or private VPC deployment topology with SSO, SAML, and SONIL Group engineering partnership.',
+    href: '/enterprise',
+    status: 'Planned',
+    capabilities: ['Private VPC / BYOC', 'SAML 2.0 & SCIM', 'Custom MCP adapters'],
   },
 ];
 

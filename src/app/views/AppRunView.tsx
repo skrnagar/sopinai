@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  ArrowUpRight,
   Bot,
   CheckCircle2,
   Clock,
   Download,
   FileText,
+  GitBranch,
+  Layers,
   Pause,
   Play,
   Plus,
   RotateCcw,
+  Scale,
   Share2,
   ShieldAlert,
   Wrench,
@@ -19,69 +23,381 @@ import {
   AgentConfig,
   ExecutionRun,
   KnowledgeDocument,
+  MultiAgentGraphSpec,
   RetrievedSourceRef,
+  UnifiedTraceSpan,
   WorkflowConfig,
 } from '../types';
+import { DecisionExecutionSpec } from '../../decisions/types';
 import { BottomSheet } from '../../components/ui/BottomSheet';
-import { StatusText } from '../../components/ui/EditorialPrimitives';
+import { StateDisplay, StatusText } from '../../components/ui/EditorialPrimitives';
 
 interface AppRunViewProps {
   runs: ExecutionRun[];
   selectedRunId: string;
   agents: AgentConfig[];
   workflows: WorkflowConfig[];
+  multiAgentGraphs?: MultiAgentGraphSpec[];
   documents: KnowledgeDocument[];
+  decisionExecutions?: DecisionExecutionSpec[];
   onSelectRun: (runId: string) => void;
   onStartRun: (payload: {
     title: string;
     prompt: string;
     targetName: string;
-    targetType: 'Agent' | 'Workflow';
+    targetType: 'Agent' | 'Workflow' | 'Graph';
     docId?: string;
+    workflowInputPayload?: Record<string, unknown>;
   }) => void;
   onRunAction: (
     runId: string,
-    action: 'pause' | 'resume' | 'cancel' | 'retry' | 'approve' | 'reject'
+    action: 'pause' | 'resume' | 'cancel' | 'retry' | 'approve' | 'reject' | 'escalate',
+    meta?: { reason?: string; reviewer?: string; escalateTo?: string }
   ) => void;
 }
+
+const DEFAULT_GRAPH_INPUT = JSON.stringify(
+  { citationCount: 4, groundedScore: 0.92, contradictionCount: 0 },
+  null,
+  2
+);
+
+const TraceSpanNode: React.FC<{
+  span: UnifiedTraceSpan;
+  depth?: number;
+  decisionExecutions?: DecisionExecutionSpec[];
+}> = ({ span, depth = 0, decisionExecutions }) => {
+  const [expanded, setExpanded] = useState(true);
+  const linkedExec = span.decisionRef
+    ? decisionExecutions?.find((ex) => ex.id === span.decisionRef?.executionId)
+    : undefined;
+
+  const badgeTone =
+    span.status === 'failed'
+      ? 'text-red-600 dark:text-red-400 border-red-500/30 bg-red-500/10'
+      : span.status === 'awaiting-approval'
+      ? 'text-[#6252E8] dark:text-[#B894FF] border-[#965BFF]/40 bg-[#965BFF]/10'
+      : 'text-[#6252E8] dark:text-[#B894FF] border-[#6252E8]/25 bg-[#6252E8]/10';
+
+  return (
+    <div className={depth > 0 ? 'pl-3 border-l-2 border-[#6252E8]/25 space-y-2' : 'space-y-2'}>
+      <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className={`px-2 py-0.5 rounded-md border font-mono text-[10px] uppercase shrink-0 ${badgeTone}`}>
+              {span.kind}
+            </span>
+            <span className="text-xs font-semibold text-[#101014] dark:text-white truncate">
+              {span.label}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5] shrink-0">
+            <span>{span.module}</span>
+            <span>·</span>
+            <span>{span.durationMs.toFixed(1)}ms</span>
+            {span.children && span.children.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                className="min-h-[32px] px-2 rounded border border-[#101014]/15 dark:border-white/15 text-[10px] font-semibold"
+              >
+                {expanded ? 'Hide' : `Spans (${span.children.length})`}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <p className="text-xs text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed break-words">
+          {span.detail}
+        </p>
+
+        {span.decisionRef && (
+          <div className="rounded-lg border border-[#6252E8]/25 bg-white dark:bg-[#101126] p-2.5 space-y-1.5 text-[11px]">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <span className="inline-flex items-center gap-1 font-mono font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                <Scale className="w-3 h-3 shrink-0" aria-hidden="true" />
+                <span>
+                  {span.decisionRef.artifactName} · {span.decisionRef.versionUsed}
+                </span>
+              </span>
+              <span className="font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
+                Match: {span.decisionRef.matchedRuleOrRow}
+                {span.decisionRef.retriesAttempted > 0
+                  ? ` · Retries: ${span.decisionRef.retriesAttempted}`
+                  : ''}
+              </span>
+            </div>
+            {span.decisionRef.errorCode && (
+              <div className="font-mono text-red-600 dark:text-red-400">
+                Error Code: {span.decisionRef.errorCode}
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <div className="rounded bg-[#F7F7FA] dark:bg-[#101014] p-2 min-w-0">
+                <div className="font-mono text-[10px] uppercase text-[#5E5E6E] dark:text-[#9A9AB0]">
+                  Redacted Input Summary
+                </div>
+                <div className="font-mono text-[11px] text-[#101014] dark:text-[#E8E8F2] break-words mt-0.5">
+                  {Object.keys(span.decisionRef.redactedInputSummary).length > 0
+                    ? Object.entries(span.decisionRef.redactedInputSummary)
+                        .map(([k, v]) => `${k}=${v}`)
+                        .join(', ')
+                    : '—'}
+                </div>
+              </div>
+              <div className="rounded bg-[#F7F7FA] dark:bg-[#101014] p-2 min-w-0">
+                <div className="font-mono text-[10px] uppercase text-[#5E5E6E] dark:text-[#9A9AB0]">
+                  Redacted Output Summary
+                </div>
+                <div className="font-mono text-[11px] text-[#101014] dark:text-[#E8E8F2] break-words mt-0.5">
+                  {Object.keys(span.decisionRef.redactedOutputSummary).length > 0
+                    ? Object.entries(span.decisionRef.redactedOutputSummary)
+                        .map(([k, v]) => `${k}=${v}`)
+                        .join(', ')
+                    : '—'}
+                </div>
+              </div>
+            </div>
+            {linkedExec && (
+              <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
+                Observe Exec ID: <span className="font-mono">{linkedExec.id}</span> ·{' '}
+                {linkedExec.explanation}
+              </div>
+            )}
+          </div>
+        )}
+
+        {span.approvalRef && (
+          <div className="rounded-lg border border-[#965BFF]/30 bg-white dark:bg-[#101126] p-2.5 text-[11px] space-y-1">
+            <div className="font-semibold text-[#101014] dark:text-white">
+              Gate: {span.approvalRef.actionLabel} ({span.approvalRef.status})
+            </div>
+            {span.approvalRef.reviewer && (
+              <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">
+                Reviewer: {span.approvalRef.reviewer}
+                {span.approvalRef.escalatedTo ? ` · Escalated to: ${span.approvalRef.escalatedTo}` : ''}
+              </div>
+            )}
+            {span.approvalRef.reason && (
+              <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">{span.approvalRef.reason}</div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {expanded && span.children && span.children.length > 0 && (
+        <div className="space-y-2">
+          {span.children.map((child) => (
+            <TraceSpanNode
+              key={child.id}
+              span={child}
+              depth={depth + 1}
+              decisionExecutions={decisionExecutions}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const AppRunView: React.FC<AppRunViewProps> = ({
   runs,
   selectedRunId,
   agents,
   workflows,
+  multiAgentGraphs = [],
   documents,
+  decisionExecutions = [],
   onSelectRun,
   onStartRun,
   onRunAction,
 }) => {
+  const defaultTargetValue = agents[0]
+    ? `agent:${agents[0].name}`
+    : workflows[0]
+    ? `workflow:${workflows[0].name}`
+    : multiAgentGraphs[0]
+    ? `graph:${multiAgentGraphs[0].name}`
+    : 'agent:Workspace Agent';
+
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskPrompt, setTaskPrompt] = useState('');
-  const [taskTarget, setTaskTarget] = useState<string>(agents[0]?.name || 'PR Verification Agent');
+  const [taskTargetKey, setTaskTargetKey] = useState<string>(defaultTargetValue);
   const [taskDocId, setTaskDocId] = useState<string>(documents[0]?.id || '');
+  const [payloadJsonText, setPayloadJsonText] = useState<string>('{}');
+  const [payloadError, setPayloadError] = useState<string>('');
 
   const [selectedSource, setSelectedSource] = useState<RetrievedSourceRef | null>(null);
-  const [gateConfirm, setGateConfirm] = useState<'approve' | 'reject' | null>(null);
+  const [gateConfirm, setGateConfirm] = useState<'approve' | 'reject' | 'escalate' | null>(null);
+  const [gateReviewer, setGateReviewer] = useState('Workspace Maintainer');
+  const [gateReason, setGateReason] = useState('');
+  const [gateEscalateTo, setGateEscalateTo] = useState('CFO / Chief Compliance Officer');
   const [shareFeedback, setShareFeedback] = useState('');
 
   const activeRun = runs.find((r) => r.id === selectedRunId) ?? runs[0];
 
+  const selectedTargetInfo = useMemo(() => {
+    if (taskTargetKey.startsWith('workflow:')) {
+      const name = taskTargetKey.slice('workflow:'.length);
+      return {
+        type: 'Workflow' as const,
+        name,
+        workflow: workflows.find((w) => w.name === name),
+      };
+    }
+    if (taskTargetKey.startsWith('graph:')) {
+      const name = taskTargetKey.slice('graph:'.length);
+      return {
+        type: 'Graph' as const,
+        name,
+        graph: multiAgentGraphs.find((g) => g.name === name),
+      };
+    }
+    const name = taskTargetKey.startsWith('agent:')
+      ? taskTargetKey.slice('agent:'.length)
+      : taskTargetKey;
+    return {
+      type: 'Agent' as const,
+      name,
+      agent: agents.find((a) => a.name === name),
+    };
+  }, [taskTargetKey, workflows, multiAgentGraphs, agents]);
+
+  const handleTargetChange = (nextKey: string) => {
+    setTaskTargetKey(nextKey);
+    setPayloadError('');
+    if (nextKey.startsWith('workflow:')) {
+      const name = nextKey.slice('workflow:'.length);
+      const wf = workflows.find((w) => w.name === name);
+      if (wf?.sampleInputs && wf.sampleInputs.length > 0) {
+        setPayloadJsonText(JSON.stringify(wf.sampleInputs[0].payload, null, 2));
+        if (!taskPrompt.trim()) {
+          setTaskPrompt(`Execute ${wf.name} with ${wf.sampleInputs[0].label}`);
+        }
+      } else {
+        setPayloadJsonText('{}');
+      }
+    } else if (nextKey.startsWith('graph:')) {
+      setPayloadJsonText(DEFAULT_GRAPH_INPUT);
+      if (!taskPrompt.trim()) {
+        setTaskPrompt('Execute Research -> Decision -> Verification -> Approval Multi-Agent Graph');
+      }
+    } else {
+      setPayloadJsonText('{}');
+    }
+  };
+
   const handleDispatchTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskPrompt.trim()) return;
-    const isWorkflow = workflows.some((w) => w.name === taskTarget);
+
+    let parsedPayload: Record<string, unknown> | undefined;
+    if (
+      selectedTargetInfo.type === 'Workflow' ||
+      selectedTargetInfo.type === 'Graph' ||
+      payloadJsonText.trim() !== '{}'
+    ) {
+      try {
+        const raw = JSON.parse(payloadJsonText || '{}');
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+          setPayloadError('Input payload must be a valid JSON object.');
+          return;
+        }
+        parsedPayload = raw as Record<string, unknown>;
+      } catch {
+        setPayloadError('Invalid JSON syntax in input payload.');
+        return;
+      }
+    }
+
     onStartRun({
-      title: taskTitle.trim() || `${taskTarget} · Task`,
+      title: taskTitle.trim() || `${selectedTargetInfo.name} · Task`,
       prompt: taskPrompt.trim(),
-      targetName: taskTarget,
-      targetType: isWorkflow ? 'Workflow' : 'Agent',
+      targetName: selectedTargetInfo.name,
+      targetType: selectedTargetInfo.type,
       docId: taskDocId || undefined,
+      workflowInputPayload: parsedPayload,
     });
     setTaskTitle('');
     setTaskPrompt('');
+    setPayloadError('');
     setNewTaskOpen(false);
   };
+
+  const demoLaunchers = useMemo(() => {
+    const items: {
+      id: string;
+      badge: string;
+      label: string;
+      targetName: string;
+      targetType: 'Workflow' | 'Graph';
+      prompt: string;
+      payload: Record<string, unknown>;
+    }[] = [];
+
+    const wfA = workflows.find((w) => w.id === 'wf-invoice-decisions');
+    if (wfA?.sampleInputs?.[0]) {
+      items.push({
+        id: 'demo-a-auto',
+        badge: 'Scenario A',
+        label: 'Invoice Auto-Approve (₹32.5k)',
+        targetName: wfA.name,
+        targetType: 'Workflow',
+        prompt: `[Sample Demo Data] Run ${wfA.name}: ${wfA.sampleInputs[0].label}`,
+        payload: wfA.sampleInputs[0].payload,
+      });
+    }
+    if (wfA?.sampleInputs?.[1]) {
+      items.push({
+        id: 'demo-a-rev',
+        badge: 'Scenario A Gate',
+        label: 'Invoice Manual Review (₹78k)',
+        targetName: wfA.name,
+        targetType: 'Workflow',
+        prompt: `[Sample Demo Data] Run ${wfA.name}: ${wfA.sampleInputs[1].label}`,
+        payload: wfA.sampleInputs[1].payload,
+      });
+    }
+    const wfB = workflows.find((w) => w.id === 'wf-customer-onboarding');
+    if (wfB?.sampleInputs?.[1]) {
+      items.push({
+        id: 'demo-b',
+        badge: 'Scenario B',
+        label: 'Onboarding KYC Review Gate',
+        targetName: wfB.name,
+        targetType: 'Workflow',
+        prompt: `[Sample Demo Data] Run ${wfB.name}: ${wfB.sampleInputs[1].label}`,
+        payload: wfB.sampleInputs[1].payload,
+      });
+    }
+    const wfC = workflows.find((w) => w.id === 'wf-procurement-flow');
+    if (wfC?.sampleInputs?.[0]) {
+      items.push({
+        id: 'demo-c',
+        badge: 'Scenario C',
+        label: 'Procurement Context + PO Gate',
+        targetName: wfC.name,
+        targetType: 'Workflow',
+        prompt: `[Sample Demo Data] Run ${wfC.name}: ${wfC.sampleInputs[0].label}`,
+        payload: wfC.sampleInputs[0].payload,
+      });
+    }
+    const graphD = multiAgentGraphs.find((g) => g.id === 'graph-research-compliance');
+    if (graphD) {
+      items.push({
+        id: 'demo-d-graph',
+        badge: 'Scenario D',
+        label: 'Multi-Agent Research Graph',
+        targetName: graphD.name,
+        targetType: 'Graph',
+        prompt: '[Sample Demo Data] Execute Research -> Quality Decision -> Verifier Agent -> Approval Graph',
+        payload: { citationCount: 4, groundedScore: 0.92, contradictionCount: 0 },
+      });
+    }
+    return items;
+  }, [workflows, multiAgentGraphs]);
 
   const handleDownloadArtifact = (run: ExecutionRun) => {
     if (!run.artifactMarkdown) return;
@@ -117,14 +433,14 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Top Action Strip + Horizontal Run Switcher */}
+      {/* Top Action Strip */}
       <div className="flex items-center justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <h2 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
             Execution Timeline
           </h2>
           <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
-            Inspect plans, tool calls, citations, and approval gates (Local Prototype).
+            Inspect unified Workflow, Agent, Decision, Context, and Approval traces (Local Prototype).
           </p>
         </div>
         <button
@@ -137,6 +453,46 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         </button>
       </div>
 
+      {/* 1-Tap End-to-End Demo Scenarios */}
+      {demoLaunchers.length > 0 && (
+        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-3.5 space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#101014] dark:text-white">
+              <GitBranch className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+              <span>Integrated Scenarios · Decisions + Flow + Graph</span>
+            </div>
+            <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+              [Sample Demo Data]
+            </span>
+          </div>
+          <div className="flex overflow-x-auto no-scrollbar gap-2 pb-1">
+            {demoLaunchers.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() =>
+                  onStartRun({
+                    title: `[Sample Demo Data] ${d.label}`,
+                    prompt: d.prompt,
+                    targetName: d.targetName,
+                    targetType: d.targetType,
+                    workflowInputPayload: d.payload,
+                  })
+                }
+                className="min-h-[44px] px-3 py-2 rounded-xl border border-[#6252E8]/30 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8] text-left shrink-0 space-y-0.5"
+              >
+                <div className="font-mono text-[10px] font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                  {d.badge} · {d.targetType}
+                </div>
+                <div className="text-xs font-semibold text-[#101014] dark:text-white whitespace-nowrap">
+                  {d.label}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Run History Selector Pills */}
       <div className="flex overflow-x-auto no-scrollbar gap-2 pb-1">
         {runs.map((run) => {
@@ -146,7 +502,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               key={run.id}
               type="button"
               onClick={() => onSelectRun(run.id)}
-              className={`min-h-[52px] min-w-[205px] max-w-[235px] shrink-0 text-left rounded-xl border p-3 transition-colors ${
+              className={`min-h-[52px] min-w-[205px] max-w-[245px] shrink-0 text-left rounded-xl border p-3 transition-colors ${
                 isCurrent
                   ? 'border-[#6252E8] bg-white dark:bg-[#101126] shadow-sm'
                   : 'border-[#101014]/10 dark:border-white/10 bg-white/70 dark:bg-[#101126]/50'
@@ -154,7 +510,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF]">
-                  {run.id}
+                  {run.id} · {run.targetType}
                 </span>
                 <span className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5] capitalize">
                   {run.status}
@@ -168,7 +524,15 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         })}
       </div>
 
-      {activeRun && (
+      {!activeRun ? (
+        <StateDisplay
+          mode="empty"
+          title="No execution runs in this workspace yet"
+          description="Dispatch a prototype task using an agent, workflow, or multi-agent graph to inspect unified execution traces and approval gates."
+          actionLabel="Start First Task"
+          onAction={() => setNewTaskOpen(true)}
+        />
+      ) : (
         <div className="space-y-4">
           {/* Active Run Summary & Controls */}
           <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3.5">
@@ -177,12 +541,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 <StatusText
                   items={[
                     activeRun.id,
+                    activeRun.targetType,
                     activeRun.targetName,
                     activeRun.status.toUpperCase(),
                   ]}
                   accentLast
                 />
-                <h3 className="mt-1 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                <h3 className="mt-1 font-display text-lg font-semibold text-[#101014] dark:text-white break-words">
                   {activeRun.title}
                 </h3>
               </div>
@@ -191,13 +556,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               </span>
             </div>
 
-            <p className="text-xs text-[#5E5E6E] dark:text-[#C5C5D6] bg-[#F7F7FA] dark:bg-[#101014] rounded-xl p-3 border border-[#101014]/[0.06] dark:border-white/10">
+            <p className="text-xs text-[#5E5E6E] dark:text-[#C5C5D6] bg-[#F7F7FA] dark:bg-[#101014] rounded-xl p-3 border border-[#101014]/[0.06] dark:border-white/10 break-words">
               {activeRun.prompt}
             </p>
 
             {/* Collaborating Sub-agents */}
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="text-[#5E5E6E] dark:text-[#A4A4B5] font-medium mr-1">Agents:</span>
+              <span className="text-[#5E5E6E] dark:text-[#A4A4B5] font-medium mr-1">Actors:</span>
               {activeRun.activeSubAgents.map((sub, i) => (
                 <React.Fragment key={sub}>
                   {i > 0 && <span className="text-[#5E5E6E]" aria-hidden="true">→</span>}
@@ -261,7 +626,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2.5 text-xs text-[#101014] dark:text-white"
               >
                 <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{activeRun.failureReason}</span>
+                <span className="break-words">{activeRun.failureReason}</span>
               </div>
             )}
           </div>
@@ -269,9 +634,16 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
           {/* Human Approval Gate Card */}
           {activeRun.status === 'awaiting-approval' && activeRun.approvalGate && (
             <div className="rounded-2xl border-2 border-[#965BFF] bg-white dark:bg-[#101126] p-4 space-y-3 shadow-md">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#6252E8] dark:text-[#B894FF]">
-                <ShieldAlert className="w-4 h-4" aria-hidden="true" />
-                <span>Human Approval Gate · Role: {activeRun.approvalGate.requiredRole}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span>Human Approval Gate · Role: {activeRun.approvalGate.requiredRole}</span>
+                </span>
+                {activeRun.approvalGate.escalatedTo && (
+                  <span className="font-mono text-[11px] text-amber-600 dark:text-amber-400">
+                    Escalated → {activeRun.approvalGate.escalatedTo}
+                  </span>
+                )}
               </div>
               <h4 className="font-display text-base font-semibold text-[#101014] dark:text-white">
                 {activeRun.approvalGate.actionLabel}
@@ -279,22 +651,119 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               <p className="text-xs text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                 {activeRun.approvalGate.reason}
               </p>
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                 <button
                   type="button"
-                  onClick={() => setGateConfirm('reject')}
-                  className="min-h-[44px] rounded-xl border border-[#101014]/20 dark:border-white/20 text-xs font-semibold text-[#101014] dark:text-white"
-                >
-                  Reject &amp; Halt
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGateConfirm('approve')}
+                  onClick={() => {
+                    setGateReason('');
+                    setGateConfirm('approve');
+                  }}
                   className="min-h-[44px] rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
                 >
                   <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                   <span>Approve &amp; Finish</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGateReason('');
+                    setGateConfirm('escalate');
+                  }}
+                  className="min-h-[44px] rounded-xl border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+                >
+                  <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
+                  <span>Escalate Gate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGateReason('');
+                    setGateConfirm('reject');
+                  }}
+                  className="min-h-[44px] rounded-xl border border-[#101014]/20 dark:border-white/20 text-xs font-semibold text-[#101014] dark:text-white"
+                >
+                  Reject &amp; Halt
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Approval Audit History */}
+          {activeRun.approvalHistory && activeRun.approvalHistory.length > 0 && (
+            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
+              <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+                SOPIN Control · Approval Audit History ({activeRun.approvalHistory.length})
+              </h4>
+              <div className="space-y-2">
+                {activeRun.approvalHistory.map((h) => (
+                  <div
+                    key={h.id}
+                    className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 text-xs space-y-1"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold text-[#101014] dark:text-white capitalize">
+                        {h.decision} · {h.actor} ({h.role})
+                      </span>
+                      <span className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
+                        {h.timestamp}
+                      </span>
+                    </div>
+                    <p className="text-[#5E5E6E] dark:text-[#B5B5C5]">{h.reason}</p>
+                    {h.escalatedTo && (
+                      <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                        Escalated to: {h.escalatedTo}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Unified Trace Waterfall (SOPIN Observe) */}
+          {activeRun.unifiedTrace && (
+            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white inline-flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                  <span>Unified Trace Waterfall (Workflow → Agent → Decision → Gate)</span>
+                </h4>
+                <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                  Total: {activeRun.unifiedTrace.durationMs.toFixed(1)}ms
+                </span>
+              </div>
+              <TraceSpanNode
+                span={activeRun.unifiedTrace}
+                decisionExecutions={decisionExecutions}
+              />
+            </div>
+          )}
+
+          {/* Redacted Workflow Variables State */}
+          {activeRun.workflowVars && Object.keys(activeRun.workflowVars).length > 0 && (
+            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+                  Runtime Output Variables (PII-Redacted)
+                </h4>
+                <span className="font-mono text-[10px] uppercase text-[#5E5E6E] dark:text-[#9A9AB0]">
+                  SOPIN Observe Filter
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {Object.entries(activeRun.workflowVars).map(([key, val]) => (
+                  <div
+                    key={key}
+                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/[0.06] dark:border-white/10 p-2.5 text-xs min-w-0"
+                  >
+                    <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] truncate">
+                      {key}
+                    </div>
+                    <div className="font-mono text-xs text-[#101014] dark:text-white break-words mt-0.5">
+                      {typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -311,7 +780,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1.5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-[#101014] dark:text-white">
+                    <span className="font-mono text-xs font-semibold text-[#101014] dark:text-white break-words">
                       {step.label}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#6252E8] dark:text-[#B894FF] shrink-0">
@@ -324,6 +793,14 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   </div>
                   <div className="text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0] flex flex-wrap items-center gap-2">
                     <span>{step.agentRole} · {step.module}</span>
+                    {step.durationMs !== undefined && (
+                      <span className="font-mono">{step.durationMs.toFixed(1)}ms</span>
+                    )}
+                    {step.retriesAttempted !== undefined && step.retriesAttempted > 0 && (
+                      <span className="font-mono text-amber-600 dark:text-amber-400">
+                        {step.retriesAttempted} retry(s)
+                      </span>
+                    )}
                     {step.toolUsed && (
                       <span className="inline-flex items-center gap-1 font-mono text-[#101014] dark:text-[#D8D8E6]">
                         <Wrench className="w-3 h-3 text-[#6252E8]" aria-hidden="true" />
@@ -331,7 +808,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="text-xs text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed break-words">
                     {step.detail}
                   </p>
                 </div>
@@ -357,7 +834,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                       {src.docTitle}
                     </span>
                     <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
-                      {src.chunkId}
+                      {src.checksum ? `${src.chunkId} · ${src.checksum}` : src.chunkId}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] line-clamp-2">
@@ -382,7 +859,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleDownloadArtifact(activeRun)}
-                    className="min-h-[40px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+                    className="min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
                   >
                     <Download className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Download</span>
@@ -390,7 +867,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleShareArtifact(activeRun)}
-                    className="min-h-[40px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+                    className="min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
                   >
                     <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Share</span>
@@ -415,31 +892,99 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         open={newTaskOpen}
         onClose={() => setNewTaskOpen(false)}
         title="Start New Prototype Task"
-        subtitle="Simulates plan, context lookup, and human checkpoint locally."
+        subtitle="Runs Agents, Workflows with Decision Nodes, or Multi-Agent Graphs locally."
       >
         <form onSubmit={handleDispatchTask} className="space-y-4">
           <div>
             <label htmlFor="task-target" className="block text-xs font-semibold mb-1.5">
-              Select Agent or Workflow
+              Select Agent, Workflow, or Multi-Agent Graph
             </label>
             <select
               id="task-target"
-              value={taskTarget}
-              onChange={(e) => setTaskTarget(e.target.value)}
+              value={taskTargetKey}
+              onChange={(e) => handleTargetChange(e.target.value)}
               className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
             >
-              {agents.map((a) => (
-                <option key={a.id} value={a.name}>
-                  Agent · {a.name}
-                </option>
-              ))}
-              {workflows.map((w) => (
-                <option key={w.id} value={w.name}>
-                  Workflow · {w.name}
-                </option>
-              ))}
+              {agents.length > 0 && (
+                <optgroup label="Agents">
+                  {agents.map((a) => (
+                    <option key={a.id} value={`agent:${a.name}`}>
+                      Agent · {a.name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {workflows.length > 0 && (
+                <optgroup label="SOPIN Flow Workflows">
+                  {workflows.map((w) => (
+                    <option key={w.id} value={`workflow:${w.name}`}>
+                      Workflow · {w.name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {multiAgentGraphs.length > 0 && (
+                <optgroup label="SOPIN Multi-Agent Graphs">
+                  {multiAgentGraphs.map((g) => (
+                    <option key={g.id} value={`graph:${g.name}`}>
+                      Graph · {g.name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
+
+          {/* Sample Input Presets when Workflow has sampleInputs */}
+          {selectedTargetInfo.type === 'Workflow' &&
+            selectedTargetInfo.workflow?.sampleInputs &&
+            selectedTargetInfo.workflow.sampleInputs.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-xs font-semibold">
+                  Sample Input Payloads [Sample Demo Data]
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedTargetInfo.workflow.sampleInputs.map((sample) => (
+                    <button
+                      key={sample.id}
+                      type="button"
+                      onClick={() => {
+                        setPayloadJsonText(JSON.stringify(sample.payload, null, 2));
+                        setPayloadError('');
+                        if (!taskPrompt.trim()) {
+                          setTaskPrompt(`Execute ${selectedTargetInfo.name}: ${sample.label}`);
+                        }
+                      }}
+                      className="min-h-[38px] px-2.5 py-1.5 rounded-lg border border-[#6252E8]/35 bg-[#6252E8]/10 text-xs font-medium text-[#101014] dark:text-white"
+                    >
+                      {sample.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {(selectedTargetInfo.type === 'Workflow' || selectedTargetInfo.type === 'Graph') && (
+            <div>
+              <label htmlFor="task-payload" className="block text-xs font-semibold mb-1.5">
+                Runtime Input Payload (JSON)
+              </label>
+              <textarea
+                id="task-payload"
+                rows={4}
+                value={payloadJsonText}
+                onChange={(e) => {
+                  setPayloadJsonText(e.target.value);
+                  setPayloadError('');
+                }}
+                className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+              />
+              {payloadError && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{payloadError}</p>
+              )}
+            </div>
+          )}
+
           <div>
             <label htmlFor="task-title" className="block text-xs font-semibold mb-1.5">
               Task Title (Optional)
@@ -449,10 +994,11 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               type="text"
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
-              placeholder="e.g., Audit ADR Sandbox Rules"
+              placeholder="e.g., Audit Invoice Threshold Routing"
               className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
             />
           </div>
+
           <div>
             <label htmlFor="task-doc" className="block text-xs font-semibold mb-1.5">
               Attach Knowledge Source
@@ -471,6 +1017,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               ))}
             </select>
           </div>
+
           <div>
             <label htmlFor="task-prompt" className="block text-xs font-semibold mb-1.5">
               Task Objective Prompt
@@ -481,10 +1028,11 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               required
               value={taskPrompt}
               onChange={(e) => setTaskPrompt(e.target.value)}
-              placeholder="Describe the verification, research, or workflow task to simulate..."
+              placeholder="Describe the verification, decision routing, or workflow task to execute..."
               className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
             />
           </div>
+
           <button
             type="submit"
             disabled={!taskPrompt.trim()}
@@ -500,7 +1048,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         open={Boolean(selectedSource)}
         onClose={() => setSelectedSource(null)}
         title={selectedSource?.docTitle || 'Source Chunk'}
-        subtitle={selectedSource ? `Passage reference: ${selectedSource.chunkId}` : undefined}
+        subtitle={
+          selectedSource
+            ? `Passage reference: ${selectedSource.chunkId}${
+                selectedSource.checksum ? ` · ${selectedSource.checksum}` : ''
+              }`
+            : undefined
+        }
       >
         {selectedSource && (
           <p className="text-sm text-[#101014] dark:text-[#E8E8F2] leading-relaxed bg-[#F7F7FA] dark:bg-[#101014] rounded-xl p-4 border border-[#101014]/10 dark:border-white/10">
@@ -509,19 +1063,76 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         )}
       </BottomSheet>
 
-      {/* Approval / Rejection Confirmation Sheet */}
+      {/* Approval / Rejection / Escalation Confirmation Sheet */}
       <BottomSheet
         open={Boolean(gateConfirm)}
         onClose={() => setGateConfirm(null)}
-        title={gateConfirm === 'approve' ? 'Confirm Gate Approval' : 'Reject Execution Gate'}
+        title={
+          gateConfirm === 'approve'
+            ? 'Confirm Gate Approval'
+            : gateConfirm === 'escalate'
+            ? 'Escalate Human Approval Gate'
+            : 'Reject Execution Gate'
+        }
         subtitle={activeRun?.approvalGate?.actionLabel}
       >
         <div className="space-y-4">
           <p className="text-xs text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
             {gateConfirm === 'approve'
-              ? 'Approving this human checkpoint records your maintainer decision in the local audit ledger and finalizes the run artifact.'
+              ? 'Approving this human checkpoint records your maintainer decision in SOPIN Control and finalizes the run.'
+              : gateConfirm === 'escalate'
+              ? 'Escalating reassigns this pending gate to a senior governance reviewer while preserving full audit history.'
               : 'Rejecting this checkpoint halts execution safely and records a rejection event in the audit log.'}
           </p>
+
+          <div>
+            <label htmlFor="gate-reviewer" className="block text-xs font-semibold mb-1">
+              Reviewer Name
+            </label>
+            <input
+              id="gate-reviewer"
+              type="text"
+              value={gateReviewer}
+              onChange={(e) => setGateReviewer(e.target.value)}
+              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+            />
+          </div>
+
+          {gateConfirm === 'escalate' && (
+            <div>
+              <label htmlFor="gate-escalate-to" className="block text-xs font-semibold mb-1">
+                Escalate Target Role / Owner
+              </label>
+              <input
+                id="gate-escalate-to"
+                type="text"
+                value={gateEscalateTo}
+                onChange={(e) => setGateEscalateTo(e.target.value)}
+                className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+              />
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="gate-reason" className="block text-xs font-semibold mb-1">
+              Audit Reason / Rationale
+            </label>
+            <textarea
+              id="gate-reason"
+              rows={2}
+              value={gateReason}
+              onChange={(e) => setGateReason(e.target.value)}
+              placeholder={
+                gateConfirm === 'approve'
+                  ? 'Verified deterministic decision output and budget alignment.'
+                  : gateConfirm === 'escalate'
+                  ? 'Requires secondary compliance or CFO sign-off.'
+                  : 'Policy criteria not satisfied.'
+              }
+              className="w-full px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -534,15 +1145,27 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               type="button"
               onClick={() => {
                 if (activeRun && gateConfirm) {
-                  onRunAction(activeRun.id, gateConfirm);
+                  onRunAction(activeRun.id, gateConfirm, {
+                    reviewer: gateReviewer.trim() || 'Workspace Maintainer',
+                    reason: gateReason.trim() || undefined,
+                    escalateTo: gateConfirm === 'escalate' ? gateEscalateTo.trim() : undefined,
+                  });
                 }
                 setGateConfirm(null);
               }}
               className={`min-h-[44px] rounded-lg text-white text-xs font-semibold ${
-                gateConfirm === 'approve' ? 'bg-[#6252E8]' : 'bg-red-600'
+                gateConfirm === 'approve'
+                  ? 'bg-[#6252E8]'
+                  : gateConfirm === 'escalate'
+                  ? 'bg-amber-600'
+                  : 'bg-red-600'
               }`}
             >
-              {gateConfirm === 'approve' ? 'Approve & Record' : 'Reject & Halt'}
+              {gateConfirm === 'approve'
+                ? 'Approve & Record'
+                : gateConfirm === 'escalate'
+                ? 'Escalate Gate'
+                : 'Reject & Halt'}
             </button>
           </div>
         </div>
@@ -550,3 +1173,4 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
     </div>
   );
 };
+

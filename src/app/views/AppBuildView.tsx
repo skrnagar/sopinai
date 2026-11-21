@@ -9,6 +9,7 @@ import {
   List,
   Play,
   Plus,
+  Scale,
   Search,
   Sparkles,
   ZoomIn,
@@ -16,13 +17,20 @@ import {
 } from 'lucide-react';
 import {
   AgentConfig,
+  AgentDecisionCapability,
+  DecisionTargetKind,
   KnowledgeDocument,
   McpToolRecord,
   MemoryTier,
+  MultiAgentGraphSpec,
   WorkflowConfig,
+  WorkflowDecisionNodeConfig,
   WorkflowStep,
   WorkflowStepKind,
 } from '../types';
+import { DecisionsWorkspaceSlice } from '../../decisions/types';
+import { NodeMappingValidationResult, getTargetInputSchema } from '../../decisions/evaluator';
+import { DecisionStepConfigPanel } from '../components/DecisionStepConfigPanel';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
 
@@ -30,11 +38,20 @@ interface AppBuildViewProps {
   workspaceId: string;
   agents: AgentConfig[];
   workflows: WorkflowConfig[];
+  multiAgentGraphs?: MultiAgentGraphSpec[];
   tools: McpToolRecord[];
   documents: KnowledgeDocument[];
+  decisions?: DecisionsWorkspaceSlice;
+  onOpenDecisions?: () => void;
   onSaveAgent: (agent: AgentConfig) => void;
   onSaveWorkflow: (wf: WorkflowConfig) => void;
-  onTestRunTarget: (name: string, type: 'Agent' | 'Workflow', prompt: string) => void;
+  onValidateWorkflow?: (wf: WorkflowConfig) => NodeMappingValidationResult;
+  onTestRunTarget: (
+    name: string,
+    type: 'Agent' | 'Workflow' | 'Graph',
+    prompt: string,
+    workflowInputPayload?: Record<string, unknown>
+  ) => void;
 }
 
 const AGENT_TEMPLATES: {
@@ -81,14 +98,63 @@ const MODEL_OPTIONS = [
   { id: 'deterministic-fast', label: 'deterministic-fast', note: 'Low-variance enum & triage routing' },
 ];
 
+function createFallbackAgent(workspaceId: string): AgentConfig {
+  return {
+    id: `agt-${Date.now()}`,
+    workspaceId,
+    name: 'New Workspace Agent',
+    summary: 'Starter blueprint ready to configure.',
+    objective: 'Deliver verified structured outputs inside this workspace.',
+    instructions: 'Ground responses in attached knowledge sources and respect tool boundaries.',
+    modelRoute: 'reasoning-structured',
+    budgetCeilingUsd: 1.5,
+    tools: ['context.query'],
+    knowledgeIds: [],
+    memoryTier: 'episodic',
+    permissionMode: 'gated-write',
+    successCriteria: 'Strict JSON output validation.',
+    status: 'Draft',
+    version: 'v0.1',
+    updatedAt: 'Just now',
+  };
+}
+
+function createFallbackWorkflow(workspaceId: string): WorkflowConfig {
+  return {
+    id: `wf-${Date.now()}`,
+    workspaceId,
+    name: 'Workspace Verification Flow',
+    trigger: 'Manual',
+    triggerSpec: 'On-Demand Operator Dispatch',
+    version: 'v1.0',
+    status: 'Draft',
+    updatedAt: 'Just now',
+    steps: [
+      {
+        id: `st-${Date.now()}`,
+        title: 'Context Retrieval & Scope Check',
+        kind: 'action',
+        detail: 'Validate payload schema before reasoning.',
+        retryMax: 2,
+        timeoutSec: 20,
+        requiresApproval: false,
+      },
+    ],
+  };
+}
+
 export const AppBuildView: React.FC<AppBuildViewProps> = ({
   workspaceId,
   agents,
   workflows,
+  multiAgentGraphs = [],
   tools,
   documents,
+  decisions,
+  onOpenDecisions,
   onSaveAgent,
   onSaveWorkflow,
+  onValidateWorkflow,
   onTestRunTarget,
 }) => {
   const [studioMode, setStudioMode] = useState<'agent' | 'workflow'>('agent');
@@ -102,18 +168,20 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
   const [modelSearch, setModelSearch] = useState('');
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const [draftSavedNotice, setDraftSavedNotice] = useState('');
+  const [publishBlockedErrors, setPublishBlockedErrors] = useState<string[]>([]);
 
-  const initialAgent = agents[0];
-  const [agentDraft, setAgentDraft] = useState<AgentConfig>(() => ({
-    ...initialAgent,
-    workspaceId,
-  }));
+  const [agentDraft, setAgentDraft] = useState<AgentConfig>(() =>
+    agents[0] ? { ...agents[0], workspaceId } : createFallbackAgent(workspaceId)
+  );
 
   // --- Workflow Designer Vertical Editor State ---
   const [wfViewFormat, setWfViewFormat] = useState<'steps' | 'graph'>('steps');
-  const [activeWorkflow, setActiveWorkflow] = useState<WorkflowConfig>(() => ({
-    ...workflows[0],
-  }));
+  const [activeWorkflow, setActiveWorkflow] = useState<WorkflowConfig>(() =>
+    workflows[0] ? { ...workflows[0] } : createFallbackWorkflow(workspaceId)
+  );
+  const [selectedSampleId, setSelectedSampleId] = useState<string>(
+    () => workflows[0]?.sampleInputs?.[0]?.id || ''
+  );
   const [editingStep, setEditingStep] = useState<WorkflowStep | null>(null);
   const [addStepOpen, setAddStepOpen] = useState(false);
   const [triggerSheetOpen, setTriggerSheetOpen] = useState(false);
@@ -194,6 +262,54 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
     }));
   };
 
+  const toggleAgentDecision = (
+    targetType: DecisionTargetKind,
+    targetId: string,
+    targetName: string,
+    version: string
+  ) => {
+    setAgentDraft((prev) => {
+      const current = prev.attachedDecisions ?? [];
+      const exists = current.some((d) => d.targetId === targetId);
+      if (exists) {
+        return {
+          ...prev,
+          attachedDecisions: current.filter((d) => d.targetId !== targetId),
+        };
+      }
+      const schema = decisions
+        ? getTargetInputSchema(targetType, targetId, decisions)
+            .map((f) => `${f.name} (${f.type})`)
+            .join(', ')
+        : 'Typed decision input';
+      const newCap: AgentDecisionCapability = {
+        id: `adc-${Date.now()}`,
+        targetType,
+        targetId,
+        targetName,
+        versionPolicy: 'pinned',
+        pinnedVersion: version,
+        allowedExecution: 'read-evaluate',
+        inputSchemaSummary: schema || 'Dynamic payload',
+        outputSchemaSummary: 'decision, trace & structured recommendation',
+        usageGuidance: 'Invoke deterministically; agents cannot edit rules or override SOPIN Control.',
+      };
+      return {
+        ...prev,
+        attachedDecisions: [...current, newCap],
+      };
+    });
+  };
+
+  const updateAttachedDecision = (id: string, patch: Partial<AgentDecisionCapability>) => {
+    setAgentDraft((prev) => ({
+      ...prev,
+      attachedDecisions: (prev.attachedDecisions ?? []).map((d) =>
+        d.id === id ? { ...d, ...patch } : d
+      ),
+    }));
+  };
+
   const commitAgent = (status: 'Draft' | 'Published') => {
     const next: AgentConfig = {
       ...agentDraft,
@@ -222,16 +338,58 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
     });
   };
 
+  const defaultDecisionConfig = (): WorkflowDecisionNodeConfig | undefined => {
+    const firstRule = decisions?.rules[0];
+    const firstTable = decisions?.tables[0];
+    const firstRuleset = decisions?.rulesets[0];
+    if (firstRule) {
+      return {
+        targetType: 'rule',
+        targetId: firstRule.id,
+        targetName: firstRule.name,
+        targetVersion: firstRule.version,
+        inputMappings: Object.fromEntries(firstRule.inputSchema.map((f) => [f.name, `payload.${f.name}`])),
+        branchOutcomes: ['auto_approve -> Proceed Automatically', 'manual_approval -> Route to Approval Gate'],
+      };
+    }
+    if (firstTable) {
+      return {
+        targetType: 'table',
+        targetId: firstTable.id,
+        targetName: firstTable.name,
+        targetVersion: firstTable.version,
+        inputMappings: Object.fromEntries(firstTable.inputColumns.map((c) => [c.field, `payload.${c.field}`])),
+        branchOutcomes: ['matched -> Apply Matched Policy', 'fallback -> Fallback Review'],
+      };
+    }
+    if (firstRuleset) {
+      return {
+        targetType: 'ruleset',
+        targetId: firstRuleset.id,
+        targetName: firstRuleset.name,
+        targetVersion: firstRuleset.version,
+        inputMappings: { invoiceAmount: 'payload.invoiceAmount' },
+        branchOutcomes: ['approved -> Continue Flow', 'escalated -> Escalate Exception'],
+      };
+    }
+    return undefined;
+  };
+
   const handleAddStep = () => {
     if (!newStepTitle.trim()) return;
     const step: WorkflowStep = {
       id: `st-${Date.now()}`,
       title: newStepTitle.trim(),
       kind: newStepKind,
-      detail: newStepDetail.trim() || 'Configured in mobile vertical workflow designer.',
-      retryMax: newStepKind === 'approval' ? 0 : 2,
-      timeoutSec: newStepKind === 'approval' ? 600 : 30,
+      detail:
+        newStepDetail.trim() ||
+        (newStepKind === 'decision'
+          ? 'Evaluates deterministic SOPIN Decisions rule/table and routes downstream workflow branches.'
+          : 'Configured in mobile vertical workflow designer.'),
+      retryMax: newStepKind === 'approval' || newStepKind === 'decision' ? 0 : 2,
+      timeoutSec: newStepKind === 'approval' ? 600 : newStepKind === 'decision' ? 5 : 30,
       requiresApproval: newStepKind === 'approval',
+      decisionConfig: newStepKind === 'decision' ? defaultDecisionConfig() : undefined,
     };
     const nextWf: WorkflowConfig = {
       ...activeWorkflow,
@@ -246,6 +404,15 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
   };
 
   const bumpWorkflowVersion = (publish: boolean) => {
+    if (publish && onValidateWorkflow) {
+      const readiness = onValidateWorkflow(activeWorkflow);
+      if (!readiness.valid) {
+        setPublishBlockedErrors(readiness.errors);
+        setDraftSavedNotice('');
+        return;
+      }
+    }
+    setPublishBlockedErrors([]);
     const num = parseFloat(activeWorkflow.version.replace('v', '')) || 1.0;
     const nextVer = `v${(num + 0.1).toFixed(1)}`;
     const nextWf: WorkflowConfig = {
@@ -561,6 +728,109 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     })}
                   </div>
                 </div>
+
+                {decisions && (
+                  <div className="pt-3 border-t border-[#101014]/10 dark:border-white/10 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-[#101014] dark:text-white flex items-center gap-1.5">
+                        <Scale className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                        <span>Attach Published SOPIN Decisions</span>
+                      </span>
+                      <span className="text-[10px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
+                        Read-Evaluate Only
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
+                      Authorized agents can invoke attached published decisions and inspect traces, never edit rules or bypass SOPIN Control.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        ...decisions.rules
+                          .filter((r) => r.status === 'Published')
+                          .map((r) => ({ type: 'rule' as const, id: r.id, name: r.name, version: r.version })),
+                        ...decisions.tables
+                          .filter((t) => t.status === 'Published')
+                          .map((t) => ({ type: 'table' as const, id: t.id, name: t.name, version: t.version })),
+                        ...decisions.scorecards
+                          .filter((sc) => sc.status === 'Published')
+                          .map((sc) => ({ type: 'scorecard' as const, id: sc.id, name: sc.name, version: sc.version })),
+                      ].map((item) => {
+                        const attached = (agentDraft.attachedDecisions ?? []).some(
+                          (d) => d.targetId === item.id
+                        );
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() =>
+                              toggleAgentDecision(item.type, item.id, item.name, item.version)
+                            }
+                            className={`min-h-[40px] px-3 py-1.5 rounded-lg border text-xs font-medium text-left ${
+                              attached
+                                ? 'border-[#6252E8] bg-[#6252E8] text-white'
+                                : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white'
+                            }`}
+                          >
+                            {item.type}: {item.name} ({item.version})
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {(agentDraft.attachedDecisions ?? []).map((cap) => (
+                      <div
+                        key={cap.id}
+                        className="rounded-xl border border-[#6252E8]/30 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2 text-xs"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="font-semibold text-[#101014] dark:text-white">
+                            {cap.targetName} ({cap.pinnedVersion || 'latest'})
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <select
+                              value={cap.versionPolicy}
+                              onChange={(e) =>
+                                updateAttachedDecision(cap.id, {
+                                  versionPolicy: e.target.value as 'pinned' | 'latest-published',
+                                })
+                              }
+                              aria-label="Decision version policy"
+                              className="min-h-[34px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[11px]"
+                            >
+                              <option value="pinned">Pinned ({cap.pinnedVersion})</option>
+                              <option value="latest-published">Latest Published</option>
+                            </select>
+                            <select
+                              value={cap.allowedExecution}
+                              onChange={(e) =>
+                                updateAttachedDecision(cap.id, {
+                                  allowedExecution: e.target.value as 'read-evaluate' | 'disabled',
+                                })
+                              }
+                              aria-label="Decision execution permission"
+                              className="min-h-[34px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[11px]"
+                            >
+                              <option value="read-evaluate">Read-Evaluate</option>
+                              <option value="disabled">Disabled</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
+                          Inputs: {cap.inputSchemaSummary}
+                        </div>
+                        <input
+                          type="text"
+                          value={cap.usageGuidance}
+                          onChange={(e) =>
+                            updateAttachedDecision(cap.id, { usageGuidance: e.target.value })
+                          }
+                          placeholder="Agent usage guidance..."
+                          className="w-full min-h-[36px] px-2.5 rounded border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -669,7 +939,14 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       { stage: '01. Gateway Profile', val: `${agentDraft.modelRoute} · $${agentDraft.budgetCeilingUsd.toFixed(2)} cap` },
                       { stage: '02. Context Scope', val: `${agentDraft.memoryTier} memory · ${agentDraft.knowledgeIds.length} docs` },
                       { stage: '03. MCP Tools', val: agentDraft.tools.join(', ') || 'None attached' },
-                      { stage: '04. Governance', val: `${agentDraft.permissionMode} · ${agentDraft.successCriteria}` },
+                      {
+                        stage: '04. Attached Decisions',
+                        val:
+                          (agentDraft.attachedDecisions ?? [])
+                            .map((d) => `${d.targetName} (${d.pinnedVersion || d.versionPolicy})`)
+                            .join(', ') || 'None attached',
+                      },
+                      { stage: '05. Governance', val: `${agentDraft.permissionMode} · ${agentDraft.successCriteria}` },
                     ].map((row) => (
                       <div
                         key={row.stage}
@@ -683,54 +960,110 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-3 overflow-hidden">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[11px] text-[#B894FF]">Simplified Mobile Graph</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setGraphZoom((z) => Math.max(0.8, Number((z - 0.1).toFixed(1))))}
-                          aria-label="Zoom out graph"
-                          className="w-9 h-9 rounded-lg border border-white/15 flex items-center justify-center"
-                        >
-                          <ZoomOut className="w-4 h-4" aria-hidden="true" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setGraphZoom((z) => Math.min(1.2, Number((z + 0.1).toFixed(1))))}
-                          aria-label="Zoom in graph"
-                          className="w-9 h-9 rounded-lg border border-white/15 flex items-center justify-center"
-                        >
-                          <ZoomIn className="w-4 h-4" aria-hidden="true" />
-                        </button>
+                  <div className="space-y-3">
+                    <div className="rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-3 overflow-hidden">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[11px] text-[#B894FF]">Single-Agent Topology</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setGraphZoom((z) => Math.max(0.8, Number((z - 0.1).toFixed(1))))}
+                            aria-label="Zoom out graph"
+                            className="w-9 h-9 rounded-lg border border-white/15 flex items-center justify-center"
+                          >
+                            <ZoomOut className="w-4 h-4" aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setGraphZoom((z) => Math.min(1.2, Number((z + 0.1).toFixed(1))))}
+                            aria-label="Zoom in graph"
+                            className="w-9 h-9 rounded-lg border border-white/15 flex items-center justify-center"
+                          >
+                            <ZoomIn className="w-4 h-4" aria-hidden="true" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="overflow-auto py-2">
-                      <div
-                        style={{ transform: `scale(${graphZoom})`, transformOrigin: 'top center' }}
-                        className="space-y-2 transition-transform"
-                      >
-                        {[
-                          { label: 'Intake & Objective', sub: agentDraft.name },
-                          { label: 'SOPIN Context', sub: `${agentDraft.memoryTier} · ${agentDraft.knowledgeIds.length} sources` },
-                          { label: 'SOPIN Gateway', sub: agentDraft.modelRoute },
-                          { label: 'Runtime MCP Tools', sub: agentDraft.tools.join(', ') || 'None' },
-                          { label: 'SOPIN Control', sub: agentDraft.permissionMode },
-                        ].map((node, i, arr) => (
-                          <React.Fragment key={node.label}>
-                            <div className="rounded-xl border border-white/15 bg-[#101014] px-3.5 py-2.5">
-                              <div className="font-mono text-[10px] text-[#965BFF]">{node.label}</div>
-                              <div className="text-xs font-semibold truncate">{node.sub}</div>
-                            </div>
-                            {i < arr.length - 1 && (
-                              <div className="h-3 flex justify-center" aria-hidden="true">
-                                <div className="w-px h-full bg-[#6252E8]" />
+                      <div className="overflow-auto py-2">
+                        <div
+                          style={{ transform: `scale(${graphZoom})`, transformOrigin: 'top center' }}
+                          className="space-y-2 transition-transform"
+                        >
+                          {[
+                            { label: 'Intake & Objective', sub: agentDraft.name },
+                            { label: 'SOPIN Context', sub: `${agentDraft.memoryTier} · ${agentDraft.knowledgeIds.length} sources` },
+                            {
+                              label: 'SOPIN Decisions',
+                              sub:
+                                (agentDraft.attachedDecisions ?? []).map((d) => d.targetName).join(', ') ||
+                                'No rule attached',
+                            },
+                            { label: 'SOPIN Gateway', sub: agentDraft.modelRoute },
+                            { label: 'Runtime MCP Tools', sub: agentDraft.tools.join(', ') || 'None' },
+                            { label: 'SOPIN Control', sub: agentDraft.permissionMode },
+                          ].map((node, i, arr) => (
+                            <React.Fragment key={node.label}>
+                              <div className="rounded-xl border border-white/15 bg-[#101014] px-3.5 py-2.5">
+                                <div className="font-mono text-[10px] text-[#965BFF]">{node.label}</div>
+                                <div className="text-xs font-semibold truncate">{node.sub}</div>
                               </div>
-                            )}
-                          </React.Fragment>
-                        ))}
+                              {i < arr.length - 1 && (
+                                <div className="h-3 flex justify-center" aria-hidden="true">
+                                  <div className="w-px h-full bg-[#6252E8]" />
+                                </div>
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
                       </div>
                     </div>
+
+                    {multiAgentGraphs.map((g) => (
+                      <div
+                        key={g.id}
+                        className="rounded-xl border border-[#6252E8]/40 bg-[#F7F7FA] dark:bg-[#101014] p-3.5 space-y-2.5"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <div className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+                              Multi-Agent Graph ({g.version})
+                            </div>
+                            <div className="text-xs font-semibold text-[#101014] dark:text-white">
+                              {g.name}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onTestRunTarget(
+                                g.name,
+                                'Graph',
+                                `Execute multi-agent graph ${g.name} with isolated handoffs`,
+                                { citationCount: 4, groundedScore: 0.92, contradictionCount: 0 }
+                              )
+                            }
+                            className="min-h-[38px] px-3 rounded-lg bg-[#6252E8] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+                          >
+                            <Play className="w-3.5 h-3.5" aria-hidden="true" />
+                            <span>Run Graph</span>
+                          </button>
+                        </div>
+                        <div className="space-y-1.5 text-[11px]">
+                          {g.nodes.map((node) => (
+                            <div
+                              key={node.id}
+                              className="rounded-lg border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] px-2.5 py-2 flex items-center justify-between gap-2"
+                            >
+                              <span className="font-semibold text-[#101014] dark:text-white">
+                                {node.label}
+                              </span>
+                              <span className="font-mono text-[10px] text-[#6252E8] dark:text-[#B894FF] uppercase">
+                                {node.nodeType}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -797,6 +1130,37 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
       {/* ==================== WORKFLOW DESIGNER (VERTICAL STEP EDITOR) ==================== */}
       {studioMode === 'workflow' && (
         <div className="space-y-4">
+          {workflows.length > 1 && (
+            <div className="flex overflow-x-auto no-scrollbar gap-2">
+              {workflows.map((wf) => {
+                const selected = wf.id === activeWorkflow.id;
+                return (
+                  <button
+                    key={wf.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveWorkflow({ ...wf });
+                      setSelectedSampleId(wf.sampleInputs?.[0]?.id || '');
+                      setPublishBlockedErrors([]);
+                    }}
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl border text-left shrink-0 transition-colors ${
+                      selected
+                        ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/25'
+                        : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                    }`}
+                  >
+                    <div className="text-xs font-semibold text-[#101014] dark:text-white truncate max-w-[200px]">
+                      {wf.name}
+                    </div>
+                    <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
+                      {wf.version} · {wf.steps.length} steps
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
@@ -861,11 +1225,16 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   <div className="flex items-start justify-between gap-2">
                     <button
                       type="button"
-                      onClick={() => setEditingStep(step)}
+                      onClick={() => {
+                        setEditingStep(step);
+                      }}
                       className="text-left flex-1 min-w-0 min-h-[44px]"
                     >
-                      <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] uppercase">
-                        0{index + 1} · {step.kind} {step.requiresApproval ? '· Approval Gate' : ''}
+                      <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] uppercase flex items-center gap-1.5">
+                        {step.kind === 'decision' && <Scale className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
+                        <span>
+                          0{index + 1} · {step.kind} {step.requiresApproval ? '· Approval Gate' : ''}
+                        </span>
                       </div>
                       <div className="mt-0.5 font-display text-sm font-semibold text-[#101014] dark:text-white">
                         {step.title}
@@ -873,6 +1242,16 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       <p className="mt-0.5 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
                         {step.detail}
                       </p>
+                      {step.kind === 'decision' && step.decisionConfig && (
+                        <div className="mt-2 rounded-lg border border-[#6252E8]/25 bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15 px-2.5 py-2 text-[11px] space-y-1">
+                          <div className="font-mono font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                            Target ({step.decisionConfig.targetType}): {step.decisionConfig.targetName}
+                          </div>
+                          <div className="text-[#5E5E6E] dark:text-[#C5C5D6] truncate">
+                            Branches: {step.decisionConfig.branchOutcomes.join(' · ')}
+                          </div>
+                        </div>
+                      )}
                     </button>
 
                     <div className="flex items-center gap-1 shrink-0">
@@ -900,7 +1279,9 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     <span>Retries: max {step.retryMax} · Timeout: {step.timeoutSec}s</span>
                     <button
                       type="button"
-                      onClick={() => setEditingStep(step)}
+                      onClick={() => {
+                        setEditingStep(step);
+                      }}
                       className="font-sans font-semibold text-[#6252E8] dark:text-[#B894FF] px-2 py-1"
                     >
                       Configure Step
@@ -918,13 +1299,25 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 <React.Fragment key={step.id}>
                   <button
                     type="button"
-                    onClick={() => setEditingStep(step)}
-                    className="w-full text-left rounded-xl border border-white/15 bg-[#101014] p-3.5 hover:border-[#965BFF]"
+                    onClick={() => {
+                      setEditingStep(step);
+                    }}
+                    className={`w-full text-left rounded-xl border p-3.5 hover:border-[#965BFF] ${
+                      step.kind === 'decision'
+                        ? 'border-[#965BFF]/60 bg-[#6252E8]/15'
+                        : 'border-white/15 bg-[#101014]'
+                    }`}
                   >
-                    <div className="font-mono text-[11px] text-[#965BFF]">
-                      0{i + 1} · {step.kind}
+                    <div className="font-mono text-[11px] text-[#965BFF] flex items-center gap-1.5">
+                      {step.kind === 'decision' && <Scale className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
+                      <span>0{i + 1} · {step.kind}</span>
                     </div>
                     <div className="text-sm font-semibold">{step.title}</div>
+                    {step.kind === 'decision' && step.decisionConfig && (
+                      <div className="mt-1 font-mono text-[11px] text-[#C5C5D6]">
+                        SOPIN Decisions · {step.decisionConfig.targetName}
+                      </div>
+                    )}
                   </button>
                   {i < activeWorkflow.steps.length - 1 && (
                     <div className="h-4 flex justify-center" aria-hidden="true">
@@ -933,6 +1326,42 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   )}
                 </React.Fragment>
               ))}
+            </div>
+          )}
+
+          {publishBlockedErrors.length > 0 && (
+            <div
+              role="alert"
+              className="rounded-xl border border-red-500/40 bg-red-500/10 p-3.5 text-xs text-red-700 dark:text-red-300 space-y-1"
+            >
+              <div className="font-semibold">
+                Publish Blocked — Fix Invalid Decision Node Configuration:
+              </div>
+              <ul className="list-disc pl-4 space-y-0.5 text-[11px]">
+                {publishBlockedErrors.map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {activeWorkflow.sampleInputs && activeWorkflow.sampleInputs.length > 0 && (
+            <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="wf-sample-scenario" className="text-xs font-semibold shrink-0">
+                Demo Scenario Input:
+              </label>
+              <select
+                id="wf-sample-scenario"
+                value={selectedSampleId}
+                onChange={(e) => setSelectedSampleId(e.target.value)}
+                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+              >
+                {activeWorkflow.sampleInputs.map((si) => (
+                  <option key={si.id} value={si.id}>
+                    {si.label}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -947,13 +1376,15 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             </button>
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                const chosen = activeWorkflow.sampleInputs?.find((s) => s.id === selectedSampleId);
                 onTestRunTarget(
                   activeWorkflow.name,
                   'Workflow',
-                  `Dry-run trigger (${activeWorkflow.trigger}): ${activeWorkflow.triggerSpec}`
-                )
-              }
+                  `Dry-run (${chosen?.label || activeWorkflow.trigger}): ${activeWorkflow.triggerSpec}`,
+                  chosen?.payload
+                );
+              }}
               className="min-h-[44px] px-3 rounded-xl border border-[#6252E8]/40 bg-white dark:bg-[#101126] text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] inline-flex items-center justify-center gap-1.5"
             >
               <Play className="w-3.5 h-3.5" aria-hidden="true" />
@@ -1100,8 +1531,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             <label htmlFor="wf-step-kind" className="block text-xs font-semibold mb-1.5">
               Step Type
             </label>
-            <div id="wf-step-kind" className="grid grid-cols-2 gap-2">
-              {(['action', 'condition', 'integration', 'approval'] as const).map((k) => (
+            <div id="wf-step-kind" className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {(['action', 'condition', 'decision', 'integration', 'approval'] as const).map((k) => (
                 <button
                   key={k}
                   type="button"
@@ -1112,7 +1543,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       : 'border-[#101014]/15 dark:border-white/15'
                   }`}
                 >
-                  {k}
+                  {k === 'decision' ? 'Decision Node' : k}
                 </button>
               ))}
             </div>
@@ -1162,6 +1593,28 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
       >
         {editingStep && (
           <div className="space-y-4">
+            {editingStep.kind === 'decision' && decisions && editingStep.decisionConfig && (
+              <DecisionStepConfigPanel
+                decisionConfig={editingStep.decisionConfig}
+                workflowSteps={activeWorkflow.steps}
+                currentStepId={editingStep.id}
+                decisions={decisions}
+                documents={documents}
+                sampleInputs={activeWorkflow.sampleInputs}
+                onChange={(nextCfg) =>
+                  setEditingStep({ ...editingStep, decisionConfig: nextCfg })
+                }
+                onOpenDecisions={
+                  onOpenDecisions
+                    ? () => {
+                        setEditingStep(null);
+                        onOpenDecisions();
+                      }
+                    : undefined
+                }
+              />
+            )}
+
             <div>
               <label htmlFor="edit-step-detail" className="block text-xs font-semibold mb-1">
                 Step Detail

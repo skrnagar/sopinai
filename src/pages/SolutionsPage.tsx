@@ -5,7 +5,7 @@ import { RoutePath } from '../types/navigation';
 import { StatusText } from '../components/ui/EditorialPrimitives';
 
 interface SolutionsPageProps {
-  onNavigate: (path: RoutePath, sectionId?: string) => void;
+  onNavigate: (path: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => void;
 }
 
 export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
@@ -15,24 +15,67 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
       id: 'business-automation',
       category: 'Business Automation',
       status: 'Reference Architecture',
+      topic: 'Design Partner Access',
+    },
+    {
+      id: 'document-intelligence',
+      category: 'Document Intelligence',
+      status: 'Reference Architecture',
+      headline: 'Structured parsing across PDFs, scans, images, and multi-table contracts.',
+      description:
+        'Extract typed records from messy enterprise documents via SOPIN Gateway multimodal parsers, apply pre-inference PII redaction, validate schema constraints, and trace every extracted field back to source page coordinates.',
+      topology: 'Upload / Bucket Trigger -> OCR & Multimodal Extract -> PII Redact -> Schema Validate -> Context Provenance',
+      tools: ['Multimodal Gateway Route', 'Document Parser MCP', 'SHA-256 Checksum Index'],
+      verification: 'Extracted JSON objects strictly validated against contract schema with source span pointers.',
+      humanCheckpoint: 'Reviewer confirmation on low-confidence line items or policy anomalies.',
+      topic: 'Design Partner Access',
     },
     {
       ...USE_CASE_DOMAINS[0],
       id: 'ai-research',
       category: 'AI Research',
       status: 'Reference Architecture',
+      topic: 'Developer Preview & SDK',
     },
     {
       ...USE_CASE_DOMAINS[3],
       id: 'software-engineering',
       category: 'Software Engineering',
       status: 'Reference Architecture',
+      topic: 'Developer Preview & SDK',
     },
     {
       ...USE_CASE_DOMAINS[4],
-      id: 'data-ml',
-      category: 'Data and ML',
+      id: 'data-intelligence',
+      category: 'Data Intelligence',
       status: 'Reference Architecture',
+      topic: 'Design Partner Access',
+    },
+    {
+      id: 'machine-learning',
+      category: 'Machine Learning',
+      status: 'Core + Planned Compute',
+      headline: 'End-to-end dataset profiling, training, evaluation, and Gateway model serving.',
+      description:
+        'Unite ML engineering with production agent workflows: ingest structured CSV/Parquet or multimodal corpora, run deterministic preprocessing transforms in SOPIN Flow, execute training/fine-tuning in isolated Runtime pools, score F1/RMSE/latency in Evaluate, and register validated models straight into SOPIN Gateway.',
+      topology: 'Upload Data -> Explore & Profile -> Feature Transform -> Train / Fine-Tune -> Evaluate -> Register -> Serve in Gateway',
+      tools: ['Dataset Snapshot Store', 'Python ML Sandbox (Planned)', 'SOPIN Evaluate Matrix', 'Gateway Model Registry'],
+      verification: 'Candidate checkpoints must surpass baseline validation accuracy and latency gates before registry promotion.',
+      humanCheckpoint: 'ML Engineer sign-off before promoting candidate checkpoint to Production stage.',
+      topic: 'Developer Preview & SDK',
+    },
+    {
+      id: 'multi-agent',
+      category: 'Multi-Agent Applications',
+      status: 'Reference Architecture',
+      headline: 'Bounded supervisor-worker teams and verifiable A2A handoffs.',
+      description:
+        'Coordinate specialized agents across SOPIN Graph using shared typed state, explicit maxSteps loop ceilings, isolated tool capabilities per peer, and Agent-to-Agent (A2A) completion contracts.',
+      topology: 'Supervisor Router -> Specialist Peers (A2A) -> Reflection Critic -> Cycle Gate -> Final Artifact',
+      tools: ['SOPIN Graph State Machine', 'A2A Peer Protocol', 'Per-Node MCP Scopes'],
+      verification: 'Cycle depth and schema invariants enforced deterministically across every superstep.',
+      humanCheckpoint: 'Escalate unresolved peer conflicts or high-impact side effects to human operators.',
+      topic: 'Developer Preview & SDK',
     },
     {
       id: 'enterprise-ai',
@@ -40,26 +83,46 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
       status: 'Planned · SONIL Group',
       headline: 'Governed multi-team agent infrastructure with organizational boundaries.',
       description:
-        'Designed for enterprise deployments requiring tenant isolation, centralized Model Gateway policies, human sign-off workflows, and structured auditability across departments.',
+        'Designed for enterprise deployments requiring private VPC isolation, SAML/OIDC identity, centralized Model Gateway policies, human sign-off workflows, and structured auditability across departments.',
       topology: 'Identity Boundary -> Policy Gateway -> Scoped Context -> Runtime Sandbox -> Audit Log',
-      tools: ['SSO / RBAC Policies (Planned)', 'Central Model Gateway', 'Compliance Audit Stream (Planned)'],
-      verification: 'Department-level policy rules enforced before any external tool execution.',
+      tools: ['SSO / RBAC Policies (Planned)', 'Private VPC Model Gateway', 'Audit Stream (Planned)'],
+      verification: 'Department-level policy rules enforced out-of-band before any external tool execution.',
       humanCheckpoint: 'Configurable approval matrices aligned to operational risk tiers.',
+      topic: 'SONIL Group Enterprise',
     },
   ];
+
+  const scrollToDomain = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="overflow-x-clip">
       <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
-            <StatusText items={['SOPIN Solutions', 'Domain Blueprints']} accentLast />
+            <StatusText items={['SOPIN Solutions', 'Eight Domain Blueprints']} accentLast />
             <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
               Reference architectures engineered for domain rigor.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
-              Each solution blueprint illustrates how SOPIN combines grounded context, scoped tools, verification gates, and human checkpoints without relying on brittle custom scripts.
+              Each blueprint demonstrates how SOPIN combines grounded context, multimodal models, ML pipelines, scoped tools, verification gates, and human oversight.
             </p>
+          </div>
+
+          {/* Quick Jump Strip */}
+          <div className="mt-8 flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pb-1">
+            {solutionBlocks.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => scrollToDomain(b.id)}
+                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-xs font-semibold text-[#101014] dark:text-white hover:border-[#6252E8] transition-colors whitespace-nowrap shrink-0"
+              >
+                {b.category}
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -70,13 +133,13 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
             <article
               key={block.id}
               id={block.id}
-              className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+              className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)] scroll-mt-20"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-6 space-y-3 min-w-0">
                   <StatusText
                     items={[block.category, block.status]}
-                    accentLast={block.status.includes('Planned')}
+                    accentLast={block.status.includes('Planned') || block.status.includes('Core')}
                   />
                   <h2 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
                     {block.headline}
@@ -115,7 +178,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => onNavigate('/contact')}
+                      onClick={() => onNavigate('/contact', undefined, { topic: block.topic })}
                       className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline whitespace-nowrap shrink-0 self-start sm:self-center"
                     >
                       <span>Discuss</span>

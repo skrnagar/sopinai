@@ -1,10 +1,10 @@
 import React from 'react';
-import { ArrowRight, Compass, Layers, Shield } from 'lucide-react';
+import { ArrowRight, Compass, Globe, Layers, Shield, ShieldCheck, Users } from 'lucide-react';
 import { RoutePath } from '../types/navigation';
 import { SectionHeader, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface AboutPageProps {
-  onNavigate: (path: RoutePath, sectionId?: string) => void;
+  onNavigate: (path: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => void;
 }
 
 export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
@@ -48,8 +48,35 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-[#F7F7FA] dark:bg-[#101126]/40">
+      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#101126]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
+          {/* Vision & Mission */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <div className="text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+                Our Vision
+              </div>
+              <h2 className="mt-2 font-display text-2xl font-semibold text-[#101014] dark:text-white">
+                One verifiable platform across models, tools, and organizations.
+              </h2>
+              <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                AI systems should never force teams into choosing between non-technical usability, developer flexibility, or enterprise security. SOPIN bridges natural language, visual graphs, typed SDKs, and custom ML inside one governed runtime.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <div className="text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+                SONIL Group Stewardship
+              </div>
+              <h2 className="mt-2 font-display text-2xl font-semibold text-[#101014] dark:text-white">
+                Built for long-horizon reliability and open standards.
+              </h2>
+              <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                Developed within SONIL Group&apos;s global infrastructure engineering portfolio, SOPIN prioritizes durable execution, private VPC portability, and vendor-neutral AI model independence over short-term hype cycles.
+              </p>
+            </div>
+          </div>
+
           <SectionHeader
             kicker="Engineering Thesis"
             title="Three principles guiding the SOPIN platform."
@@ -81,6 +108,78 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             })}
           </div>
 
+          {/* Ecosystem Links: Security, Partners, Careers */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 flex flex-col justify-between">
+              <div>
+                <ShieldCheck className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                  Trust &amp; Security Center
+                </h3>
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                  Inspect SOPIN&apos;s sandboxing, KMS credential vaulting, PII redaction, and RBAC roadmap transparently.
+                </p>
+              </div>
+              <a
+                href="/security"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('/security');
+                }}
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+              >
+                <span>Open Trust Center</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
+            </div>
+
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 flex flex-col justify-between">
+              <div>
+                <Globe className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                  Protocol &amp; Technology Partners
+                </h3>
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                  Collaborate with SOPIN on MCP server integrations, A2A agents, cloud runtimes, or enterprise deployments.
+                </p>
+              </div>
+              <a
+                href="/contact?topic=Protocol+%26+Partnership"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
+                }}
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+              >
+                <span>Partner With SOPIN</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
+            </div>
+
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 flex flex-col justify-between">
+              <div>
+                <Users className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                  Engineering Careers &amp; Cohort
+                </h3>
+                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                  Distributed systems, compiler, and applied AI engineers building foundational runtime infrastructure under SONIL Group.
+                </p>
+              </div>
+              <a
+                href="/contact"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
+                }}
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+              >
+                <span>Connect With Engineering</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+
           <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-5 space-y-3">
               <p className="text-xs font-medium text-[#965BFF]">Official Brand Identity</p>
@@ -88,13 +187,16 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                 The SOPIN Radial Emblem &amp; Wordmark
               </h3>
               <p className="text-sm text-[#B5B5C5] leading-relaxed">
-                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the `#965BFF` purple accent highlights the dot over the &ldquo;i&rdquo;.
+                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the #965BFF purple accent highlights the dot over the &ldquo;i&rdquo;.
               </p>
             </div>
             <div className="lg:col-span-7 flex items-center justify-center rounded-xl border border-white/10 bg-[#000000] p-6">
               <img
                 src="/assets/aistudio/Sopin_Logo_46f7e074.png"
                 alt="SOPIN official brand logo featuring six-prong radial emblem and Sopin wordmark"
+                width={320}
+                height={112}
+                loading="lazy"
                 className="max-h-28 w-auto object-contain"
               />
             </div>

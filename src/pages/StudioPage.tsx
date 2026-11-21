@@ -72,11 +72,17 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
             description="Select any authoring mode to review how SOPIN structures specifications, constraints, and typed bindings."
           />
 
-          <div className="mt-8 flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pb-1 sm:pb-0">
+          <div
+            role="tablist"
+            aria-label="SOPIN Studio authoring modes"
+            className="mt-8 flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pb-1 sm:pb-0"
+          >
             {CREATION_EXPERIENCES.map((item, idx) => (
               <button
                 key={item.id}
                 type="button"
+                role="tab"
+                aria-selected={selectedIndex === idx}
                 onClick={() => setSelectedIndex(idx)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   selectedIndex === idx

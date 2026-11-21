@@ -1,0 +1,368 @@
+export type DecisionArtifactStatus = 'Draft' | 'Tested' | 'Published' | 'Archived';
+export type DecisionEnvironment = 'development' | 'staging' | 'production';
+export type DecisionArtifactType = 'rule' | 'table' | 'ruleset' | 'chain' | 'scorecard';
+
+export type DecisionSectionId =
+  | 'overview'
+  | 'rules'
+  | 'tables'
+  | 'rulesets'
+  | 'chains'
+  | 'scorecards'
+  | 'testing'
+  | 'executions'
+  | 'versions'
+  | 'settings';
+
+export type DecisionFieldType =
+  | 'number'
+  | 'string'
+  | 'boolean'
+  | 'date'
+  | 'null'
+  | 'array'
+  | 'object';
+
+export type ConditionOperator =
+  | '=='
+  | '!='
+  | '>'
+  | '>='
+  | '<'
+  | '<='
+  | 'between'
+  | 'contains'
+  | 'not_contains'
+  | 'starts_with'
+  | 'ends_with'
+  | 'in'
+  | 'not_in'
+  | 'is_empty'
+  | 'is_not_empty'
+  | 'exists'
+  | 'not_exists'
+  | 'matches_formula';
+
+export interface DecisionInputField {
+  name: string;
+  type: DecisionFieldType;
+  required: boolean;
+  description: string;
+  sampleDefault?: string | number | boolean | string[];
+}
+
+export interface DecisionPredicateNode {
+  kind: 'predicate';
+  id: string;
+  field: string;
+  operator: ConditionOperator;
+  value: string;
+  valueEnd?: string;
+  expression?: string;
+  reusableLabel?: string;
+}
+
+export interface DecisionGroupNode {
+  kind: 'group';
+  id: string;
+  logic: 'AND' | 'OR';
+  children: DecisionConditionNode[];
+}
+
+export type DecisionConditionNode = DecisionPredicateNode | DecisionGroupNode;
+
+export interface DecisionActionOutput {
+  key: string;
+  valueExpression: string;
+  type: 'string' | 'number' | 'boolean' | 'expression';
+}
+
+export interface DecisionTestCase {
+  id: string;
+  name: string;
+  inputJson: Record<string, unknown>;
+  expectedOutput: Record<string, unknown>;
+  expectedStatus?: 'Matched' | 'Fallback' | 'Error';
+  lastActualOutput?: Record<string, unknown>;
+  lastActualStatus?: 'Matched' | 'Fallback' | 'Error';
+  lastPassed?: boolean;
+  failedConditions?: string[];
+  diffNotes?: string[];
+  lastRunAt?: string;
+}
+
+export interface DecisionVersionSnapshot {
+  version: string;
+  publishedAt: string;
+  publishedBy: string;
+  environment: DecisionEnvironment;
+  summary: string;
+  status: DecisionArtifactStatus;
+  snapshotHash: string;
+  serializedSpec: string;
+}
+
+/**
+ * Canonical SOPIN RuleSpec — deterministic IF/ELSE condition tree with input schema,
+ * action outputs, restricted expressions, versioning, and regression tests.
+ */
+export interface RuleSpec {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  isDemoData: boolean;
+  tags: string[];
+  inputSchema: DecisionInputField[];
+  conditionRoot: DecisionGroupNode;
+  formulaNote?: string;
+  thenOutputs: DecisionActionOutput[];
+  elseOutputs: DecisionActionOutput[];
+  priority: number;
+  executionConfig: {
+    stopOnMatch: boolean;
+    strictInputValidation: boolean;
+    expressionMode: 'restricted-safe-evaluator';
+  };
+  version: string;
+  environment: DecisionEnvironment;
+  status: DecisionArtifactStatus;
+  testCases: DecisionTestCase[];
+  versionHistory: DecisionVersionSnapshot[];
+  updatedAt: string;
+}
+
+export type HitPolicy = 'first-match' | 'priority' | 'collect-all' | 'unique';
+
+export interface DecisionTableColumn {
+  id: string;
+  field: string;
+  label: string;
+  type: DecisionFieldType;
+}
+
+export interface DecisionTableRow {
+  id: string;
+  priority: number;
+  enabled: boolean;
+  cells: Record<string, string>;
+  outputs: Record<string, string>;
+  note?: string;
+}
+
+/**
+ * Canonical SOPIN DecisionTableSpec — spreadsheet-style rules with explicit hit policies.
+ */
+export interface DecisionTableSpec {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  isDemoData: boolean;
+  hitPolicy: HitPolicy;
+  inputColumns: DecisionTableColumn[];
+  outputColumns: DecisionTableColumn[];
+  rows: DecisionTableRow[];
+  defaultOutput: Record<string, unknown>;
+  testCases: DecisionTestCase[];
+  version: string;
+  environment: DecisionEnvironment;
+  status: DecisionArtifactStatus;
+  versionHistory: DecisionVersionSnapshot[];
+  updatedAt: string;
+}
+
+export interface RulesetMember {
+  id: string;
+  targetType: 'rule' | 'table';
+  targetId: string;
+  priority: number;
+  enabled: boolean;
+  stopOnMatch?: boolean;
+}
+
+/**
+ * Canonical SOPIN RulesetSpec — ordered execution group across rules and decision tables.
+ */
+export interface RulesetSpec {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  isDemoData: boolean;
+  executionOrder: 'priority-asc' | 'priority-desc' | 'sequential';
+  conflictResolution: 'first-match' | 'merge-overrides' | 'collect-matches' | 'highest-priority';
+  stopOnMatch?: boolean;
+  defaultOutput?: Record<string, unknown>;
+  members: RulesetMember[];
+  version: string;
+  environment: DecisionEnvironment;
+  status: DecisionArtifactStatus;
+  testCases: DecisionTestCase[];
+  versionHistory: DecisionVersionSnapshot[];
+  updatedAt: string;
+}
+
+export interface RuleChainStage {
+  id: string;
+  stepOrder: number;
+  label: string;
+  targetType: 'rule' | 'table' | 'ruleset' | 'chain';
+  targetId: string;
+  passOutputKeys?: string[];
+  conditionField?: string;
+  conditionOperator?: ConditionOperator;
+  conditionValue?: string;
+  onOutcome: 'continue' | 'stop-on-match' | 'branch-to-fallback';
+  fallbackTargetId?: string;
+  terminalOutcomes?: string[];
+}
+
+/**
+ * Canonical SOPIN RuleChainSpec — sequential decision pipeline passing stage outputs forward.
+ */
+export interface RuleChainSpec {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  isDemoData: boolean;
+  stages: RuleChainStage[];
+  terminalOutcomes?: string[];
+  version: string;
+  environment: DecisionEnvironment;
+  status: DecisionArtifactStatus;
+  versionHistory?: DecisionVersionSnapshot[];
+  updatedAt: string;
+}
+
+export interface ScorecardCriterion {
+  id: string;
+  label: string;
+  field: string;
+  operator: ConditionOperator;
+  value: string;
+  weight: number;
+  pointsIfMatched: number;
+  pointsIfMissed: number;
+  rationale: string;
+}
+
+export interface ScorecardThresholdBand {
+  id: string;
+  minScore: number;
+  maxScore: number;
+  classification: string;
+  decisionOutcome: string;
+}
+
+/**
+ * Canonical SOPIN ScorecardSpec — deterministic weighted scoring & threshold classification.
+ */
+export interface ScorecardSpec {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  isDemoData: boolean;
+  baseScore: number;
+  criteria: ScorecardCriterion[];
+  thresholds: ScorecardThresholdBand[];
+  version: string;
+  environment: DecisionEnvironment;
+  status: DecisionArtifactStatus;
+  updatedAt: string;
+}
+
+export interface ConditionEvalTrace {
+  nodeId: string;
+  label: string;
+  passed: boolean;
+  actualValue: string;
+  expectedSpec: string;
+}
+
+export interface ScoreCriterionTrace {
+  criterionId: string;
+  label: string;
+  matched: boolean;
+  weightedPoints: number;
+  rationale: string;
+}
+
+export interface DecisionTraceStep {
+  stepIndex: number;
+  phase:
+    | 'validation'
+    | 'condition'
+    | 'table-row'
+    | 'ruleset-member'
+    | 'chain-stage'
+    | 'scorecard'
+    | 'outcome'
+    | 'error';
+  label: string;
+  detail: string;
+  passed?: boolean;
+}
+
+/**
+ * Canonical SOPIN DecisionExecutionSpec — deterministic execution record & audit explanation.
+ */
+export interface DecisionExecutionSpec {
+  id: string;
+  workspaceId: string;
+  artifactType: DecisionArtifactType;
+  artifactId: string;
+  artifactName: string;
+  versionUsed: string;
+  environment: DecisionEnvironment;
+  sourceTrigger: 'Simulator' | 'SOPIN Flow' | 'Gateway API' | 'Test Suite';
+  inputPayload: Record<string, unknown>;
+  inputSummary?: Record<string, string>;
+  evaluatedConditions: ConditionEvalTrace[];
+  matchedConditions?: ConditionEvalTrace[];
+  matchedRules: string[];
+  matchedTableRows: string[];
+  executionTrace?: DecisionTraceStep[];
+  executionPath?: string[];
+  scoreBreakdown?: {
+    baseScore: number;
+    totalScore: number;
+    classification: string;
+    criteriaTraces: ScoreCriterionTrace[];
+  };
+  finalOutput: Record<string, unknown>;
+  explanation: string;
+  status: 'Matched' | 'Fallback' | 'Error';
+  errorCode?: string;
+  validationErrors?: string[];
+  durationMs: number;
+  executedAt: string;
+}
+
+export interface DecisionSettings {
+  requireTestPassBeforePublish: boolean;
+  requireControlApprovalForProd: boolean;
+  strictInputSchemaValidation: boolean;
+  restrictExpressionsToSafeSubset: boolean;
+  allowedEditorsRole: 'Owner & Admin' | 'Builders & Maintainers' | 'All Workspace Members';
+  allowedPublishersRole: 'Owner & Admin Only' | 'Workspace Maintainer';
+}
+
+export interface DecisionsWorkspaceSlice {
+  rules: RuleSpec[];
+  tables: DecisionTableSpec[];
+  rulesets: RulesetSpec[];
+  chains: RuleChainSpec[];
+  scorecards: ScorecardSpec[];
+  executions: DecisionExecutionSpec[];
+  settings: DecisionSettings;
+}
+
+export interface AiRuleDraftSynthesis {
+  ruleDraft: RuleSpec;
+  explanation: string[];
+  missingRequirements: string[];
+  generatedTestCases: DecisionTestCase[];
+}

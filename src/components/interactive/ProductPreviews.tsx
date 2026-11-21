@@ -13,6 +13,7 @@ import {
   Lock,
   Network,
   PauseCircle,
+  Scale,
   ShieldCheck,
   Sliders,
   Terminal,
@@ -23,6 +24,7 @@ import { StatusText } from '../ui/EditorialPrimitives';
 export type PreviewSurfaceId =
   | 'studio'
   | 'flow'
+  | 'decisions'
   | 'context'
   | 'runtime'
   | 'gateway'
@@ -269,6 +271,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
   const [selectedSpan, setSelectedSpan] = useState(0);
   const [selectedEval, setSelectedEval] = useState(0);
   const [approvalState, setApprovalState] = useState<'pending' | 'approved' | 'held'>('pending');
+  const [decisionViewMode, setDecisionViewMode] = useState<'rule' | 'table'>('rule');
+  const [decisionScenario, setDecisionScenario] = useState<'under50k' | 'over50k'>('under50k');
 
   const tabs: {
     id: PreviewSurfaceId;
@@ -279,6 +283,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
   }[] = [
     { id: 'studio', label: 'SOPIN Studio', subtitle: 'Graph & Inspector', icon: Layers },
     { id: 'flow', label: 'SOPIN Flow', subtitle: 'Workflow DAG', icon: GitBranch },
+    { id: 'decisions', label: 'SOPIN Decisions', subtitle: 'Rules & Tables', icon: Scale },
     { id: 'context', label: 'SOPIN Context', subtitle: 'Scoped Memory', icon: Database },
     { id: 'runtime', label: 'SOPIN Runtime', subtitle: 'Sandboxed Exec', icon: Cpu },
     { id: 'gateway', label: 'SOPIN Gateway', subtitle: 'Model Routing', icon: Network },
@@ -297,11 +302,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
 
   return (
     <div className="space-y-6">
-      {/* 8-Module Product Surface Switcher (Horizontal snap scroll on mobile, grid on sm+) */}
+      {/* 9-Module Product Surface Switcher (Horizontal snap scroll on mobile, balanced 3x3 grid on sm+) */}
       <div
         role="tablist"
         aria-label="SOPIN product interface previews"
-        className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-2.5 pb-1 sm:pb-0 sm:grid sm:grid-cols-4 sm:overflow-visible"
+        className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-2.5 pb-1 sm:pb-0 sm:grid sm:grid-cols-3 sm:overflow-visible"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -580,7 +585,177 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
             </motion.div>
           )}
 
-          {/* 3. SOPIN CONTEXT */}
+          {/* 3. SOPIN DECISIONS */}
+          {activeTab === 'decisions' && (
+            <motion.div
+              key="decisions-ui"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+              className="p-6 min-h-[420px] grid grid-cols-1 lg:grid-cols-12 gap-6"
+            >
+              <div className="lg:col-span-7 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="font-mono text-xs text-[#965BFF]">
+                      SOPIN Decisions · Deterministic Rule &amp; Table Engine
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-white mt-0.5">
+                      Invoice Auto-Approval Policy (v1.2 · Published)
+                    </h3>
+                  </div>
+
+                  <div className="inline-flex p-1 rounded-lg bg-white/[0.06]">
+                    <button
+                      type="button"
+                      onClick={() => setDecisionViewMode('rule')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium ${
+                        decisionViewMode === 'rule'
+                          ? 'bg-[#6252E8] text-white'
+                          : 'text-[#B5B5C5] hover:text-white'
+                      }`}
+                    >
+                      IF/ELSE Rule
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDecisionViewMode('table')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium ${
+                        decisionViewMode === 'table'
+                          ? 'bg-[#6252E8] text-white'
+                          : 'text-[#B5B5C5] hover:text-white'
+                      }`}
+                    >
+                      Decision Table
+                    </button>
+                  </div>
+                </div>
+
+                {decisionViewMode === 'rule' ? (
+                  <div className="space-y-2.5 text-xs">
+                    <div className="rounded-xl border border-[#6252E8]/40 bg-[#101014] p-4 space-y-2">
+                      <div className="font-mono text-[11px] text-[#B894FF]">IF (ALL CONDITIONS · AND)</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
+                        <div className="rounded-lg bg-white/[0.04] border border-white/10 p-2.5">
+                          invoiceAmount &lt; 50000
+                        </div>
+                        <div className="rounded-lg bg-white/[0.04] border border-white/10 p-2.5">
+                          vendorVerified == true
+                        </div>
+                        <div className="rounded-lg bg-white/[0.04] border border-white/10 p-2.5">
+                          duplicateFound == false
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono text-[11px]">
+                      <div
+                        className={`rounded-xl border p-3.5 ${
+                          decisionScenario === 'under50k'
+                            ? 'border-[#6252E8] bg-[#6252E8]/20 text-white'
+                            : 'border-white/10 bg-[#101014]/70 text-[#A4A4B5]'
+                        }`}
+                      >
+                        <div className="text-[#B894FF] mb-1">THEN</div>
+                        <div>decision = &quot;approved&quot;</div>
+                        <div>requiresHumanGate = false</div>
+                      </div>
+                      <div
+                        className={`rounded-xl border p-3.5 ${
+                          decisionScenario === 'over50k'
+                            ? 'border-[#965BFF] bg-[#965BFF]/20 text-white'
+                            : 'border-white/10 bg-[#101014]/70 text-[#A4A4B5]'
+                        }`}
+                      >
+                        <div className="text-[#B894FF] mb-1">ELSE</div>
+                        <div>decision = &quot;manual_review&quot;</div>
+                        <div>requiresHumanGate = true</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-white/12 bg-[#101014] overflow-x-auto">
+                    <table className="w-full text-left font-mono text-[11px]">
+                      <thead className="border-b border-white/10 text-[#9A9AB0]">
+                        <tr>
+                          <th className="p-2.5">Row</th>
+                          <th className="p-2.5">invoiceAmount</th>
+                          <th className="p-2.5">vendorVerified</th>
+                          <th className="p-2.5">decision</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/10">
+                        <tr className={decisionScenario === 'under50k' ? 'bg-[#6252E8]/20 text-white' : 'text-[#A4A4B5]'}>
+                          <td className="p-2.5">#1</td>
+                          <td className="p-2.5">&lt; 50000</td>
+                          <td className="p-2.5">true</td>
+                          <td className="p-2.5 text-[#B894FF]">approved</td>
+                        </tr>
+                        <tr className={decisionScenario === 'over50k' ? 'bg-[#965BFF]/20 text-white' : 'text-[#A4A4B5]'}>
+                          <td className="p-2.5">#2</td>
+                          <td className="p-2.5">&gt;= 50000</td>
+                          <td className="p-2.5">*</td>
+                          <td className="p-2.5 text-[#B894FF]">manual_review</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div className="lg:col-span-5 rounded-xl border border-white/12 bg-[#101014] p-5 flex flex-col justify-between gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs text-[#B894FF]">Deterministic Test Input</span>
+                    <span className="font-mono text-[11px] text-[#9A9AB0]">Zero LLM Variance</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setDecisionScenario('under50k')}
+                      className={`min-h-[40px] px-2.5 rounded-lg border text-xs font-semibold ${
+                        decisionScenario === 'under50k'
+                          ? 'border-[#6252E8] bg-[#6252E8] text-white'
+                          : 'border-white/15 text-[#B5B5C5]'
+                      }`}
+                    >
+                      ₹32,500 · Verified
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDecisionScenario('over50k')}
+                      className={`min-h-[40px] px-2.5 rounded-lg border text-xs font-semibold ${
+                        decisionScenario === 'over50k'
+                          ? 'border-[#965BFF] bg-[#6252E8] text-white'
+                          : 'border-white/15 text-[#B5B5C5]'
+                      }`}
+                    >
+                      ₹68,000 · Exceeds Cap
+                    </button>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 font-mono text-[11px] text-[#E8E8F2]">
+                    {decisionScenario === 'under50k'
+                      ? '{ "invoiceAmount": 32500, "vendorVerified": true, "duplicateFound": false }'
+                      : '{ "invoiceAmount": 68000, "vendorVerified": true, "duplicateFound": false }'}
+                  </div>
+
+                  <div className="rounded-lg border border-[#6252E8]/40 bg-[#6252E8]/15 p-3 font-mono text-[11px] text-white">
+                    <div className="text-[#B894FF] mb-1">Evaluated Output (1ms · v1.2)</div>
+                    {decisionScenario === 'under50k'
+                      ? '{ "decision": "approved", "requiresHumanGate": false, "netPayablePreview": 31850 }'
+                      : '{ "decision": "manual_review", "requiresHumanGate": true, "approvalLane": "finance-controller" }'}
+                  </div>
+                </div>
+                <div className="text-[11px] text-[#9A9AB0]">
+                  Invoked natively by SOPIN Flow Decision Nodes &amp; REST API.
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 4. SOPIN CONTEXT */}
           {activeTab === 'context' && (
             <motion.div
               key="context-ui"

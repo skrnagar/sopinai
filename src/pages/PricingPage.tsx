@@ -1,11 +1,52 @@
 import React, { useState } from 'react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { RoutePath } from '../types/navigation';
+import { DataTable, DataTableColumn } from '../components/ui/DataTable';
 import { SectionHeader, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface PricingPageProps {
-  onNavigate: (path: RoutePath, sectionId?: string) => void;
+  onNavigate: (path: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => void;
 }
+
+interface ComparisonRow {
+  capability: string;
+  preview: string;
+  team: string;
+  enterprise: string;
+}
+
+const CAPABILITY_MATRIX: ComparisonRow[] = [
+  {
+    capability: 'Studio, Flow & Graph Authoring',
+    preview: 'Included (Preview)',
+    team: 'Shared Workspaces + Git Sync',
+    enterprise: 'Org-Wide Policy Templates',
+  },
+  {
+    capability: 'SOPIN Gateway & BYOK Keys',
+    preview: 'Local / Preview Profiles',
+    team: 'BYOK Vault + Managed Failover',
+    enterprise: 'Private VPC & Custom ML Registry',
+  },
+  {
+    capability: 'SOPIN Runtime Isolation',
+    preview: 'Local / Sandbox CLI',
+    team: 'Managed Elastic Containers',
+    enterprise: 'Dedicated VPC / Air-Gapped Pool',
+  },
+  {
+    capability: 'Observe & Evaluate (Planned)',
+    preview: '30-Day Local Telemetry Preview',
+    team: 'Full Trace Store + CI Evals',
+    enterprise: 'Custom Retention + SIEM Export',
+  },
+  {
+    capability: 'Control, RBAC & Approvals (Planned)',
+    preview: 'Single-Workspace Preview',
+    team: 'Workspace RBAC & Approval Queue',
+    enterprise: 'SAML 2.0 / OIDC + SCIM + SLAs',
+  },
+];
 
 export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
   const [deploymentModel, setDeploymentModel] = useState<'managed' | 'self-hosted'>('managed');
@@ -24,6 +65,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         'Direct engineering feedback channel',
       ],
       cta: 'Request Preview Access',
+      topic: 'Developer Preview & SDK',
     },
     {
       name: 'Team Workspace',
@@ -38,6 +80,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         'SOPIN Evaluate regression suites (Planned)',
       ],
       cta: 'Join Cohort Interest List',
+      topic: 'Design Partner Access',
     },
     {
       name: 'SONIL Enterprise',
@@ -52,7 +95,19 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         'Joint engineering onboarding with SONIL Group',
       ],
       cta: 'Contact SONIL Group',
+      topic: 'SONIL Group Enterprise',
     },
+  ];
+
+  const matrixColumns: DataTableColumn<ComparisonRow>[] = [
+    {
+      key: 'capability',
+      header: 'Platform Layer',
+      render: (r) => <span className="font-semibold text-[#101014] dark:text-white">{r.capability}</span>,
+    },
+    { key: 'preview', header: 'Developer Preview', render: (r) => r.preview },
+    { key: 'team', header: 'Team Workspace (Planned)', render: (r) => r.team },
+    { key: 'enterprise', header: 'SONIL Enterprise', render: (r) => r.enterprise },
   ];
 
   return (
@@ -69,9 +124,15 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             </p>
           </div>
 
-          <div className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full">
+          <div
+            role="tablist"
+            aria-label="Deployment topology model"
+            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full"
+          >
             <button
               type="button"
+              role="tab"
+              aria-selected={deploymentModel === 'managed'}
               onClick={() => setDeploymentModel('managed')}
               className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'managed'
@@ -83,6 +144,8 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={deploymentModel === 'self-hosted'}
               onClick={() => setDeploymentModel('self-hosted')}
               className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'self-hosted'
@@ -97,8 +160,8 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
       </section>
 
       <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10">
-          <div className="mb-8 rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-12">
+          <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             {deploymentModel === 'managed' ? (
               <span>
                 <strong className="text-[#101014] dark:text-white">Managed Cloud Topology:</strong>{' '}
@@ -145,7 +208,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
 
                 <button
                   type="button"
-                  onClick={() => onNavigate('/contact')}
+                  onClick={() => onNavigate('/contact', undefined, { topic: tier.topic })}
                   className="mt-8 w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors"
                 >
                   <span>{tier.cta}</span>
@@ -155,12 +218,48 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             ))}
           </div>
 
-          <div className="mt-12">
+          <div className="space-y-6">
             <SectionHeader
-              kicker="Pricing Principles"
+              kicker="Pricing Principles & Capability Matrix"
               title="Predictable licensing aligned with execution boundaries."
               description="Final commercial metrics will be published prior to General Availability. Early design partners collaborate directly with SONIL Group engineering."
             />
+
+            <DataTable
+              caption="SOPIN Access Pathway Comparison"
+              columns={matrixColumns}
+              rows={CAPABILITY_MATRIX}
+              rowKey={(r) => r.capability}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+              {[
+                {
+                  title: 'Bring Your Own Model Keys (BYOK)',
+                  body: 'Never pay arbitrary seat markups on model tokens—bind your existing Anthropic, OpenAI, Gemini, or self-hosted vLLM endpoints inside encrypted Gateway vaults.',
+                },
+                {
+                  title: 'Hard Token & Runtime Ceilings',
+                  body: 'Every workspace enforces explicit maxSteps graph bounds and monthly token spend thresholds inside SOPIN Control so experimental loops never surprise budgets.',
+                },
+                {
+                  title: 'Smooth Cloud-to-VPC Portability',
+                  body: 'Start building in Managed Cloud and migrate identical Studio/Flow/Graph blueprints to Self-Hosted Enterprise VPC runtime without rewriting application code.',
+                },
+              ].map((faq) => (
+                <div
+                  key={faq.title}
+                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6"
+                >
+                  <h3 className="font-display text-base font-semibold text-[#101014] dark:text-white">
+                    {faq.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                    {faq.body}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

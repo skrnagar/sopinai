@@ -1,0 +1,25 @@
+# SOPIN (sopin.ai)
+
+> SOPIN is a unified, model-independent AI Agent Engineering, Automation, and Execution Platform built under the SONIL Group. Design. Connect. Execute. Verify. Govern.
+
+## Core Architecture (Preview)
+- [Platform Overview](https://sopin.ai/platform): Unified architecture uniting authoring, context, runtime, gateway, and verification.
+- [SOPIN Studio](https://sopin.ai/studio): Multi-modal agent IDE uniting natural language, visual canvas, cyclic graphs, and TypeScript/Python SDK parity.
+- [SOPIN Flow](https://sopin.ai/flow): Deterministic workflow automation engine with branching, Decision Nodes, retries, and human-in-the-loop checkpoints.
+- [SOPIN Decisions](https://sopin.ai/decisions): Executable deterministic business rules, decision tables, rulesets, scorecards, and rule chains integrated with SOPIN Flow and Studio.
+- [SOPIN Context](https://sopin.ai/context): Three-tier memory isolation, multimodal RAG, ACL filtering, and SHA-256 provenance retrieval.
+- [SOPIN Graph](https://sopin.ai/graph): Cyclic state-machine and A2A multi-agent collaboration engine with bounded superstep guardrails.
+- [SOPIN Gateway](https://sopin.ai/gateway): Vendor-neutral model, multimodal, ML registry, and MCP gateway with strict JSON schema lock and PII redaction.
+- [SOPIN Runtime](https://sopin.ai/runtime): Sandboxed execution compute with configurable network egress policies and durable checkpoints.
+
+## Planned & Enterprise Governance Modules
+- [SOPIN Observe](https://sopin.ai/observe): Span-level trace waterfalls, state diffs, and checkpoint replay (Planned).
+- [SOPIN Evaluate](https://sopin.ai/evaluate): Golden regression datasets, grounding assertions, and CI release gates (Planned).
+- [SOPIN Control](https://sopin.ai/control): Organization RBAC, tool allowlists, spend budgets, approval queues, and immutable audit trails (Planned).
+- [SOPIN Cloud](https://sopin.ai/cloud): Managed zero-ops cloud workspaces (Planned).
+- [SOPIN Enterprise](https://sopin.ai/enterprise): Private VPC, BYOC, and self-hosted deployments with SONIL Group engineering support.
+- [Trust & Security Center](https://sopin.ai/security): Security posture, sandboxing, credential scoping, and data privacy commitments.
+
+## Documentation & Resources
+- [Documentation](https://sopin.ai/docs): Quickstarts, @sopin/sdk references, SOPIN Decisions schemas (`/docs/decisions-spec`), MCP bindings, A2A handoffs, and verification gates.
+- [Engineering Resources](https://sopin.ai/resources): Full-text technical guides (`/resources/guide-sopin-decisions`), tutorials, and architectural publications.

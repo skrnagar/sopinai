@@ -75,9 +75,11 @@ audit_agent = client.agent(
               title="Typed TypeScript and Python SDKs."
               description="Define schemas, tool scopes, retry rules, and approval gates directly in code with bidirectional Studio synchronization."
             />
-            <div className="flex flex-wrap gap-2">
+            <div role="tablist" aria-label="SDK language" className="flex flex-wrap gap-2">
               <button
                 type="button"
+                role="tab"
+                aria-selected={sdkLang === 'typescript'}
                 onClick={() => setSdkLang('typescript')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'typescript'
@@ -89,6 +91,8 @@ audit_agent = client.agent(
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={sdkLang === 'python'}
                 onClick={() => setSdkLang('python')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'python'

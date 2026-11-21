@@ -51,12 +51,12 @@ export const triageAgent = defineAgent({
   {
     id: 'orchestration',
     order: 'Layer 02',
-    name: 'Orchestration & Memory',
-    modules: 'SOPIN Flow · Context',
+    name: 'Orchestration, Decisions & Memory',
+    modules: 'SOPIN Flow · Decisions · Context',
     status: 'Core Architecture',
-    headline: 'Deterministic control flow backed by scoped memory tiers.',
+    headline: 'Deterministic control flow, executable business rules, and scoped memory.',
     description:
-      'Combine explicit conditional branching and human approval pauses with isolated ephemeral, episodic, and grounded knowledge indexes.',
+      'Combine explicit conditional branching, deterministic SOPIN Decisions tables/rules, and human approval pauses with isolated ephemeral, episodic, and grounded knowledge indexes.',
     highlights: [
       'Three-tier context isolation with provenance checksums',
       'Durable step checkpoints across long-running pauses',

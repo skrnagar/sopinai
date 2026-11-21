@@ -1,129 +1,141 @@
 # SOPIN — Trust, Security, Enterprise Readiness & Phased Implementation Roadmap
 
 **Platform:** SOPIN (`sopin.ai`) · **Parent Group:** SONIL Group  
-**Transparency Commitment:** All security, governance, and enterprise capabilities below distinguish clearly between **Architectural Design Principles (Preview)**, **Planned Build Phases**, and **Future Enterprise Verification**. Zero compliance certifications, customer logos, or active SLAs are fabricated or implied.
+**Transparency Commitment:** All security, governance, and enterprise capabilities below distinguish clearly between **Already Implemented (UI/Local Prototype)**, **Architectural Design Principles (Preview)**, **Planned Build Phases**, and **Future Enterprise Verification**. Zero compliance certifications, customer logos, or active backend SLAs are fabricated or implied.
 
 ---
 
 ## 1. Trust, Security & Enterprise Readiness Requirements
 
-A dedicated Trust & Security Center (`/security`) and corresponding platform engineering controls must address 14 core domains:
+A dedicated Trust & Security Center (`/security`) and corresponding backend controls must address 14 core domains:
 
 | Domain | Public Website & Security Docs Requirement | Target Technical Architecture Control |
 |--------|--------------------------------------------|---------------------------------------|
 | **1. Authentication & Identity** | Document supported auth flows transparently (`Planned`). | OIDC / SAML 2.0 SSO, SCIM directory sync, short-lived signed session tokens, MFA enforcement. |
-| **2. Organization & Workspace Isolation** | Explain strict logical multi-tenant boundaries vs. dedicated VPC options. | Organization -> Workspace -> Project hierarchy; row-level tenant isolation in PostgreSQL + namespaced Redis & Context vector partitions. |
+| **2. Organization & Workspace Isolation** | Explain logical multi-tenant boundaries vs. dedicated VPC options *(local workspace separation already previewed in `/app`)*. | Organization -> Workspace -> Project hierarchy; row-level tenant isolation in PostgreSQL + namespaced Redis & Context vector partitions. |
 | **3. Role-Based Access Control (RBAC)** | Publish standard role taxonomy (*Owner, Admin, Builder, Operator, Reviewer, Viewer*). | Policy middleware enforced at FastAPI API layer and Runtime action dispatch. |
-| **4. Fine-Grained Permissions** | Show how agents receive tool-level read vs. write scopes rather than blanket permissions. | Per-node capability manifests (`allowedTools`, `deniedTools`, resource scope filters) validated prior to execution. |
-| **5. API Key & Credential Management** | Explain BYOK and MCP tool secret handling (never stored inside prompt text or client browser). | Server-side encrypted secret vault (envelope encryption / KMS); ephemeral short-lived tokens injected into runtime workers only at step invocation. |
-| **6. Secure Tool Execution** | Detail how external APIs and MCP servers are constrained. | Schema validation on all tool inputs/outputs; parameterized connectors; explicit timeout & payload size limits. |
-| **7. Sandboxing** | Explain code interpreter and local MCP execution boundaries. | Ephemeral containers / microVMs with read-only rootfs, no host filesystem/metadata access, CPU/RAM caps, and `disabled` or `allowlist-only` network egress. |
-| **8. Audit Trails** | Describe structured event capture (`Planned` immutable ledger). | Append-only audit events capturing actor, workspace, blueprint version, retrieved document IDs, Gateway route, tool call params, and human approval sign-off. |
-| **9. Human Approvals** | Show durable pause-and-resume gates for high-impact mutations. | `humanGate` checkpoints persist run state in durable storage and require RBAC-authorized operator approval before resuming mutating steps. |
-| **10. Usage Limits & Cost Controls** | Explain loop prevention (`maxSteps`) and spend ceilings (`Planned`). | Hard step/cycle limits on `SOPIN Graph`, token/request rate quotas per workspace, and monthly budget thresholds at `SOPIN Gateway`. |
-| **11. Data Privacy** | Clarify training policy & pre-inference sanitization. | Explicit commitment that customer workflow data is never used to train third-party models; pre-inference PII redaction transforms at Gateway; configurable trace retention TTLs. |
+| **4. Fine-Grained Permissions** | Show how agents receive tool-level `read` vs. `write` scopes rather than blanket access. | Per-node capability manifests (`allowedTools`, `deniedTools`, resource scope filters) validated prior to execution. |
+| **5. API Key & Credential Management** | Explain BYOK and MCP secret handling (never stored inside prompts, `localStorage`, or client browsers). | Server-side encrypted secret vault (envelope encryption / KMS); ephemeral short-lived tokens injected into runtime workers only at step invocation. |
+| **6. Secure Tool Execution** | Detail how external APIs and MCP servers are constrained. | Strict schema validation on tool inputs/outputs; parameterized connectors; explicit timeouts & payload size caps. |
+| **7. Sandboxing** | Explain code interpreter and local MCP execution boundaries. | Ephemeral containers / microVMs with read-only rootfs, zero host filesystem access, CPU/RAM limits, and `disabled` or `allowlist-only` network egress. |
+| **8. Audit Trails** | Describe structured event capture (`Planned` immutable ledger). | Append-only audit table logging actor, workspace, blueprint version, retrieved document IDs, Gateway route, tool call params, and human approval sign-offs. |
+| **9. Human Approvals** | Show durable pause-and-resume gates for high-impact mutations *(interactive queue previewed in `/app`)*. | `humanGate` checkpoints persist run state in durable storage and require RBAC-authorized operator approval before resuming mutating steps. |
+| **10. Usage Limits & Cost Controls** | Explain loop prevention (`maxSteps`) and spend ceilings (`Planned`). | Hard cycle ceilings on `SOPIN Graph`, token/request rate quotas per workspace, and monthly budget thresholds at `SOPIN Gateway`. |
+| **11. Data Privacy** | Clarify model training policy & pre-inference sanitization. | Explicit commitment that customer data is never used to train external foundation models; pre-inference PII redaction at Gateway; configurable trace TTLs. |
 | **12. Deployment Choices** | Clearly distinguish **SOPIN Cloud** (Managed) vs. **SOPIN Enterprise** (Private VPC / Self-Hosted / Hybrid Data Plane). | Same declarative blueprint runs across SOPIN-hosted cloud workers or customer-hosted Runtime/Gateway inside private networks. |
 | **13. Enterprise Administration** | Provide clear admin workflow expectations (`Control`). | Centralized org policy templates, SIEM audit log streaming, IdP group mapping, and workspace quota management. |
-| **14. Security Documentation** | Launch `/security` with responsible disclosure contact (`security@sopin.ai` / SONIL Group intake), architecture whitepaper, and status transparency. | Maintain living Security Architecture docs linked from Header (`Company`), Footer, and `/enterprise`. |
+| **14. Security Documentation** | Launch `/security` with responsible disclosure contact (`security@sopin.ai` / SONIL Group intake), architecture docs, and honest status taxonomy. | Maintain living Security Architecture documentation linked from Header (`Company`), Footer, `/app`, and `/enterprise`. |
 
 ---
 
 ## 2. Eight-Phase Practical Implementation Roadmap
 
-> **Planning Principle:** No unrealistic calendar promises or arbitrary dates. Phases are sequenced by strict engineering dependencies, risk reduction, and verifiable Definition of Done criteria.
+> **Baseline Already Completed in Current Repo (Pre-Phase 1):** Mobile-first `/app` PWA workspace prototype with workspace isolation + Recharts 30-day performance telemetry, client-side `404` (`NotFoundPage`), `React.lazy` code splitting (`PageSkeleton`), removal of the old `ResourcesPage` debug error button, Mega-Menu edge alignment (`Navbar.tsx`), and `--color-sopin-muted: #5E5E6E`.  
+> **Planning Principle:** No unrealistic calendar dates. Phases are sequenced strictly by technical dependencies, risk reduction, and verifiable Definition of Done criteria.
 
 ---
 
-### Phase 1 — Brand, Website Audit Fixes & Design System Foundation
-- **Deliverables:** Fix P0 routing (`404` page, canonical tags, remove debug error toggles); extract reusable Design System primitives (`Button`, `Tabs`, `SurfaceCard`, `DataTable`, `Dialog`, `Tooltip`, `FormField`); fix WCAG AA light-mode contrast tokens (`#5B5B6B`); decompose `ProductPreviews.tsx` & `sopinData.ts`; self-host geometric fonts.
-- **Dependencies:** Approved audit documents (`docs/SOPIN_*.md`); preserved SOPIN radial logo & color tokens.
-- **Engineering Tasks:** Modularize components under `src/design-system/`; implement `React.lazy` + `ErrorBoundary`; fix navbar mega-menu edge clamping at `1024px–1279px`; add `robots.txt`, `sitemap.xml`, and `llms.txt`.
-- **Design Tasks:** Finalize token spec (`index.css`), button/tab/table specs, and responsive `<640px` horizontal preview tab strip.
-- **Testing Requirements:** `tsc --noEmit`, Vite production build check, automated axe-core accessibility audit across light/dark modes, breakpoint inspection (`375px`, `768px`, `1024px`, `1440px`).
-- **Acceptance Criteria:** Zero soft-404s; zero debug controls in public UI; WCAG AA `>= 4.5:1` contrast verified; zero horizontal overflow on all routes.
-- **Risks:** Breaking existing deep-link anchors (`/platform#gateway`) -> **Mitigation:** Preserve anchor aliases during route refactor.
-- **Definition of Done:** Clean build, documented UI primitive library, and passing accessibility/responsive audit on existing 12 routes.
+### Phase 1 — SEO Foundations, Residual Contrast/UX Fixes & Design System Extraction
+- **Deliverables:** Add `<link rel="canonical">` + `<meta name="robots" content="noindex">` on `NotFoundPage` and `/app`; add `public/robots.txt`, `public/sitemap.xml`, `public/llms.txt`; replace 4 remaining `#777786` glyphs (`HomePage.tsx`, `AgentPerformanceChart.tsx`) with `#5E5E6E`; wire real `POST /api/contact` intake & remove prototype text from `ContactPage.tsx`; extract shared UI primitives (`Button`, `Tabs` with ARIA tablist, `SurfaceCard`, `DataTable`, `Dialog`, `Tooltip`, `FormField`); add React `ErrorBoundary` around `<main>` and `/app`.
+- **Dependencies:** Approved audit documents (`docs/SOPIN_*.md`); preserved SOPIN 6-prong emblem & `#101014`/`#FFFFFF`/`#101126`/`#6252E8`/`#965BFF` system.
+- **Engineering Tasks:** Decompose `ProductPreviews.tsx` (`1,065` lines), `sopinData.ts` (`949` lines), `AppBuildView.tsx` (`1,320` lines), and `useAppWorkspaceStore.ts` (`1,187` lines); self-host geometric WOFF2 fonts; ensure semantic `<a href>` on navigation cards/mega-menu links.
+- **Design Tasks:** Convert `<640px` `ProductPreviews` 8-tab matrix to a horizontal snap strip; standardize `<DataTable>` and `<TelemetryChart>` visual specs.
+- **Testing Requirements:** `tsc --noEmit`, `npm run lint`, Vite production build, accessibility contrast & keyboard navigation scan, responsive zero-overflow check (`375px`, `768px`, `1024px`, `1440px`).
+- **Acceptance Criteria:** Zero `#777786` leftovers; working `/api/contact` submission; canonical & `noindex` meta verified; zero uncaught crash boundaries.
+- **Risks:** Breaking existing `#hash` anchor links (`/platform#gateway`) -> **Mitigation:** Maintain scroll-to-anchor compatibility in `useRoute.ts`.
+- **Definition of Done:** Clean build, modular UI primitive library, live contact endpoint, and refactored codebase ready for multi-page scaling.
 
 ---
 
-### Phase 2 — Public Website Expansion, Content & SEO/GEO Rollout
-- **Deliverables:** Expand `HomePage` to the 18-section narrative; launch dedicated pages for all 11 products (`Graph`, `Runtime`, `Gateway`, `Observe`, `Evaluate`, `Control`, `Cloud`, `Enterprise`), 8 Solution pages, `/security` Trust Center, `/docs/:slug`, `/resources/:slug` full articles, Company subpages (`Careers`, `Partners`, `SONIL Group`), and wire real `POST /api/contact` intake + static SSG pre-rendering.
-- **Dependencies:** Phase 1 Design System primitives & modular router.
-- **Engineering Tasks:** Implement SSG/pre-rendering pipeline for crawlable HTML snapshots; add per-route JSON-LD (`SoftwareApplication`, `TechArticle`, `FAQPage`, `Organization`); build searchable `/docs/:slug` & `/resources/:slug` markdown/structured renderer; wire Express/FastAPI contact submission with validation & rate limiting.
-- **Design Tasks:** Author interactive diagrams for *Models & Multimodal Gateway*, *Flow vs. Graph comparison*, *ML Engineer preview*, and *Security/Control architecture*.
-- **Testing Requirements:** SEO metadata/canonical verification per route; broken-link crawl check (`0` 404 internal links); real contact form submission + error state verification; mobile Lighthouse performance check.
-- **Acceptance Criteria:** Every item in Platform, Solutions, Developers, Resources, and Company mega menus resolves to a dedicated, crawlable, rich page with accurate `Core Architecture` vs. `Planned` labeling.
-- **Risks:** Content bloat or uneven quality across 30+ pages -> **Mitigation:** Ship high-rigor specs for the initial 16 editorial articles first rather than shallow placeholder stubs.
-- **Definition of Done:** Full target IA live, crawlable, mobile-verified, and backed by real lead/waitlist intake.
+### Phase 2 — Public Website Expansion, Content Engine & SSG/GEO Rollout
+- **Deliverables:** Expand `HomePage` to the 18-section narrative (adding *Models & Multimodal Intelligence*, *Evaluations & Observability*, and *Documentation & Learning*); launch dedicated pages for all 11 product modules (`Graph`, `Runtime`, `Gateway`, `Observe`, `Evaluate`, `Control`, `Cloud`, `Enterprise`), 8 Solution pages (`Document Intelligence`, `Machine Learning`, `Multi-Agent`, etc.), `/security` Trust Center, bookmarkable `/docs/:slug` + `Cmd+K` search, full-text `/resources/:slug` hosting the 16-article calendar, and Company sub-pages (`Vision & Mission`, `SONIL Group`, `Careers`, `Partners`).
+- **Dependencies:** Phase 1 Design System primitives, decomposed data modules, and contact intake.
+- **Engineering Tasks:** Implement Vite SSG/pre-rendering generating crawlable HTML per route with HTTP `404` support; inject route-specific JSON-LD (`SoftwareApplication`, `TechArticle`, `FAQPage`, `Organization`); render Markdown/MDX docs & resource guides.
+- **Design Tasks:** Author interactive architectural visuals for *Models & Multimodal Gateway*, *Flow (DAG) vs. Graph (Cyclic)*, *ML Engineer Preview*, and *Security/Control Architecture*.
+- **Testing Requirements:** Per-route SEO metadata/canonical audit; internal broken-link check (`0` unexpected 404s); mobile Lighthouse performance & accessibility audit.
+- **Acceptance Criteria:** Every Navbar mega-menu link resolves to a dedicated, crawlable page cleanly labeled `Core Architecture (Preview)` or `Planned`.
+- **Risks:** Shallow placeholder pages -> **Mitigation:** Ship deep technical architecture diagrams and real documentation/16 core guides first.
+- **Definition of Done:** Full 35+ route public platform architecture pre-rendered, crawlable, and verified end-to-end.
 
 ---
 
-### Phase 3 — SOPIN Application Shell & Workspaces
-- **Deliverables:** Authenticated web application shell (`app.sopin.ai` / `/app/*`), organization/workspace switcher, user identity (OIDC/SAML/session), project dashboard, encrypted secret/BYOK credential manager, and FastAPI + PostgreSQL + Redis backend core.
-- **Dependencies:** Phase 1 Design System + provisioned PostgreSQL/Redis + FastAPI API foundation.
-- **Engineering Tasks:** Build FastAPI auth/session + org/workspace RBAC schema; auto-generate TypeScript OpenAPI client; implement React Query/API client layer, project CRUD, secret vault UI (write-only masked inputs), and empty/loading/error shells.
-- **Design Tasks:** Design dense application shell (left sidebar rail, top workspace switcher, `Cmd+K` palette, notification/toast system, keyboard shortcuts).
-- **Testing Requirements:** Multi-tenant isolation integration tests (cross-workspace access strictly `403`); auth/CSRF/session expiry tests; UI E2E onboarding test.
-- **Acceptance Criteria:** Users sign in, create an isolated workspace, store a scoped credential safely (never returned in plaintext to browser), and create/open a blueprint project.
-- **Risks:** Tenant isolation bugs -> **Mitigation:** Enforce workspace ID scoping at every DB query/policy dependency in FastAPI.
-- **Definition of Done:** Authenticated, multi-tenant workspace shell deployed in staging with passing tenant-isolation security tests.
+### Phase 3 — FastAPI Backend Core, Auth & `/app` Workspace Persistence
+- **Deliverables:** Stand up Python **FastAPI + PostgreSQL + Redis** control plane; migrate existing `/app` `SopinAppShell` & `useAppWorkspaceStore` from `localStorage` onto authenticated multi-tenant APIs; implement OIDC/SAML login, workspace RBAC (`Owner`/`Admin`/`Builder`/`Reviewer`/`Viewer`), and server-side KMS secret/BYOK credential vault.
+- **Dependencies:** Phase 1 decomposed `/app` state hooks; provisioned PostgreSQL & Redis infrastructure.
+- **Engineering Tasks:** Define FastAPI org/workspace/project/secret schemas; auto-generate TypeScript client from `/openapi.json`; replace synthetic store mutations with authenticated REST + optimistic updates; ensure zero credentials ever serialize to the browser.
+- **Design Tasks:** Design sign-in/SSO flows, masked secret creation UI, member role invite views, and loading/error skeleton states for real API latency.
+- **Testing Requirements:** Cross-tenant isolation integration tests (`403` strictly enforced across workspaces); CSRF/session security tests; E2E onboarding test.
+- **Acceptance Criteria:** Users authenticate, switch real isolated workspaces across devices, and store encrypted BYOK credentials cleanly.
+- **Risks:** Cross-workspace data leaks -> **Mitigation:** Enforce org/workspace authorization dependencies centrally at FastAPI query boundaries.
+- **Definition of Done:** Multi-tenant FastAPI + `/app` workspace shell deployed to staging with passing isolation tests.
 
 ---
 
-### Phase 4 — SOPIN Studio, Flow & Graph Authoring
-- **Deliverables:** Live interactive **SOPIN Studio** (Natural Language intent compiler, visual DAG builder for **Flow**, cyclic state-graph editor for **Graph**, and 1:1 bidirectional `@sopin/sdk` JSON/TS blueprint serialization + Git sync) and starter **Agent Templates**.
-- **Dependencies:** Phase 3 App Shell & project blueprint persistence in PostgreSQL.
-- **Engineering Tasks:** Define canonical versioned Blueprint JSON schema (`Studio`/`Flow`/`Graph`); build interactive graph canvas (zoom/pan, typed node ports, cycle validation); implement `@sopin/sdk` parser/serializer and dry-run validator.
-- **Design Tasks:** Node inspector drawer, schema builder UI, Flow vs. Graph mode affordances, natural-language-to-graph diff review UI.
-- **Testing Requirements:** Schema round-trip tests (NL -> Blueprint -> SDK -> Canvas with zero data loss); compiler cycle-guard tests (`maxSteps` validation).
-- **Acceptance Criteria:** Non-technical users compile a working blueprint from text; developers edit and export valid TypeScript `@sopin/sdk` definitions from the same project.
-- **Risks:** Canvas state complexity & undo/redo bugs -> **Mitigation:** Use immutable blueprint state snapshots with deterministic validation before save.
-- **Definition of Done:** Bidirectional Studio/Flow/Graph authoring persisted, versioned, and validated end-to-end.
+### Phase 4 — Live SOPIN Studio, Flow & Graph Authoring Parity
+- **Deliverables:** Upgrade `/app` Build tab into persistent, versioned **SOPIN Studio** (NL prompt-to-blueprint backend service, visual **Flow** DAG designer, **Graph** cyclic state editor with `maxSteps` validation, and Git/CLI `@sopin/sdk` bidirectional sync) plus browsable starter templates.
+- **Dependencies:** Phase 3 workspace & blueprint persistence in PostgreSQL.
+- **Engineering Tasks:** Lock canonical versioned Blueprint JSON schema (`v1`); build deterministic cycle/schema validator; implement bidirectional TS `@sopin/sdk` <-> Blueprint parser/generator.
+- **Design Tasks:** Interactive node property drawer, typed Zod/JSON schema builder, blueprint diff modal, and undo/redo history controls.
+- **Testing Requirements:** Round-trip fidelity tests (NL -> Blueprint -> SDK -> Visual Canvas); compiler rejection tests on unbounded loops or invalid schemas.
+- **Acceptance Criteria:** Non-technical users compile validated flows from English prompts while engineers inspect and sync identical specs via Git/CLI.
+- **Risks:** Visual graph divergence from code representation -> **Mitigation:** Treat canonical Blueprint JSON as single source of truth rendered identically in Studio and SDK.
+- **Definition of Done:** Versioned Studio/Flow/Graph blueprints persisted, validated, and synced across UI and SDK.
 
 ---
 
-### Phase 5 — SOPIN Context, Model Gateway & Protocol Integrations (MCP & A2A)
-- **Deliverables:** Live **SOPIN Gateway** (multi-provider LLM + multimodal routing, strict JSON schema enforcement, fallback rules, PII redaction filter), **SOPIN Context** (document/image/structured ingestion, chunking, hybrid retrieval, provenance checksums, ACL filters), and **MCP / A2A** connector registry.
-- **Dependencies:** Phase 4 Blueprint schema & Phase 3 secret vault.
-- **Engineering Tasks:** Build FastAPI Gateway proxy supporting commercial, open-weight, and custom endpoints; implement pre-inference PII redactor & JSON schema validator; build Context ingestion workers (PDF/Markdown/tabular -> embeddings + pgvector/index + checksums); implement MCP client handshake (`stdio`/`HTTP`) and A2A task envelope router.
-- **Design Tasks:** Context corpus explorer UI (chunk preview, checksums, ACL tags), Gateway route configurator, MCP tool permission matrix UI.
-- **Testing Requirements:** Fallback failover tests, schema repair/rejection tests, cross-tenant retrieval isolation tests (must return 0 unauthorized chunks), MCP capability boundary tests.
-- **Acceptance Criteria:** Agents retrieve citation-backed passages respecting ACL tags and invoke external tools via MCP and peer agents via A2A through Gateway without exposing provider keys.
-- **Risks:** Latency spikes on hybrid retrieval + redaction -> **Mitigation:** Streamline Gateway pipeline with Redis caching for schema validators and parallelized retrieval.
-- **Definition of Done:** Live Gateway, Context RAG with provenance, and MCP/A2A bindings operating reliably in staging.
+### Phase 5 — Live SOPIN Gateway, Context RAG & MCP/A2A Protocols
+- **Deliverables:** Production **SOPIN Gateway** (multi-provider LLM + multimodal parsing + failover + strict JSON schema enforcement + pre-inference PII redaction), live **SOPIN Context** (document/image/structured ingestion, `pgvector`/hybrid retrieval, immutable span checksums, ACL filters), and **MCP / A2A** tool & peer registry.
+- **Dependencies:** Phase 4 blueprints & Phase 3 encrypted secret vault.
+- **Engineering Tasks:** Build FastAPI Gateway inference router; wire PII redaction pipeline; build async Context chunking/indexing workers storing provenance hashes; implement live MCP client transport (`stdio`/`HTTP`) and A2A peer envelope routing.
+- **Design Tasks:** Real Context corpus inspector (chunk previews, checksums, ACL tags), Gateway failover profile editor, MCP scope confirmation matrix.
+- **Testing Requirements:** Provider failover tests, schema repair/rejection tests, ACL cross-tenant retrieval isolation tests (`0` unauthorized chunks leaked), MCP capability boundary tests.
+- **Acceptance Criteria:** Agents execute grounded retrieval with verifiable citations and call scoped MCP tools & A2A peers safely without exposing raw keys.
+- **Risks:** Retrieval + redaction tail latency -> **Mitigation:** Cache schema validators in Redis and parallelize pre-inference redaction & retrieval lookups.
+- **Definition of Done:** Live Gateway, provenance-backed Context RAG, and MCP/A2A protocols operating reliably in staging.
 
 ---
 
-### Phase 6 — SOPIN Runtime, Durable Execution & Live Observability
-- **Deliverables:** Live **SOPIN Runtime** (isolated container/microVM sandboxes with configurable egress allowlists), durable workflow engine (**Temporal** or equivalent checkpointed execution), **human-in-the-loop pause/resume** execution, and live **SOPIN Observe** span waterfall & state-diff viewer.
-- **Dependencies:** Phase 4 Flow/Graph specs + Phase 5 Gateway/Context/MCP layers.
-- **Engineering Tasks:** Wire FastAPI dispatch into durable workflow workers; provision isolated sandbox worker pool for code/MCP execution; stream execution spans via Redis pub/sub -> FastAPI SSE -> Observe UI; implement durable `humanGate` suspend/resume signal API; build LangGraph/CrewAI/ADK adapter wrappers.
-- **Design Tasks:** Real-time Observe waterfall timeline, node state-diff inspector, sandbox security status badge, interactive checkpoint replay trigger.
-- **Testing Requirements:** Worker crash recovery / checkpoint resume tests; sandbox escape & blocked egress network tests; SSE stream resilience under reconnects.
-- **Acceptance Criteria:** Long-running multi-step workflows survive worker restarts, pause cleanly for human approval, run untrusted tools without network egress, and stream complete span traces to Observe.
-- **Risks:** Sandbox provisioning cold-start latency -> **Mitigation:** Warm standby worker pools with strict per-run reset.
-- **Definition of Done:** Durable, sandboxed execution + live Observe tracing validated under load and failure-injection tests.
+### Phase 6 — Durable SOPIN Runtime, Human-in-the-Loop & Live Observe
+- **Deliverables:** Live **SOPIN Runtime** (Temporal-backed durable execution + isolated sandboxed containers/microVMs with egress allowlists), real pause/resume **human approval gates**, framework adapters (**LangGraph / CrewAI / Google ADK**), and real-time **SOPIN Observe** streaming spans + Recharts telemetry powered by real execution logs.
+- **Dependencies:** Phase 4 workflows/graphs + Phase 5 Gateway/Context/MCP layers.
+- **Engineering Tasks:** Wire FastAPI dispatch into Temporal workers; provision isolated sandbox compute for code/MCP steps; emit OpenTelemetry spans & Redis pub/sub SSE events (`AppRunView` / `Observe`); persist durable human-approval signals.
+- **Design Tasks:** Real-time SSE span waterfall, graph superstep state-diff viewer, sandbox egress indicator badges, checkpoint replay trigger.
+- **Testing Requirements:** Worker crash-and-resume recovery tests; sandbox egress block tests; SSE reconnect resilience; load tests under long human pauses.
+- **Acceptance Criteria:** Multi-step runs survive worker crashes, pause cleanly for human review, run code without unauthorized egress, and stream live telemetry into the 30-day chart.
+- **Risks:** Sandbox cold-start latency -> **Mitigation:** Maintain warm pre-initialized sandbox pools with strict post-step filesystem wipe.
+- **Definition of Done:** Durable sandboxed execution and live Observe tracing validated under failure-injection & concurrency tests.
 
 ---
 
-### Phase 7 — Evaluation, Governance & Enterprise Security Hardening
-- **Deliverables:** Live **SOPIN Evaluate** (golden datasets, deterministic & grounding assertions, model/prompt benchmarking, CI CLI gate) and **SOPIN Control** (organization RBAC enforcement, fine-grained tool allowlists, human approval inbox, token/compute budget caps, immutable audit log + SIEM export).
-- **Dependencies:** Phase 6 Observe span store & checkpointed runtime.
-- **Engineering Tasks:** Build dataset curation from Observe traces; implement async eval runner & regression diff engine; enforce RBAC & budget middleware across Gateway and Runtime; implement immutable append-only audit table + CSV/JSON/webhook SIEM export; conduct external penetration test & dependency/container security audits.
-- **Design Tasks:** Evaluate comparison matrix & charts, Control approval queue inbox, RBAC policy matrix editor, budget threshold alert configuration.
-- **Testing Requirements:** Regression gate CI tests, RBAC privilege-escalation negative tests, budget hard-cap enforcement tests, audit completeness verification.
-- **Acceptance Criteria:** Teams block bad prompt/model changes in CI via Evaluate; admins enforce tool scopes, spend ceilings, and approval workflows via Control with full auditability.
-- **Risks:** Eval runner cost/time bottlenecks -> **Mitigation:** Parallelize deterministic checks before LLM-judge assertions and cache baseline dataset runs.
-- **Definition of Done:** Evaluate and Control operational, hardened against abuse/runaway spend, and documented cleanly in `/security`.
+### Phase 7 — SOPIN Evaluate, SOPIN Control & Security Hardening
+- **Deliverables:** Live **SOPIN Evaluate** (golden datasets curated from Observe runs, deterministic + grounding + rubric assertions, CI release CLI gate) and live **SOPIN Control** (strict RBAC enforcement, fine-grained MCP write gates, SLA approval inbox, token/compute budget caps, immutable audit ledger + SIEM export).
+- **Dependencies:** Phase 6 Observe telemetry & Runtime checkpoints.
+- **Engineering Tasks:** Build async evaluation runner & baseline diff engine; enforce RBAC & budget limits inline at Gateway & Runtime; add append-only audit log table + SIEM export workers; complete external security/penetration testing before public GA.
+- **Design Tasks:** Benchmark comparison tables/charts, enterprise approval escalation inbox, budget alert configuration, audit filter & export UI.
+- **Testing Requirements:** CI eval regression blocking tests, RBAC privilege-escalation negative tests, budget hard-stop tests, audit completeness validation.
+- **Acceptance Criteria:** Teams block prompt/model regressions via CI; admins enforce least-privilege tool access, spend ceilings, and auditable approvals.
+- **Risks:** Slow evaluation suites -> **Mitigation:** Run fast deterministic assertions first and cache baseline benchmark outputs.
+- **Definition of Done:** Evaluate and Control production-hardened, security-audited, and documented transparently in `/security`.
 
 ---
 
-### Phase 8 — Enterprise Scale & Advanced Intelligence Capabilities
-- **Deliverables:** **SOPIN Enterprise** private VPC / BYOC / self-hosted deployment topology, **ML/DL Lifecycle Workflows** (dataset profiler, distributed training/fine-tuning orchestration, model registry linked into Gateway), **Multimodal Processing Pipelines** (native audio/video/OCR batch flows), and public **Agent Marketplace / Community Templates** + **Changelog** + **Live Status**.
+### Phase 8 — Enterprise VPC, ML/DL Lifecycle & Ecosystem Expansion
+- **Deliverables:** **SOPIN Enterprise** private VPC / BYOC / self-hosted Helm data plane; full **AI/ML Engineer Lifecycle** (`/solutions/machine-learning` + `/app` ML views: dataset upload, profiler, feature transforms, PyTorch/fine-tune jobs, benchmark matrix, Model Registry -> Gateway inference); multimodal batch media pipelines; public `/templates` Marketplace, `/changelog`, `/community`, and live `/status` telemetry.
 - **Dependencies:** Phase 7 security hardening & Phase 6 durable runtime stability.
-- **Engineering Tasks:** Package Helm/Terraform/containerized Enterprise Data Plane connecting securely to Control Plane or running self-contained; add Python ML worker pools & Model Registry service feeding Gateway routes; implement multimodal pipeline nodes; launch curated template publishing pipeline.
-- **Design Tasks:** ML experiment comparison & loss curve charts, Enterprise cluster/region topology UI, public Agent Template directory & Changelog experience.
-- **Testing Requirements:** Air-gapped / private VPC installation smoke tests; GPU/ML worker fault tolerance tests; high-concurrency soak testing.
-- **Acceptance Criteria:** Enterprise customers deploy SOPIN Runtime + Gateway inside their own VPC; ML engineers train, evaluate, register, and serve custom models directly inside SOPIN workflows.
-- **Risks:** Scope sprawl across ML + Enterprise infra -> **Mitigation:** Anchor ML workflows strictly around SOPIN Runtime compute, Evaluate benchmarks, and Gateway registration rather than building a redundant notebook IDE clone.
-- **Definition of Done:** SOPIN operates as a complete, model-independent, enterprise-ready AI engineering and execution platform under SONIL Group.
+- **Engineering Tasks:** Package containerized Enterprise Data Plane; build Python GPU/CPU ML compute worker pool + Model Registry feeding Gateway profiles; implement batch OCR/audio/video pipelines; launch curated template publishing & automated `/status` health probes.
+- **Design Tasks:** Dataset quality profiler UI, training experiment metrics/loss charts, Enterprise cluster topology viewer, public Template Marketplace cards.
+- **Testing Requirements:** Private VPC/air-gapped smoke tests; GPU ML checkpoint recovery tests; multi-region soak testing.
+- **Acceptance Criteria:** Enterprises operate SOPIN cleanly inside private infrastructure; ML engineers train, evaluate, register, and invoke custom models alongside LLMs under unified governance.
+- **Risks:** Scope sprawl across ML + Infra -> **Mitigation:** Anchor ML workflows tightly onto SOPIN Runtime compute, Evaluate harnesses, and Gateway routing rather than cloning full notebook IDEs.
+- **Definition of Done:** SOPIN delivers a complete, model-independent, enterprise-grade AI engineering and execution platform under SONIL Group.
+
+---
+
+## 3. SOPIN Decisions Integration & Security Separation
+
+- **Implemented in Prototype (`/decisions`, `/app` Decisions tab & Flow Decision Node):**
+  - Pure deterministic evaluator (`src/decisions/evaluator.ts`) without `eval`/`Function`.
+  - Visual nested AND/OR Rule Builder, spreadsheet Decision Table editor, Rulesets, Rule Chains, Scorecards, Expected-vs-Actual batch tests, Execution Inspector, Environment Promotion (`Draft -> Tested -> Published -> Archived`), and SOPIN Flow Decision Node binding.
+  - SOPIN Studio natural-language rule drafting creates `Draft` specs only and flags ambiguous phrases for mandatory human review.
+- **Planned Production Architecture:** Migrate local workspace state to Python **FastAPI + Pydantic + PostgreSQL** versioned snapshots evaluated via **CEL** inside isolated **SOPIN Runtime** / **Temporal** Decision Nodes with **OpenTelemetry** span export and **SOPIN Control** RBAC enforcement.
+

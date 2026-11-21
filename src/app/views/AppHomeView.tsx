@@ -15,6 +15,7 @@ import {
 import { AppTabId, AgentConfig, ExecutionRun, WorkflowConfig, Workspace } from '../types';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
+import { AgentPerformanceChart } from '../components/AgentPerformanceChart';
 
 interface AppHomeViewProps {
   workspace: Workspace;
@@ -200,6 +201,13 @@ export const AppHomeView: React.FC<AppHomeViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* 30-Day Agent Performance Visualization (Recharts) */}
+      <AgentPerformanceChart
+        workspaceId={workspace.id}
+        agents={agents}
+        runs={runs}
+      />
 
       {/* Recent / Running / Failed Executions */}
       <section className="space-y-2.5">

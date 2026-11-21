@@ -12,6 +12,8 @@ import { Footer } from './components/layout/Footer';
 import { PageSkeleton } from './components/ui/PageSkeleton';
 import { OfflineBanner } from './components/ui/OfflineBanner';
 import { StateDisplay } from './components/ui/EditorialPrimitives';
+import { PRODUCT_SPECS_BY_ROUTE } from './data/productsData';
+import { RESOURCE_ARTICLES } from './data/contentCatalog';
 
 const HomePage = lazy(() => import('./pages/HomePage').then((m) => ({ default: m.HomePage })));
 const PlatformPage = lazy(() =>
@@ -24,6 +26,12 @@ const WorkflowPage = lazy(() =>
 const ContextPage = lazy(() =>
   import('./pages/ContextPage').then((m) => ({ default: m.ContextPage }))
 );
+const ProductDetailPage = lazy(() =>
+  import('./pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
+);
+const SecurityPage = lazy(() =>
+  import('./pages/SecurityPage').then((m) => ({ default: m.SecurityPage }))
+);
 const DevelopersPage = lazy(() =>
   import('./pages/DevelopersPage').then((m) => ({ default: m.DevelopersPage }))
 );
@@ -32,6 +40,9 @@ const SolutionsPage = lazy(() =>
 );
 const ResourcesPage = lazy(() =>
   import('./pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage }))
+);
+const ResourceArticlePage = lazy(() =>
+  import('./pages/ResourceArticlePage').then((m) => ({ default: m.ResourceArticlePage }))
 );
 const PricingPage = lazy(() =>
   import('./pages/PricingPage').then((m) => ({ default: m.PricingPage }))
@@ -78,7 +89,7 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
 }
 
 export default function App() {
-  const { route, isNotFound, navigate } = useRoute();
+  const { route, isNotFound, searchQueryString, navigate } = useRoute();
   const { theme, toggleTheme } = useTheme();
 
   if (route === '/app' && !isNotFound) {
@@ -98,15 +109,37 @@ export default function App() {
       return <NotFoundPage onNavigate={navigate} />;
     }
 
+    if (route.startsWith('/docs/')) {
+      const slug = route.slice('/docs/'.length);
+      return <DocsPage activeSlug={slug} onNavigate={navigate} />;
+    }
+
+    if (route.startsWith('/resources/')) {
+      const slug = route.slice('/resources/'.length);
+      const article = RESOURCE_ARTICLES.find((a) => a.id === slug);
+      if (article) {
+        return <ResourceArticlePage article={article} onNavigate={navigate} />;
+      }
+      return <NotFoundPage onNavigate={navigate} />;
+    }
+
+    const productSpec = PRODUCT_SPECS_BY_ROUTE[route];
+    if (productSpec) {
+      return <ProductDetailPage spec={productSpec} onNavigate={navigate} />;
+    }
+
     switch (route) {
       case '/platform':
         return <PlatformPage onNavigate={navigate} />;
       case '/studio':
         return <StudioPage onNavigate={navigate} />;
+      case '/flow':
       case '/workflow-automation':
         return <WorkflowPage onNavigate={navigate} />;
       case '/context':
         return <ContextPage onNavigate={navigate} />;
+      case '/security':
+        return <SecurityPage onNavigate={navigate} />;
       case '/developers':
         return <DevelopersPage onNavigate={navigate} />;
       case '/solutions':
@@ -118,7 +151,7 @@ export default function App() {
       case '/about':
         return <AboutPage onNavigate={navigate} />;
       case '/contact':
-        return <ContactPage />;
+        return <ContactPage queryString={searchQueryString} />;
       case '/docs':
         return <DocsPage onNavigate={navigate} />;
       case '/':

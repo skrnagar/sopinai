@@ -1,120 +1,32 @@
-import React, { useMemo, useState } from 'react';
-import { Book, Search, ArrowRight } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, Book, Search } from 'lucide-react';
+import { DOC_SECTIONS } from '../data/contentCatalog';
 import { RoutePath } from '../types/navigation';
+import { DataTable, DataTableColumn } from '../components/ui/DataTable';
 import { CodeBlock, StateDisplay, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface DocsPageProps {
-  onNavigate: (path: RoutePath, sectionId?: string) => void;
+  activeSlug?: string;
+  onNavigate: (path: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => void;
 }
 
-interface DocSection {
-  id: string;
-  group: string;
-  title: string;
-  status: string;
-  summary: string;
-  body: string;
-  codeLabel: string;
-  code: string;
-}
-
-const DOC_SECTIONS: DocSection[] = [
-  {
-    id: 'quickstart',
-    group: 'Getting Started',
-    title: 'Quickstart: Define & Run Your First Agent',
-    status: 'Preview Specification',
-    summary: 'Initialize a SOPIN workspace, declare a typed output contract, and execute a deterministic workflow locally.',
-    body: 'SOPIN specifications compile identically whether authored in SOPIN Studio or written directly in TypeScript using @sopin/sdk. Start by defining your output schema and binding scoped MCP tools.',
-    codeLabel: 'quickstart.ts',
-    code: `import { defineAgent, mcpTool, z } from "@sopin/sdk";
-
-export const releaseNotesAgent = defineAgent({
-  name: "release-notes-synthesizer",
-  context: { scope: "repository", index: "changelog-history" },
-  tools: [mcpTool("git.commits", { permission: "read-only" })],
-  outputSchema: z.object({
-    summary: z.string(),
-    breakingChanges: z.array(z.string()),
-    requiresSecurityReview: z.boolean()
-  })
-});`,
-  },
-  {
-    id: 'studio-sync',
-    group: 'Authoring',
-    title: 'Bidirectional Studio & SDK Sync',
-    status: 'Core Architecture',
-    summary: 'How visual DAG nodes and cyclic graphs map 1:1 to version-controlled TypeScript definitions.',
-    body: 'Every node created in SOPIN Studio emits deterministic blueprint metadata. Engineers can review diffs in pull requests while automation architects inspect the same graph visually.',
-    codeLabel: 'sopin.blueprint.json',
-    code: `{
-  "blueprintVersion": "1.0-preview",
-  "workflow": "customer-triage",
-  "nodes": [
-    { "id": "intake", "kind": "trigger.webhook" },
-    { "id": "redact", "kind": "transform.piiFilter" },
-    { "id": "classify", "kind": "gateway.structured" },
-    { "id": "approve", "kind": "gate.humanApproval" }
-  ]
-}`,
-  },
-  {
-    id: 'mcp-bindings',
-    group: 'Protocols',
-    title: 'Model Context Protocol (MCP) Bindings',
-    status: 'Core Architecture',
-    summary: 'Attach external tools with explicit read/write scopes, timeouts, and sandbox isolation.',
-    body: 'SOPIN treats MCP as a first-class tool transport. Each tool declaration binds an explicit capability scope so an agent running a research step cannot invoke mutating endpoints.',
-    codeLabel: 'mcp.config.ts',
-    code: `import { mcpServer } from "@sopin/sdk";
-
-export const repoTools = mcpServer("git-repository", {
-  transport: "stdio",
-  allowedTools: ["git.diff", "git.log"],
-  deniedTools: ["git.push", "git.forceDelete"],
-  sandbox: { networkEgress: "disabled", timeoutMs: 15000 }
-});`,
-  },
-  {
-    id: 'a2a-delegation',
-    group: 'Protocols',
-    title: 'Agent-to-Agent (A2A) Delegation',
-    status: 'Preview Specification',
-    summary: 'Coordinate specialized peer agents using typed task envelopes and verifiable completion artifacts.',
-    body: 'Instead of packing every domain instruction into one monolithic prompt, SOPIN enables bounded A2A handoffs where each peer agent declares its input schema, capability scope, and verification contract.',
-    codeLabel: 'a2a-handoff.ts',
-    code: `import { a2aDelegate } from "@sopin/sdk";
-
-const verification = await a2aDelegate("citation-auditor", {
-  payload: { draftMarkdown, sourceIds },
-  expectSchema: "CitationAuditResult",
-  maxHops: 2
-});`,
-  },
-  {
-    id: 'verification-gates',
-    group: 'Verification & Governance',
-    title: 'Verification Gates & Human Checkpoints',
-    status: 'Planned / Preview',
-    summary: 'Combine deterministic schema checks with durable pause-and-resume approval gates.',
-    body: 'Before an agent emits an external action, SOPIN evaluates deterministic assertions and routes high-impact proposals to an authorized reviewer.',
-    codeLabel: 'gate.policy.ts',
-    code: `import { humanGate, verify } from "@sopin/sdk";
-
-export const reviewPolicy = {
-  assertions: [verify.noUngroundedClaims(), verify.schemaStrict()],
-  onElevatedRisk: humanGate({
-    approverRole: "platform-maintainer",
-    timeoutMinutes: 60
-  })
-};`,
-  },
-];
-
-export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
-  const [selectedId, setSelectedId] = useState<string>('quickstart');
+export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedId =
+    activeSlug && DOC_SECTIONS.some((d) => d.id === activeSlug) ? activeSlug : 'quickstart';
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const filteredDocs = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -128,8 +40,35 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
     );
   }, [searchQuery]);
 
-  const activeDoc =
-    filteredDocs.find((d) => d.id === selectedId) ?? filteredDocs[0] ?? null;
+  const activeDoc = filteredDocs.find((d) => d.id === selectedId) ?? filteredDocs[0] ?? null;
+
+  const paramColumns: DataTableColumn<{
+    name: string;
+    type: string;
+    required: string;
+    description: string;
+  }>[] = [
+    {
+      key: 'name',
+      header: 'Field / Option',
+      render: (r) => <code className="font-mono text-xs text-[#6252E8] dark:text-[#B894FF]">{r.name}</code>,
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      render: (r) => <code className="font-mono text-xs">{r.type}</code>,
+    },
+    {
+      key: 'required',
+      header: 'Required',
+      render: (r) => r.required,
+    },
+    {
+      key: 'description',
+      header: 'Description',
+      render: (r) => r.description,
+    },
+  ];
 
   return (
     <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#101014] min-h-[75vh]">
@@ -141,7 +80,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
               SOPIN Engineering Documentation
             </h1>
             <p className="mt-3 text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
-              Explore reference specifications for @sopin/sdk, Studio blueprint schemas, MCP tool scopes, and A2A handoffs.
+              Bookmarkable specifications for @sopin/sdk, Studio blueprint schemas, MCP tool scopes, A2A handoffs, and ML Gateway routing.
             </p>
           </div>
 
@@ -151,11 +90,12 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
               aria-hidden="true"
             />
             <input
+              ref={searchInputRef}
               type="search"
               inputMode="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search documentation topics..."
+              placeholder="Search docs (Ctrl/Cmd + K)..."
               aria-label="Search documentation"
               className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white placeholder:text-[#5E5E6E] dark:placeholder:text-[#9A9AB0]"
             />
@@ -174,20 +114,24 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-            {/* Topic Navigation: horizontal snap strip on mobile, stacked sidebar on lg+ */}
             <aside className="lg:col-span-4 min-w-0">
               <div className="text-xs font-semibold text-[#5E5E6E] dark:text-[#9A9AB0] px-1 lg:px-3 pb-2">
                 Specification Sections
               </div>
-              <div className="flex lg:flex-col gap-2 overflow-x-auto no-scrollbar pb-1 lg:pb-0 snap-x">
+              <nav aria-label="Documentation topics" className="flex lg:flex-col gap-2 overflow-x-auto no-scrollbar pb-1 lg:pb-0 snap-x">
                 {filteredDocs.map((doc) => {
                   const isSelected = activeDoc?.id === doc.id;
+                  const targetPath = `/docs/${doc.id}` as RoutePath;
                   return (
-                    <button
+                    <a
                       key={doc.id}
-                      type="button"
-                      onClick={() => setSelectedId(doc.id)}
-                      className={`snap-start shrink-0 w-[230px] lg:w-full min-h-[44px] text-left rounded-xl p-3.5 border transition-colors ${
+                      href={targetPath}
+                      aria-current={isSelected ? 'page' : undefined}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onNavigate(targetPath);
+                      }}
+                      className={`snap-start shrink-0 w-[230px] lg:w-full min-h-[44px] text-left rounded-xl p-3.5 border transition-colors block ${
                         isSelected
                           ? 'border-[#6252E8] bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15'
                           : 'border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 hover:border-[#6252E8]/40'
@@ -199,19 +143,20 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                       <div className="mt-1 text-sm font-semibold text-[#101014] dark:text-white line-clamp-2">
                         {doc.title}
                       </div>
-                    </button>
+                    </a>
                   );
                 })}
-              </div>
+              </nav>
             </aside>
 
-            {/* Active Documentation Content */}
             {activeDoc && (
               <div className="lg:col-span-8 space-y-6 min-w-0">
                 <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
                   <div className="flex items-center gap-2 text-xs font-medium text-[#6252E8] dark:text-[#965BFF] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
-                    <span>{activeDoc.group} · {activeDoc.status}</span>
+                    <span>
+                      {activeDoc.group} · {activeDoc.status}
+                    </span>
                   </div>
                   <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#101014] dark:text-white">
                     {activeDoc.title}
@@ -226,6 +171,20 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
 
                 <CodeBlock label={activeDoc.codeLabel} code={activeDoc.code} />
 
+                {activeDoc.parameters && activeDoc.parameters.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
+                      Configuration Schema Reference
+                    </h3>
+                    <DataTable
+                      caption={`${activeDoc.title} parameters`}
+                      columns={paramColumns}
+                      rows={activeDoc.parameters}
+                      rowKey={(r) => r.name}
+                    />
+                  </div>
+                )}
+
                 <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-display text-base font-semibold text-[#101014] dark:text-white">
@@ -237,7 +196,9 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => onNavigate('/contact')}
+                    onClick={() =>
+                      onNavigate('/contact', undefined, { topic: 'Developer Preview & SDK' })
+                    }
                     className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                   >
                     <span>Request Access</span>

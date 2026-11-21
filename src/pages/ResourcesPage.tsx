@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { Search, ArrowRight } from 'lucide-react';
-import { RESOURCE_ENTRIES, ResourceEntry } from '../data/sopinData';
+import { ArrowRight, Search } from 'lucide-react';
+import { RESOURCE_ARTICLES, ResourceArticle } from '../data/contentCatalog';
 import { RoutePath } from '../types/navigation';
 import { StateDisplay, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface ResourcesPageProps {
-  onNavigate: (path: RoutePath, sectionId?: string) => void;
+  onNavigate: (path: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => void;
 }
 
-type CategoryFilter = 'All' | ResourceEntry['category'];
+type CategoryFilter = 'All' | ResourceArticle['category'];
 
 export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
   const [category, setCategory] = useState<CategoryFilter>('All');
@@ -18,13 +18,14 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return RESOURCE_ENTRIES.filter((entry) => {
+    return RESOURCE_ARTICLES.filter((entry) => {
       const catMatch = category === 'All' || entry.category === category;
       const qMatch =
         !q ||
         entry.title.toLowerCase().includes(q) ||
         entry.summary.toLowerCase().includes(q) ||
-        entry.category.toLowerCase().includes(q);
+        entry.category.toLowerCase().includes(q) ||
+        entry.pillar.toLowerCase().includes(q);
       return catMatch && qMatch;
     });
   }, [category, query]);
@@ -39,7 +40,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
               Guides, tutorials, and architecture notes.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
-              Practical technical resources from the SOPIN team. Case studies and Academy tracks are explicitly marked as upcoming until production cohorts are validated.
+              Practical technical resources from the SOPIN team. Select any publication below to read the full engineering walkthrough, code examples, and architecture specifications.
             </p>
           </div>
         </div>
@@ -47,7 +48,6 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
 
       <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#101126]/40 min-h-[540px]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-8">
-          {/* Controls Bar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-1.5 pb-1 sm:pb-0" role="tablist" aria-label="Resource categories">
               {categories.map((cat) => (
@@ -98,40 +98,55 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((entry) => (
-                <article
-                  key={entry.id}
-                  id={entry.category.toLowerCase().replace(/\s+/g, '-')}
-                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
-                >
-                  <div>
-                    <StatusText
-                      items={[entry.category, entry.readTime, entry.status]}
-                      accentLast={entry.status !== 'Available'}
-                    />
-                    <h2 className="mt-3 font-display text-xl font-semibold text-[#101014] dark:text-white leading-snug">
-                      {entry.title}
-                    </h2>
-                    <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
-                      {entry.summary}
-                    </p>
-                  </div>
+              {filtered.map((entry) => {
+                const articleHref = `/resources/${entry.id}` as RoutePath;
+                return (
+                  <article
+                    key={entry.id}
+                    id={entry.category.toLowerCase().replace(/\s+/g, '-')}
+                    className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  >
+                    <div>
+                      <StatusText
+                        items={[entry.category, entry.readTime, entry.status]}
+                        accentLast={entry.status !== 'Available'}
+                      />
+                      <h2 className="mt-3 font-display text-xl font-semibold text-[#101014] dark:text-white leading-snug">
+                        <a
+                          href={articleHref}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            onNavigate(articleHref);
+                          }}
+                          className="hover:text-[#6252E8] dark:hover:text-[#965BFF] transition-colors"
+                        >
+                          {entry.title}
+                        </a>
+                      </h2>
+                      <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                        {entry.summary}
+                      </p>
+                    </div>
 
-                  <div className="mt-6 pt-4 border-t border-[#101014]/10 dark:border-white/10 flex items-center justify-between gap-2">
-                    <span className="text-xs font-medium text-[#5E5E6E] dark:text-[#9A9AB0]">
-                      {entry.dateLabel}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onNavigate(entry.status === 'Available' ? '/docs' : '/contact')}
-                      className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline whitespace-nowrap"
-                    >
-                      <span>{entry.status === 'Available' ? 'Read Spec' : 'Request Updates'}</span>
-                      <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    <div className="mt-6 pt-4 border-t border-[#101014]/10 dark:border-white/10 flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium text-[#5E5E6E] dark:text-[#9A9AB0]">
+                        {entry.dateLabel}
+                      </span>
+                      <a
+                        href={articleHref}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onNavigate(articleHref);
+                        }}
+                        className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline whitespace-nowrap"
+                      >
+                        <span>{entry.status === 'Available' ? 'Read Article' : 'Read Note'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                      </a>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>

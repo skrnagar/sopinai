@@ -23,7 +23,7 @@ Currently, `HomePage.tsx` covers 12 blocks: (1) Hero + MultiAgentHeroCanvas, (2)
 
 | # | Section | Heading | Key Message & Supporting Copy | Visual Direction & UI Component | Interaction | CTA | Target Audience |
 |---|---------|---------|-------------------------------|---------------------------------|-------------|-----|-----------------|
-| **1** | **Header & Navigation** | `Sopin` Logo + 6-item Nav | Instant clarity across Platform, Solutions, Developers, Resources, Pricing, Company. | Minimal sticky header (`64px`), radial emblem + monoline wordmark (`#965BFF` `i` dot). | Hover/click mega menus + theme toggle + mobile drawer. | `Start Building` (`/docs`) | All visitors |
+| **1** | **Header & Navigation** | `Sopin` Logo + 6-item Nav | Instant clarity across Platform, Solutions, Developers, Resources, Pricing, Company. | Minimal sticky header (`64px`), radial emblem + monoline wordmark (`#965BFF` `i` dot). | Hover/click mega menus + theme toggle + mobile drawer. | `Try SOPIN` (`/app`), `Start Building` (`/docs`) | All visitors |
 | **2** | **Hero** | *Build AI agents that deliver work.* | Design, connect, execute and govern intelligent agents and workflows from one unified platform. *(Sub-kicker: Design. Connect. Execute. Verify. Govern.)* | Split 5/7 grid over subtle architectural grid & **rotating 6-prong radial emblem backdrop**. | Live `MultiAgentHeroCanvas` showing 4 agents + A2A/MCP bus + Play/Pause/Step + SDK toggle. | `Start Building` (`/docs`), `Explore Platform` (`/platform`) | All 5 personas |
 | **3** | **Interactive Platform Demo** | *Inspect every SOPIN workspace interface.* | Real software interfaces—not toy mockups—across authoring, runtime, gateway, observability, and governance. | Dark software window chrome inside clean light/dark canvas (`ProductPreviews`). | 8-tab switcher (`Studio`, `Flow`, `Context`, `Runtime`, `Gateway`, `Observe`, `Evaluate`, `Control`) with clickable nodes, branch simulator, and queue actions. | Contextual link inside active preview -> product page | Evaluators, Builders, Engineers |
 | **4** | **Technology Ecosystem** | *Open standards and zero model lock-in.* | Built around MCP, A2A, typed schemas, and framework interoperability rather than closed proprietary wrappers. | Clean 4-column typographic architecture strip (no fake customer logos). | Hover subtle elevation + link to interoperability specs. | `Explore Interoperability` (`/developers/mcp`) | CTOs, AI Engineers |
@@ -95,3 +95,11 @@ Currently, `HomePage.tsx` covers 12 blocks: (1) Hero + MultiAgentHeroCanvas, (2)
 | 14 | *Trace Replay & State Diffing: Debugging Cyclic Agent Failures* | 8. AI Eval & Reliability | Product Preview Note | AI Engineer | Product Discovery | Explore SOPIN Observe |
 | 15 | *Reference Architecture for Private VPC & Governed Enterprise AI* | 10. Enterprise AI Arch | Whitepaper / Guide | Enterprise CISO / CTO | Commercial / Trust | Explore SOPIN Enterprise |
 | 16 | *SONIL Group Engineering Thesis: Why Accountable Execution Defines the Next AI Layer* | 10. Enterprise AI Arch | Vision Essay | Executive / Partner | Brand Authority | About SONIL Group |
+
+---
+
+## 5. SOPIN Decisions Content & SEO/GEO Integration
+
+- **Category Narrative:** *Make business logic executable.* Position deterministic business rules, decision tables, rulesets, chains, and scorecards as the essential deterministic counterpart to probabilistic LLMs and `SOPIN Flow` workflows.
+- **Added Routes & Crawl Assets:** `/decisions` (`ProductDetailPage`), `/docs/decisions-spec`, `/resources/guide-sopin-decisions`, plus updates to `ProductPreviews` (9th preview tab), `Navbar` mega menu, `Footer`, `HomePage` 12-module ecosystem grid, `sitemap.xml`, and `llms.txt`.
+

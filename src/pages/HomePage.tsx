@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
+  Activity,
   ArrowRight,
   ArrowUpRight,
+  BookOpen,
   CheckCircle2,
   Cpu,
   Database,
+  FileText,
+  FlaskConical,
   GitBranch,
+  Image as ImageIcon,
   Layers,
   Lock,
+  Mic,
+  Network,
   Shield,
   Smartphone,
   Terminal,
+  Video,
   Workflow,
 } from 'lucide-react';
 import {
@@ -27,8 +35,65 @@ import { ProductPreviews } from '../components/interactive/ProductPreviews';
 import { CodeBlock, SectionHeader, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface HomePageProps {
-  onNavigate: (path: RoutePath, sectionId?: string) => void;
+  onNavigate: (path: RoutePath, sectionId?: string, queryParams?: Record<string, string>) => void;
 }
+
+const MULTIMODAL_LANES = [
+  {
+    id: 'text',
+    label: 'Text & JSON',
+    icon: Terminal,
+    profile: 'reasoning-structured',
+    pipeline: 'Token Redaction -> Frontier / Open-Weight Router -> Strict Zod Output',
+    summary:
+      'Route multi-provider language models through unified logical profiles with schema enforcement and zero-key browser isolation.',
+  },
+  {
+    id: 'documents',
+    label: 'PDF & Docs',
+    icon: FileText,
+    profile: 'document-parser-ocr',
+    pipeline: 'Layout Extraction -> Table Normalization -> Page-Checksum Citation Index',
+    summary:
+      'Ingest multi-page contracts, SOP manuals, and invoices into SOPIN Context with immutable page-span provenance.',
+  },
+  {
+    id: 'vision',
+    label: 'Images & UI',
+    icon: ImageIcon,
+    profile: 'vision-structured',
+    pipeline: 'Visual Inspection -> Bounding Region Tag -> Structured Finding Payload',
+    summary:
+      'Evaluate architectural diagrams, receipts, and visual regression captures alongside typed metadata.',
+  },
+  {
+    id: 'audio',
+    label: 'Audio & Speech',
+    icon: Mic,
+    profile: 'audio-diarize-v2',
+    pipeline: 'Stream Chunks -> Speaker Diarization -> PII Scrub -> Action Extractor',
+    summary:
+      'Transcribe and route engineering calls or operational voice memos cleanly into workflow triggers.',
+  },
+  {
+    id: 'video',
+    label: 'Video Streams',
+    icon: Video,
+    profile: 'multimodal-video-timeline',
+    pipeline: 'Keyframe Sample -> Event Timeline Graph -> Incident Summary Artifact',
+    summary:
+      'Extract keyframe states and temporal events from recorded walk-throughs and sensor feeds inside isolated sandboxes.',
+  },
+  {
+    id: 'ml',
+    label: 'Tabular & ML',
+    icon: Cpu,
+    profile: 'ml/domain-classifier:v3',
+    pipeline: 'Feature Schema Validate -> PyTorch / XGBoost Endpoint -> Calibrated Score',
+    summary:
+      'Serve registered custom ML and deep learning models behind the same unified SOPIN Gateway alongside generative reasoning.',
+  },
+];
 
 const RADIAL_ANGLES = [0, 60, 120, 180, 240, 300];
 
@@ -36,10 +101,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [activeLifecycle, setActiveLifecycle] = useState(0);
   const [activeCreation, setActiveCreation] = useState(0);
   const [activeDomain, setActiveDomain] = useState(0);
+  const [activeModality, setActiveModality] = useState(0);
 
   const selectedStage = LIFECYCLE_STAGES[activeLifecycle];
   const selectedCreation = CREATION_EXPERIENCES[activeCreation];
   const selectedDomain = USE_CASE_DOMAINS[activeDomain];
+  const selectedModality = MULTIMODAL_LANES[activeModality];
 
   return (
     <div className="overflow-x-clip">
@@ -104,7 +171,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                 >
                   <Smartphone className="w-4 h-4" aria-hidden="true" />
-                  <span>Open Mobile Workspace</span>
+                  <span>Try SOPIN</span>
                 </button>
                 <button
                   type="button"
@@ -436,30 +503,26 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 7. PRODUCT ECOSYSTEM (8 CORE MODULES) */}
+      {/* 7. PRODUCT ECOSYSTEM (12 MODULAR SYSTEMS) */}
       <section className="py-20 lg:py-24 bg-[#FFFFFF] dark:bg-[#101014]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <SectionHeader
             kicker="Product Ecosystem"
-            title="Eight modular systems engineered to work as one."
-            description="Adopt the complete stack or integrate individual runtime, context, and gateway layers into existing engineering infrastructure. Planned modules are labeled transparently."
+            title="Twelve modular systems engineered to work as one."
+            description="Adopt the complete stack or integrate individual authoring, decision, graph, context, runtime, gateway, observability, and governance layers. Planned modules are labeled transparently."
           />
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {ECOSYSTEM_MODULES.map((mod, idx) => {
-              const isWide = idx === 0 || idx === 1;
+            {ECOSYSTEM_MODULES.map((mod) => {
               return (
-                <motion.button
+                <a
                   key={mod.id}
-                  type="button"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ duration: 0.25, delay: idx * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => onNavigate(mod.href, mod.sectionId)}
-                  className={`group text-left rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/80 hover:border-[#6252E8] hover:-translate-y-0.5 shadow-[0_1px_2px_rgba(16,16,20,0.04)] hover:shadow-[0_8px_24px_rgba(16,16,20,0.06)] transition-all p-6 flex flex-col justify-between min-w-0 ${
-                    isWide ? 'lg:col-span-2' : 'lg:col-span-1'
-                  }`}
+                  href={mod.sectionId ? `${mod.href}#${mod.sectionId}` : mod.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate(mod.href, mod.sectionId);
+                  }}
+                  className="group text-left rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/80 hover:border-[#6252E8] hover:-translate-y-0.5 shadow-[0_1px_2px_rgba(16,16,20,0.04)] hover:shadow-[0_8px_24px_rgba(16,16,20,0.06)] transition-all p-6 flex flex-col justify-between min-w-0 lg:col-span-1"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-3">
@@ -468,7 +531,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                         accentLast={mod.status === 'Planned'}
                       />
                       <ArrowUpRight
-                        className="w-4 h-4 text-[#777786] group-hover:text-[#6252E8] dark:group-hover:text-[#965BFF] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0"
+                        className="w-4 h-4 text-[#5E5E6E] dark:text-[#9A9AB0] group-hover:text-[#6252E8] dark:group-hover:text-[#965BFF] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0"
                         aria-hidden="true"
                       />
                     </div>
@@ -483,12 +546,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   <div className="mt-6 pt-4 border-t border-[#101014]/10 dark:border-white/10 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[#101014] dark:text-[#D8D8E6]">
                     {mod.capabilities.map((cap, capIdx) => (
                       <React.Fragment key={cap}>
-                        {capIdx > 0 && <span className="text-[#777786]" aria-hidden="true">/</span>}
+                        {capIdx > 0 && (
+                          <span className="text-[#5E5E6E] dark:text-[#9A9AB0]" aria-hidden="true">
+                            /
+                          </span>
+                        )}
                         <span>{cap}</span>
                       </React.Fragment>
                     ))}
                   </div>
-                </motion.button>
+                </a>
               );
             })}
           </div>
@@ -753,8 +820,192 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 11. DEVELOPER ECOSYSTEM */}
-      <section className="py-20 lg:py-24 bg-[#FFFFFF] dark:bg-[#101014]">
+      {/* 11. MODELS, MULTIMODAL & ML INTELLIGENCE */}
+      <section className="py-20 lg:py-24 bg-[#FFFFFF] dark:bg-[#101014] border-b border-[#101014]/[0.08] dark:border-white/10">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-5 space-y-5 min-w-0">
+              <SectionHeader
+                kicker="Models & Multimodal Routing"
+                title="Every modality and custom ML model behind one Gateway."
+                description="Connect frontier LLMs, open-weight reasoning models, document OCR parsers, vision/audio/video extractors, and custom ML pipelines without provider lock-in."
+              />
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="/gateway"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('/gateway');
+                  }}
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors"
+                >
+                  <Network className="w-4 h-4" aria-hidden="true" />
+                  <span>Explore SOPIN Gateway</span>
+                </a>
+                <a
+                  href="/solutions#machine-learning"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('/solutions', 'machine-learning');
+                  }}
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors"
+                >
+                  <span>ML Engineering Pipeline</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 space-y-5 min-w-0">
+              <div
+                role="tablist"
+                aria-label="Multimodal and ML intelligence capabilities"
+                className="flex overflow-x-auto no-scrollbar sm:grid sm:grid-cols-3 gap-2 pb-1 sm:pb-0"
+              >
+                {MULTIMODAL_LANES.map((lane, idx) => {
+                  const Icon = lane.icon;
+                  const active = idx === activeModality;
+                  return (
+                    <button
+                      key={lane.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setActiveModality(idx)}
+                      className={`min-h-[44px] px-3.5 py-2.5 rounded-xl border text-left text-xs font-semibold inline-flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 sm:shrink ${
+                        active
+                          ? 'border-[#6252E8] bg-[#6252E8] text-white'
+                          : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] hover:border-[#6252E8]/40'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                      <span>{lane.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6 sm:p-7 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <StatusText items={[selectedModality.label, 'SOPIN Gateway']} accentLast />
+                  <span className="font-mono text-xs text-[#6252E8] dark:text-[#B894FF]">
+                    route: {selectedModality.profile}
+                  </span>
+                </div>
+                <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  {selectedModality.summary}
+                </p>
+                <div className="font-mono text-xs p-3.5 rounded-xl bg-white dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 text-[#101014] dark:text-[#D8D8E6]">
+                  {selectedModality.pipeline}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 12. EVALUATIONS & OBSERVABILITY SHOWCASE */}
+      <section className="py-20 lg:py-24 bg-[#F7F7FA] dark:bg-[#101126]/35 border-b border-[#101014]/[0.08] dark:border-white/10">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
+          <SectionHeader
+            kicker="Verification & Telemetry"
+            title="Inspect execution traces and verify regressions before promotion."
+            description="Combine span-level execution waterfalls in SOPIN Observe with deterministic dataset regression harnesses in SOPIN Evaluate."
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101126] p-6 sm:p-7 flex flex-col justify-between gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <StatusText items={['SOPIN Observe', 'Planned']} accentLast />
+                  <Activity className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+                </div>
+                <h3 className="font-display text-xl font-semibold text-[#101014] dark:text-white">
+                  OpenTelemetry Span Waterfall &amp; State Diffs
+                </h3>
+                <div className="space-y-2.5">
+                  {[
+                    { span: '01 · flow.trigger', latency: '12 ms', meta: 'payload.verified' },
+                    { span: '02 · context.hybridSearch', latency: '48 ms', meta: 'citations: ADR-014' },
+                    { span: '03 · gateway.structuredReason', latency: '640 ms', meta: 'schema: Valid' },
+                    { span: '04 · runtime.mcpSandbox', latency: '215 ms', meta: 'egress: disabled' },
+                  ].map((s) => (
+                    <div
+                      key={s.span}
+                      className="rounded-xl border border-[#101014]/[0.06] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs"
+                    >
+                      <span className="font-mono font-medium text-[#101014] dark:text-white truncate">
+                        {s.span}
+                      </span>
+                      <div className="flex items-center gap-3 shrink-0 font-mono text-[11px]">
+                        <span className="text-[#5E5E6E] dark:text-[#A4A4B5]">{s.meta}</span>
+                        <span className="tabular-nums text-[#6252E8] dark:text-[#B894FF]">{s.latency}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <a
+                href="/observe"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('/observe');
+                }}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+              >
+                <span>Inspect SOPIN Observe specification</span>
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </a>
+            </div>
+
+            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101126] p-6 sm:p-7 flex flex-col justify-between gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <StatusText items={['SOPIN Evaluate', 'Planned']} accentLast />
+                  <FlaskConical className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+                </div>
+                <h3 className="font-display text-xl font-semibold text-[#101014] dark:text-white">
+                  Golden Dataset &amp; Schema Assertion Gates
+                </h3>
+                <div className="space-y-2.5">
+                  {[
+                    { suite: 'PR Review Golden Set', gate: 'Schema + Citation Check', outcome: 'Sample · Pass' },
+                    { suite: 'Grounded RAG Integrity', gate: 'Unverified Claims = 0', outcome: 'Sample · Pass' },
+                    { suite: 'ML Classifier Drift Suite', gate: 'Validation F1 >= 0.90', outcome: '0.94 · Target' },
+                    { suite: 'Ops Runbook Safety Gate', gate: 'Max Batch <= 10 + Human Gate', outcome: 'Enforced' },
+                  ].map((e) => (
+                    <div
+                      key={e.suite}
+                      className="rounded-xl border border-[#101014]/[0.06] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-semibold text-[#101014] dark:text-white truncate">{e.suite}</div>
+                        <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5] truncate">{e.gate}</div>
+                      </div>
+                      <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                        {e.outcome}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <a
+                href="/evaluate"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('/evaluate');
+                }}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+              >
+                <span>Inspect SOPIN Evaluate harnesses</span>
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 13. DEVELOPER ECOSYSTEM */}
+      <section className="py-20 lg:py-24 bg-[#FFFFFF] dark:bg-[#101014] border-b border-[#101014]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 space-y-5 min-w-0">
@@ -764,21 +1015,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 description="Author agents in TypeScript or Python, connect external tools through MCP, and exchange structured tasks across agents via A2A."
               />
               <div className="flex flex-wrap gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => onNavigate('/developers')}
+                <a
+                  href="/developers"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('/developers');
+                  }}
                   className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#101014] dark:bg-white text-white dark:text-[#101014] text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
                 >
                   <span>Developer Hub</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('/docs')}
+                </a>
+                <a
+                  href="/docs"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('/docs');
+                  }}
                   className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
                 >
                   <span>Read Documentation</span>
-                </button>
+                </a>
               </div>
             </div>
 
@@ -803,6 +1060,86 @@ export default defineWorkspace({
 });`}
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 14. DOCUMENTATION & LEARNING LAUNCHPAD */}
+      <section className="py-20 lg:py-24 bg-[#F7F7FA] dark:bg-[#101126]/40">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <SectionHeader
+              kicker="Documentation & Learning"
+              title="Learn the architecture and start shipping agents."
+              description="Jump directly into typed SDK quickstarts, protocol guides, and architecture deep-dives authored by SOPIN engineering."
+            />
+            <a
+              href="/resources"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('/resources');
+              }}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline whitespace-nowrap shrink-0"
+            >
+              <span>All Resources</span>
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              {
+                kicker: 'Quickstart Spec',
+                title: 'SDK Quickstart & CLI Runner',
+                desc: 'Install @sopin/sdk, define a bounded agent graph, and verify output locally.',
+                href: '/docs/quickstart' as RoutePath,
+              },
+              {
+                kicker: 'Architecture Note',
+                title: 'Unifying Studio & Sandbox Runtime',
+                desc: 'Why visual canvases must compile to deterministic TypeScript & JSON specs.',
+                href: '/resources/arch-unifying-studio-runtime' as RoutePath,
+              },
+              {
+                kicker: 'Engineering Guide',
+                title: 'Deterministic Verification Gates',
+                desc: 'Wrapping non-deterministic LLM steps in Zod schemas and human approvals.',
+                href: '/resources/guide-deterministic-gates' as RoutePath,
+              },
+              {
+                kicker: 'ML & Multimodal Spec',
+                title: 'Multimodal & Custom ML Routing',
+                desc: 'Route OCR, speech, video, and trained classifiers through SOPIN Gateway.',
+                href: '/docs/ml-gateway' as RoutePath,
+              },
+            ].map((item) => (
+              <a
+                key={item.title}
+                href={item.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate(item.href);
+                }}
+                className="group rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101126] hover:border-[#6252E8] p-6 flex flex-col justify-between gap-4 transition-colors"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+                    <span>{item.kicker}</span>
+                    <BookOpen className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-2.5 font-display text-base font-semibold text-[#101014] dark:text-white group-hover:text-[#6252E8] dark:group-hover:text-[#965BFF] transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-xs text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#101014] dark:text-white">
+                  <span>Open</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                </span>
+              </a>
+            ))}
           </div>
         </div>
       </section>

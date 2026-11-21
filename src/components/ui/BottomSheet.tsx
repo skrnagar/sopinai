@@ -82,7 +82,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 overscroll-contain">
+        <div className={`flex-1 overflow-y-auto px-4 sm:px-6 py-4 overscroll-contain ${!footer ? 'pb-safe' : ''}`}>
           {children}
         </div>
 
