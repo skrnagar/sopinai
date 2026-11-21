@@ -103,7 +103,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
     {
       key: 'capability',
       header: 'Platform Layer',
-      render: (r) => <span className="font-semibold text-[#101014] dark:text-white">{r.capability}</span>,
+      render: (r) => <span className="font-semibold text-[#05070E] dark:text-white">{r.capability}</span>,
     },
     { key: 'preview', header: 'Developer Preview', render: (r) => r.preview },
     { key: 'team', header: 'Team Workspace (Planned)', render: (r) => r.team },
@@ -112,11 +112,11 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Pricing & Access', 'Transparent Pre-Release Model']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
               Transparent pathways while SOPIN evolves.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -127,7 +127,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
           <div
             role="tablist"
             aria-label="Deployment topology model"
-            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 max-w-full"
+            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#0A1226] border border-[#05070E]/10 dark:border-white/10 max-w-full"
           >
             <button
               type="button"
@@ -136,7 +136,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               onClick={() => setDeploymentModel('managed')}
               className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'managed'
-                  ? 'bg-[#6252E8] text-white'
+                  ? 'bg-[#2563EB] text-white'
                   : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
               }`}
             >
@@ -149,7 +149,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               onClick={() => setDeploymentModel('self-hosted')}
               className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'self-hosted'
-                  ? 'bg-[#6252E8] text-white'
+                  ? 'bg-[#2563EB] text-white'
                   : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
               }`}
             >
@@ -159,17 +159,17 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
+      <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-12">
-          <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             {deploymentModel === 'managed' ? (
               <span>
-                <strong className="text-[#101014] dark:text-white">Managed Cloud Topology:</strong>{' '}
+                <strong className="text-[#05070E] dark:text-white">Managed Cloud Topology:</strong>{' '}
                 Hosted SOPIN Studio, Flow orchestration, and Gateway routing operated by SOPIN under SONIL Group. General billing plans will be announced ahead of public launch.
               </span>
             ) : (
               <span>
-                <strong className="text-[#101014] dark:text-white">Self-Hosted Runtime Topology:</strong>{' '}
+                <strong className="text-[#05070E] dark:text-white">Self-Hosted Runtime Topology:</strong>{' '}
                 Run SOPIN Runtime sandboxes and Model Gateway within your own VPC so sensitive data and internal MCP servers remain inside your network perimeter.
               </span>
             )}
@@ -179,25 +179,25 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             {pathways.map((tier) => (
               <div
                 key={tier.name}
-                className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
               >
                 <div>
                   <StatusText items={[tier.stage, tier.licensing]} accentLast />
-                  <h2 className="mt-3 font-display text-2xl font-semibold text-[#101014] dark:text-white">
+                  <h2 className="mt-3 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
                     {tier.name}
                   </h2>
                   <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {tier.description}
                   </p>
 
-                  <ul className="mt-6 pt-6 border-t border-[#101014]/10 dark:border-white/10 space-y-3">
+                  <ul className="mt-6 pt-6 border-t border-[#05070E]/10 dark:border-white/10 space-y-3">
                     {tier.features.map((feat) => (
                       <li
                         key={feat}
-                        className="flex items-start gap-2.5 text-sm text-[#101014] dark:text-[#E8E8F2]"
+                        className="flex items-start gap-2.5 text-sm text-[#05070E] dark:text-[#E8E8F2]"
                       >
                         <CheckCircle2
-                          className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF] mt-0.5 shrink-0"
+                          className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0"
                           aria-hidden="true"
                         />
                         <span>{feat}</span>
@@ -209,7 +209,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('/contact', undefined, { topic: tier.topic })}
-                  className="mt-8 w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors"
+                  className="mt-8 w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors"
                 >
                   <span>{tier.cta}</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -249,9 +249,9 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               ].map((faq) => (
                 <div
                   key={faq.title}
-                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6"
                 >
-                  <h3 className="font-display text-base font-semibold text-[#101014] dark:text-white">
+                  <h3 className="font-display text-base font-semibold text-[#05070E] dark:text-white">
                     {faq.title}
                   </h3>
                   <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">

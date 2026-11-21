@@ -5,6 +5,7 @@ import {
   DecisionEnvironment,
   DecisionReviewApproval,
   DecisionTableSpec,
+  DecisionTestRunRecord,
   DecisionVersionSnapshot,
   RuleChainSpec,
   RuleSpec,
@@ -108,6 +109,7 @@ function buildSnapshotObject(
     canonicalAlgorithm: 'canonical-json-sha256',
     serializedSpec,
     reviewApproval,
+    approvalHistory: spec.approvalHistory ? [...spec.approvalHistory] : undefined,
     attributionPlaceholder: {
       authorLabel: `${publishedBy} (Local Prototype Author)`,
       publisherLabel: `${publishedBy} (Local Policy Actor)`,
@@ -127,6 +129,20 @@ export function buildPublishedArtifactVersion<T extends DecisionArtifactSpec>(
   reviewApproval?: DecisionReviewApproval
 ): T {
   const nextVer = nextSemanticVersion(spec.version, explicitVersion);
+  const currentSpecHash = computeArtifactSpecHash(type, spec);
+
+  const isValidBoundApproval = Boolean(
+    reviewApproval &&
+      reviewApproval.approved &&
+      reviewApproval.decision !== 'rejected' &&
+      (!reviewApproval.artifactId || reviewApproval.artifactId === spec.id) &&
+      (!reviewApproval.artifactType || reviewApproval.artifactType === type) &&
+      (!reviewApproval.artifactVersion || reviewApproval.artifactVersion === spec.version) &&
+      (!reviewApproval.specHash || reviewApproval.specHash === currentSpecHash) &&
+      (!reviewApproval.targetEnvironment || reviewApproval.targetEnvironment === environment)
+  );
+  const verifiedApproval = isValidBoundApproval ? reviewApproval : undefined;
+
   const targetStatus: DecisionArtifactStatus =
     environment === 'production' && spec.status === 'Published' ? 'Promoted' : 'Published';
   const snapshot = buildSnapshotObject(
@@ -136,8 +152,8 @@ export function buildPublishedArtifactVersion<T extends DecisionArtifactSpec>(
     summary,
     publishedBy,
     nextVer,
-    environment === 'production' && reviewApproval?.approved ? 'Promoted' : 'Published',
-    reviewApproval
+    environment === 'production' && verifiedApproval?.approved ? 'Promoted' : targetStatus,
+    verifiedApproval
   );
 
   // Preserve prior immutable snapshots untouched; deduplicate version tag only if exact same version doesn't exist
@@ -146,12 +162,64 @@ export function buildPublishedArtifactVersion<T extends DecisionArtifactSpec>(
     ? existingHistory
     : [snapshot, ...existingHistory];
 
+  const existingApprovals = Array.isArray(spec.approvalHistory) ? spec.approvalHistory : [];
+  const nextApprovals =
+    verifiedApproval &&
+    (!verifiedApproval.id || !existingApprovals.some((a) => a.id === verifiedApproval.id))
+      ? [verifiedApproval, ...existingApprovals]
+      : existingApprovals;
+
+  // Carry forward test pass version ONLY for tests verified against the exact immutable specHash & artifact
+  // and bind a runHistory entry to (nextVer, currentSpecHash) so subsequent draft edits cannot erase snapshot evidence.
+  const nextTestCases = Array.isArray(spec.testCases)
+    ? spec.testCases.map((tc) => {
+        const verifiedForPrePublish =
+          tc.lastPassed === true &&
+          tc.testedVersion === spec.version &&
+          tc.testedSpecHash === currentSpecHash &&
+          tc.testedArtifactId === spec.id &&
+          tc.testedArtifactType === type;
+        if (!verifiedForPrePublish) return tc;
+
+        const existingRuns = Array.isArray(tc.runHistory) ? tc.runHistory : [];
+        const hasSnapshotRun = existingRuns.some(
+          (rh) =>
+            rh.testedVersion === nextVer &&
+            rh.testedSpecHash === currentSpecHash &&
+            rh.testedArtifactId === spec.id &&
+            rh.testedArtifactType === type
+        );
+        const publishedRunRecord: DecisionTestRunRecord = {
+          runId: `${existingRuns[0]?.runId ?? 'pubrun'}-${nextVer}`,
+          runAt: existingRuns[0]?.runAt ?? tc.lastRunAt ?? 'At publish',
+          passed: true,
+          actualStatus: existingRuns[0]?.actualStatus ?? tc.lastActualStatus ?? 'Matched',
+          actualOutput: existingRuns[0]?.actualOutput ?? tc.lastActualOutput ?? {},
+          testedVersion: nextVer,
+          testedSpecHash: currentSpecHash,
+          testedArtifactId: spec.id,
+          testedArtifactType: type,
+          diffNotes: existingRuns[0]?.diffNotes ?? tc.diffNotes ?? [],
+        };
+        return {
+          ...tc,
+          testedVersion: nextVer,
+          runHistory: hasSnapshotRun
+            ? existingRuns
+            : [publishedRunRecord, ...existingRuns].slice(0, 15),
+        };
+      })
+    : [];
+
   return {
     ...spec,
     version: nextVer,
     environment,
     status: snapshot.status ?? targetStatus,
-    reviewApproval: reviewApproval ?? spec.reviewApproval,
+    // Never carry prior-version reviewApproval onto the newly published version as an active approval
+    reviewApproval: undefined,
+    approvalHistory: nextApprovals,
+    testCases: nextTestCases,
     versionHistory: nextHistory,
     updatedAt: 'Just now',
   };
@@ -460,6 +528,9 @@ export function rollbackArtifactToSnapshot<T extends DecisionArtifactSpec>(
       version: snap.version,
       environment: snap.environment,
       status: snap.status === 'Archived' ? 'Published' : snap.status,
+      // Never reuse stale approvals from before rollback or old snapshot metadata for future operations
+      reviewApproval: undefined,
+      approvalHistory: currentSpec.approvalHistory ?? [],
       updatedAt: `Restored from ${snap.version} by ${actorLabel}`,
       versionHistory: currentSpec.versionHistory,
     },

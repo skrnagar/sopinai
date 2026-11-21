@@ -35,11 +35,11 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Context', 'Memory & Retrieval Architecture']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
               Structured context and memory with verifiable provenance.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -49,7 +49,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/developers')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Inspect Context SDK</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -59,7 +59,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#101126]/40 border-b border-[#101014]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Context Explorer Preview"
@@ -70,7 +70,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-[#FFFFFF] dark:bg-[#101014]">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#05070E]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <SectionHeader
             kicker="Memory Architecture"
@@ -84,15 +84,15 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={item.name}
-                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#6252E8] dark:text-[#965BFF]">
+                    <span className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
                       {item.tier}
                     </span>
                     <Icon className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
                   </div>
-                  <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+                  <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
                     {item.name}
                   </h2>
                   <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -105,11 +105,11 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
             <div className="lg:col-span-5 space-y-4 min-w-0">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                 <Database className="w-4 h-4" aria-hidden="true" />
                 <span>Provenance Binding</span>
               </div>
-              <h3 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
+              <h3 className="font-display text-2xl font-semibold text-[#05070E] dark:text-white">
                 Every retrieved passage carries source lineage.
               </h3>
               <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Compass, Globe, Layers, Shield, ShieldCheck, Users } from 'lucide-react';
 import { RoutePath } from '../types/navigation';
+import { SopinLogo } from '../components/brand/SopinLogo';
 import { SectionHeader, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface AboutPageProps {
@@ -34,11 +35,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['About SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
               Engineering accountable AI infrastructure under the SONIL Group.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -48,15 +49,15 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#101126]/40">
+      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           {/* Vision & Mission */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <div className="text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                 Our Vision
               </div>
-              <h2 className="mt-2 font-display text-2xl font-semibold text-[#101014] dark:text-white">
+              <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
                 One verifiable platform across models, tools, and organizations.
               </h2>
               <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -64,11 +65,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <div className="text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                 SONIL Group Stewardship
               </div>
-              <h2 className="mt-2 font-display text-2xl font-semibold text-[#101014] dark:text-white">
+              <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
                 Built for long-horizon reliability and open standards.
               </h2>
               <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -89,15 +90,15 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={p.number}
-                  className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#6252E8] dark:text-[#965BFF]">
+                    <span className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
                       {p.number}
                     </span>
                     <Icon className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
                   </div>
-                  <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+                  <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
                     {p.title}
                   </h2>
                   <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -110,10 +111,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
           {/* Ecosystem Links: Security, Partners, Careers */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 flex flex-col justify-between">
               <div>
-                <ShieldCheck className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                <ShieldCheck className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
                   Trust &amp; Security Center
                 </h3>
                 <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
@@ -126,17 +127,17 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/security');
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
               >
                 <span>Open Trust Center</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </a>
             </div>
 
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 flex flex-col justify-between">
               <div>
-                <Globe className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                <Globe className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
                   Protocol &amp; Technology Partners
                 </h3>
                 <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
@@ -149,17 +150,17 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
               >
                 <span>Partner With SOPIN</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </a>
             </div>
 
-            <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 flex flex-col justify-between">
               <div>
-                <Users className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                <Users className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
                   Engineering Careers &amp; Cohort
                 </h3>
                 <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
@@ -172,7 +173,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
               >
                 <span>Connect With Engineering</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -180,31 +181,24 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-5 space-y-3">
-              <p className="text-xs font-medium text-[#965BFF]">Official Brand Identity</p>
+              <p className="text-xs font-medium text-[#60A5FA]">Official Brand Identity</p>
               <h3 className="font-display text-2xl font-semibold">
                 The SOPIN Radial Emblem &amp; Wordmark
               </h3>
               <p className="text-sm text-[#B5B5C5] leading-relaxed">
-                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the #965BFF purple accent highlights the dot over the &ldquo;i&rdquo;.
+                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the #60A5FA purple accent highlights the dot over the &ldquo;i&rdquo;.
               </p>
             </div>
-            <div className="lg:col-span-7 flex items-center justify-center rounded-xl border border-white/10 bg-[#000000] p-6">
-              <img
-                src="/assets/aistudio/Sopin_Logo_46f7e074.png"
-                alt="SOPIN official brand logo featuring six-prong radial emblem and Sopin wordmark"
-                width={320}
-                height={112}
-                loading="lazy"
-                className="max-h-28 w-auto object-contain"
-              />
+            <div className="lg:col-span-7 flex items-center justify-center rounded-xl border border-white/10 bg-[#000000] p-8">
+              <SopinLogo size="lg" className="text-white [&>svg]:h-16 sm:[&>svg]:h-20" />
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[#101126] text-white p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="rounded-2xl bg-[#0A1226] text-white p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl">
-              <p className="text-xs font-medium text-[#965BFF]">SONIL Group Initiative</p>
+              <p className="text-xs font-medium text-[#60A5FA]">SONIL Group Initiative</p>
               <h3 className="mt-2 font-display text-2xl font-semibold">
                 Collaborate with the SOPIN engineering team.
               </h3>
@@ -215,7 +209,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => onNavigate('/contact')}
-              className="w-full lg:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+              className="w-full lg:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
             >
               <span>Connect With Us</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />

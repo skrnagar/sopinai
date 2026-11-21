@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Book, Search } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Book,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Search,
+} from 'lucide-react';
 import { DOC_SECTIONS } from '../data/contentCatalog';
 import { RoutePath } from '../types/navigation';
 import { DataTable, DataTableColumn } from '../components/ui/DataTable';
@@ -12,10 +20,17 @@ interface DocsPageProps {
 
 export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [codeVariant, setCodeVariant] = useState<'primary' | 'secondary'>('primary');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedId =
     activeSlug && DOC_SECTIONS.some((d) => d.id === activeSlug) ? activeSlug : 'quickstart';
+
+  useEffect(() => {
+    setCodeVariant('primary');
+    setMobileNavOpen(false);
+  }, [selectedId]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -36,11 +51,54 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
         doc.title.toLowerCase().includes(q) ||
         doc.summary.toLowerCase().includes(q) ||
         doc.group.toLowerCase().includes(q) ||
-        doc.body.toLowerCase().includes(q)
+        doc.body.toLowerCase().includes(q) ||
+        doc.sections.some(
+          (s) =>
+            s.heading.toLowerCase().includes(q) ||
+            s.paragraphs.some((p) => p.toLowerCase().includes(q))
+        )
     );
   }, [searchQuery]);
 
+  const groupedDocs = useMemo(() => {
+    const groups: { group: string; docs: typeof DOC_SECTIONS }[] = [];
+    for (const doc of filteredDocs) {
+      let existing = groups.find((g) => g.group === doc.group);
+      if (!existing) {
+        existing = { group: doc.group, docs: [] };
+        groups.push(existing);
+      }
+      existing.docs.push(doc);
+    }
+    return groups;
+  }, [filteredDocs]);
+
   const activeDoc = filteredDocs.find((d) => d.id === selectedId) ?? filteredDocs[0] ?? null;
+
+  const activeDocIndex = activeDoc ? DOC_SECTIONS.findIndex((d) => d.id === activeDoc.id) : -1;
+  const prevDoc = activeDocIndex > 0 ? DOC_SECTIONS[activeDocIndex - 1] : null;
+  const nextDoc =
+    activeDocIndex >= 0 && activeDocIndex < DOC_SECTIONS.length - 1
+      ? DOC_SECTIONS[activeDocIndex + 1]
+      : null;
+
+  const tocItems = useMemo(() => {
+    if (!activeDoc) return [];
+    const items = [
+      { id: 'doc-overview', label: 'Overview' },
+      ...activeDoc.sections.map((sec) => ({ id: sec.id, label: sec.heading })),
+      { id: 'code-examples', label: 'Code Specification' },
+    ];
+    if (activeDoc.parameters && activeDoc.parameters.length > 0) {
+      items.push({ id: 'schema-reference', label: 'Schema Reference' });
+    }
+    return items;
+  }, [activeDoc]);
+
+  const scrollToHeading = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const paramColumns: DataTableColumn<{
     name: string;
@@ -51,7 +109,9 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
     {
       key: 'name',
       header: 'Field / Option',
-      render: (r) => <code className="font-mono text-xs text-[#6252E8] dark:text-[#B894FF]">{r.name}</code>,
+      render: (r) => (
+        <code className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">{r.name}</code>
+      ),
     },
     {
       key: 'type',
@@ -70,23 +130,34 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
     },
   ];
 
+  const displayedCode =
+    activeDoc && codeVariant === 'secondary' && activeDoc.secondaryCode
+      ? activeDoc.secondaryCode
+      : activeDoc
+      ? { label: activeDoc.codeLabel, code: activeDoc.code }
+      : null;
+
   return (
-    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#101014] min-h-[75vh]">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 py-12 lg:py-16">
+    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#080D18] min-h-[75vh]">
+      {/* Documentation Header & Search */}
+      <section className="border-b border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#0B1221] py-10 lg:py-14">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <StatusText items={['SOPIN Documentation', 'Developer Hub', 'Specification Preview']} accentLast />
-            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white">
+            <StatusText
+              items={['SOPIN Documentation', 'Developer Hub', 'Specification Preview']}
+              accentLast
+            />
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-[#111827] dark:text-white">
               SOPIN Engineering Documentation
             </h1>
-            <p className="mt-3 text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
-              Bookmarkable specifications for @sopin/sdk, Studio blueprint schemas, MCP tool scopes, A2A handoffs, and ML Gateway routing.
+            <p className="mt-3 text-sm sm:text-base text-[#667085] dark:text-[#CBD5E1] leading-relaxed">
+              Specifications for @sopin/sdk, Studio blueprint sync, SOPIN Graph cyclic orchestration, MCP tool scopes, A2A handoffs, SOPIN Decisions contracts, and ML Gateway routing.
             </p>
           </div>
 
           <div className="relative w-full md:w-80">
             <Search
-              className="w-4 h-4 text-[#5E5E6E] dark:text-[#A4A4B5] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="w-4 h-4 text-[#667085] dark:text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -97,13 +168,13 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search docs (Ctrl/Cmd + K)..."
               aria-label="Search documentation"
-              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white placeholder:text-[#5E5E6E] dark:placeholder:text-[#9A9AB0]"
+              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#080D18] text-base sm:text-sm text-[#111827] dark:text-white placeholder:text-[#667085] dark:placeholder:text-[#94A3B8]"
             />
           </div>
         </div>
       </section>
 
-      <section className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-10 sm:py-12">
+      <section className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-8 sm:py-12">
         {filteredDocs.length === 0 ? (
           <StateDisplay
             mode="empty"
@@ -114,83 +185,282 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-            <aside className="lg:col-span-4 min-w-0">
-              <div className="text-xs font-semibold text-[#5E5E6E] dark:text-[#9A9AB0] px-1 lg:px-3 pb-2">
-                Specification Sections
-              </div>
-              <nav aria-label="Documentation topics" className="flex lg:flex-col gap-2 overflow-x-auto no-scrollbar pb-1 lg:pb-0 snap-x">
-                {filteredDocs.map((doc) => {
-                  const isSelected = activeDoc?.id === doc.id;
-                  const targetPath = `/docs/${doc.id}` as RoutePath;
-                  return (
-                    <a
-                      key={doc.id}
-                      href={targetPath}
-                      aria-current={isSelected ? 'page' : undefined}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onNavigate(targetPath);
-                      }}
-                      className={`snap-start shrink-0 w-[230px] lg:w-full min-h-[44px] text-left rounded-xl p-3.5 border transition-colors block ${
-                        isSelected
-                          ? 'border-[#6252E8] bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15'
-                          : 'border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 hover:border-[#6252E8]/40'
-                      }`}
-                    >
-                      <div className="text-[11px] font-medium text-[#6252E8] dark:text-[#965BFF] truncate">
-                        {doc.group}
+            {/* Mobile Collapsible Topic Switcher */}
+            <div className="lg:hidden">
+              <button
+                type="button"
+                aria-expanded={mobileNavOpen}
+                onClick={() => setMobileNavOpen((prev) => !prev)}
+                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-[#F7F8FA] dark:bg-[#101D35] flex items-center justify-between text-sm font-semibold text-[#111827] dark:text-white"
+              >
+                <span className="truncate">
+                  Topic: {activeDoc?.title ?? 'Select documentation'}
+                </span>
+                {mobileNavOpen ? (
+                  <ChevronUp className="w-4 h-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 shrink-0" aria-hidden="true" />
+                )}
+              </button>
+
+              {mobileNavOpen && (
+                <nav
+                  aria-label="Mobile documentation navigation"
+                  className="mt-2 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#0B1221] p-3 space-y-4"
+                >
+                  {groupedDocs.map((group) => (
+                    <div key={group.group} className="space-y-1">
+                      <div className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#2563EB] dark:text-[#60A5FA]">
+                        {group.group}
                       </div>
-                      <div className="mt-1 text-sm font-semibold text-[#101014] dark:text-white line-clamp-2">
-                        {doc.title}
-                      </div>
-                    </a>
-                  );
-                })}
+                      {group.docs.map((doc) => {
+                        const isSelected = activeDoc?.id === doc.id;
+                        const targetPath = `/docs/${doc.id}` as RoutePath;
+                        return (
+                          <a
+                            key={doc.id}
+                            href={targetPath}
+                            aria-current={isSelected ? 'page' : undefined}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              onNavigate(targetPath);
+                              setMobileNavOpen(false);
+                            }}
+                            className={`block min-h-[44px] px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                              isSelected
+                                ? 'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] font-semibold'
+                                : 'text-[#111827] dark:text-[#CBD5E1] hover:bg-[#F7F8FA] dark:hover:bg-white/5'
+                            }`}
+                          >
+                            {doc.title}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </nav>
+              )}
+            </div>
+
+            {/* Desktop Grouped Left Sidebar */}
+            <aside className="hidden lg:block lg:col-span-3 sticky top-24 min-w-0">
+              <nav aria-label="Documentation topics" className="space-y-6 pr-2">
+                {groupedDocs.map((group) => (
+                  <div key={group.group} className="space-y-1.5">
+                    <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                      {group.group}
+                    </div>
+                    <ul className="space-y-1">
+                      {group.docs.map((doc) => {
+                        const isSelected = activeDoc?.id === doc.id;
+                        const targetPath = `/docs/${doc.id}` as RoutePath;
+                        return (
+                          <li key={doc.id}>
+                            <a
+                              href={targetPath}
+                              aria-current={isSelected ? 'page' : undefined}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                onNavigate(targetPath);
+                              }}
+                              className={`block min-h-[40px] px-3 py-2 rounded-lg text-sm transition-colors ${
+                                isSelected
+                                  ? 'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] font-semibold'
+                                  : 'text-[#667085] dark:text-[#CBD5E1] hover:text-[#111827] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-white/5'
+                              }`}
+                            >
+                              {doc.title}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
               </nav>
             </aside>
 
+            {/* Main Documentation Article */}
             {activeDoc && (
-              <div className="lg:col-span-8 space-y-6 min-w-0">
-                <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                  <div className="flex items-center gap-2 text-xs font-medium text-[#6252E8] dark:text-[#965BFF] mb-2">
+              <article className="lg:col-span-9 xl:col-span-6 space-y-8 min-w-0">
+                {/* Breadcrumbs */}
+                <nav
+                  aria-label="Documentation breadcrumbs"
+                  className="flex flex-wrap items-center gap-1.5 text-xs text-[#667085] dark:text-[#94A3B8]"
+                >
+                  <a
+                    href="/docs"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigate('/docs');
+                    }}
+                    className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors"
+                  >
+                    Docs
+                  </a>
+                  <ChevronRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                  <span>{activeDoc.group}</span>
+                  <ChevronRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                  <span className="font-medium text-[#111827] dark:text-white truncate">
+                    {activeDoc.title}
+                  </span>
+                </nav>
+
+                {/* Overview Box */}
+                <div
+                  id="doc-overview"
+                  className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/50 p-6 sm:p-8"
+                >
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
                     <span>
                       {activeDoc.group} · {activeDoc.status}
                     </span>
                   </div>
-                  <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#101014] dark:text-white">
+                  <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#111827] dark:text-white leading-tight">
                     {activeDoc.title}
                   </h2>
-                  <p className="mt-3 text-base text-[#101014] dark:text-[#E8E8F2] leading-relaxed">
+                  <p className="mt-3 text-base text-[#111827] dark:text-[#E2E8F0] leading-relaxed">
                     {activeDoc.summary}
                   </p>
-                  <p className="mt-4 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-4 text-sm text-[#667085] dark:text-[#94A3B8] leading-relaxed">
                     {activeDoc.body}
                   </p>
                 </div>
 
-                <CodeBlock label={activeDoc.codeLabel} code={activeDoc.code} />
+                {/* Structured Subsections */}
+                {activeDoc.sections.map((sec) => (
+                  <section key={sec.id} id={sec.id} className="scroll-mt-24 space-y-3">
+                    <h2 className="font-display text-xl sm:text-2xl font-semibold text-[#111827] dark:text-white">
+                      {sec.heading}
+                    </h2>
+                    {sec.paragraphs.map((p, idx) => (
+                      <p
+                        key={idx}
+                        className="text-sm sm:text-base text-[#667085] dark:text-[#CBD5E1] leading-relaxed"
+                      >
+                        {p}
+                      </p>
+                    ))}
+                  </section>
+                ))}
 
+                {/* Code Examples */}
+                {displayedCode && (
+                  <section id="code-examples" className="scroll-mt-24 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <h2 className="font-display text-xl font-semibold text-[#111827] dark:text-white">
+                        Code Specification
+                      </h2>
+
+                      {activeDoc.secondaryCode && (
+                        <div
+                          role="tablist"
+                          aria-label="Select specification language"
+                          className="inline-flex p-1 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#F7F8FA] dark:bg-[#101D35]"
+                        >
+                          <button
+                            type="button"
+                            role="tab"
+                            aria-selected={codeVariant === 'primary'}
+                            onClick={() => setCodeVariant('primary')}
+                            className={`min-h-[34px] px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                              codeVariant === 'primary'
+                                ? 'bg-[#2563EB] text-white'
+                                : 'text-[#667085] dark:text-[#CBD5E1]'
+                            }`}
+                          >
+                            {activeDoc.codeLabel}
+                          </button>
+                          <button
+                            type="button"
+                            role="tab"
+                            aria-selected={codeVariant === 'secondary'}
+                            onClick={() => setCodeVariant('secondary')}
+                            className={`min-h-[34px] px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                              codeVariant === 'secondary'
+                                ? 'bg-[#2563EB] text-white'
+                                : 'text-[#667085] dark:text-[#CBD5E1]'
+                            }`}
+                          >
+                            {activeDoc.secondaryCode.label}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <CodeBlock label={displayedCode.label} code={displayedCode.code} />
+                  </section>
+                )}
+
+                {/* Parameters Schema Reference */}
                 {activeDoc.parameters && activeDoc.parameters.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
+                  <section id="schema-reference" className="scroll-mt-24 space-y-3">
+                    <h2 className="font-display text-xl font-semibold text-[#111827] dark:text-white">
                       Configuration Schema Reference
-                    </h3>
+                    </h2>
                     <DataTable
                       caption={`${activeDoc.title} parameters`}
                       columns={paramColumns}
                       rows={activeDoc.parameters}
                       rowKey={(r) => r.name}
                     />
-                  </div>
+                  </section>
                 )}
 
-                <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* Previous / Next Navigation */}
+                <nav
+                  aria-label="Documentation pagination"
+                  className="pt-6 border-t border-[#E5E7EB] dark:border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
+                  {prevDoc ? (
+                    <a
+                      href={`/docs/${prevDoc.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onNavigate(`/docs/${prevDoc.id}` as RoutePath);
+                      }}
+                      className="rounded-xl border border-[#E5E7EB] dark:border-white/10 p-4 hover:border-[#2563EB] transition-colors flex flex-col justify-between gap-1.5"
+                    >
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
+                        <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Previous</span>
+                      </span>
+                      <span className="text-sm font-semibold text-[#111827] dark:text-white">
+                        {prevDoc.title}
+                      </span>
+                    </a>
+                  ) : (
+                    <div className="hidden sm:block" />
+                  )}
+
+                  {nextDoc && (
+                    <a
+                      href={`/docs/${nextDoc.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onNavigate(`/docs/${nextDoc.id}` as RoutePath);
+                      }}
+                      className="rounded-xl border border-[#E5E7EB] dark:border-white/10 p-4 hover:border-[#2563EB] transition-colors flex flex-col justify-between gap-1.5 sm:text-right sm:items-end"
+                    >
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
+                        <span>Next</span>
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                      </span>
+                      <span className="text-sm font-semibold text-[#111827] dark:text-white">
+                        {nextDoc.title}
+                      </span>
+                    </a>
+                  )}
+                </nav>
+
+                {/* Preview Credentials CTA */}
+                <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/60 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-display text-base font-semibold text-[#101014] dark:text-white">
+                    <h3 className="font-display text-base font-semibold text-[#111827] dark:text-white">
                       Need early cohort SDK credentials?
                     </h3>
-                    <p className="text-sm text-[#5E5E6E] dark:text-[#A4A4B5]">
+                    <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
                       Request Developer Preview access through the SOPIN engineering intake form.
                     </p>
                   </div>
@@ -199,13 +469,37 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                     onClick={() =>
                       onNavigate('/contact', undefined, { topic: 'Developer Preview & SDK' })
                     }
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                   >
                     <span>Request Access</span>
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
-              </div>
+              </article>
+            )}
+
+            {/* Desktop Right-Hand Table of Contents */}
+            {activeDoc && (
+              <aside className="hidden xl:block xl:col-span-3 sticky top-24 min-w-0">
+                <div className="pl-4 border-l border-[#E5E7EB] dark:border-white/10 space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                    On this page
+                  </div>
+                  <ul className="space-y-2 text-xs">
+                    {tocItems.map((item) => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => scrollToHeading(item.id)}
+                          className="text-left text-[#667085] dark:text-[#CBD5E1] hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors leading-snug"
+                        >
+                          {item.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </aside>
             )}
           </div>
         )}

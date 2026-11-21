@@ -68,11 +68,33 @@ export {
 export type { SnapshotDiffEntry } from './engine/versioning';
 
 export {
+  applyGovernedDecisionOperationToSlice,
+  checkApprovalPermission,
   checkEditPermission,
+  checkPublishPermission,
+  checkPublishedSnapshotTestEvidence,
   checkTestEvidenceFreshness,
+  createApprovalRecord,
   evaluatePublishGovernancePolicy,
+  getRoleCapabilities,
+  inspectApprovalFreshness,
+  normalizeWorkspaceRole,
+  performGovernedApprove,
+  performGovernedPromote,
+  performGovernedPublish,
+  performGovernedRollback,
+  performGovernedSave,
+  performGovernedSubmitReview,
 } from './engine/governancePolicy';
-export type { GovernancePolicyCheck } from './engine/governancePolicy';
+export type {
+  ApprovalFreshnessReport,
+  CanonicalWorkspaceRole,
+  GovernancePolicyCheck,
+  GovernedDecisionRequest,
+  GovernedOperationResult,
+  RoleCapabilities,
+  TestEvidenceFreshnessReport,
+} from './engine/governancePolicy';
 
 export { evaluateRuleSpec } from './engine/ruleEvaluator';
 export { evaluateDecisionTableSpec } from './engine/decisionTableEvaluator';

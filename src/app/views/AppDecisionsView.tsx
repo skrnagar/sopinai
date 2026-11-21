@@ -11,6 +11,7 @@ import {
   Sliders,
   Table2,
 } from 'lucide-react';
+import { AuditEvent } from '../types';
 import {
   DecisionExecutionSpec,
   DecisionSectionId,
@@ -22,21 +23,29 @@ import {
   RulesetSpec,
   ScorecardSpec,
 } from '../../decisions/types';
+import { applyGovernedDecisionOperationToSlice, GovernedDecisionRequest } from '../../decisions/evaluator';
 import { DecisionsOverview } from '../../decisions/components/DecisionsOverview';
 import { RuleBuilderEditor } from '../../decisions/components/RuleBuilderEditor';
 import { DecisionTableEditor } from '../../decisions/components/DecisionTableEditor';
 import { RulesetsChainsScorecards } from '../../decisions/components/RulesetsChainsScorecards';
 import { SimulationAndMonitoring } from '../../decisions/components/SimulationAndMonitoring';
 
+type GovernedActionExecutor = (
+  request: GovernedDecisionRequest
+) => ReturnType<typeof applyGovernedDecisionOperationToSlice>;
+
 interface AppDecisionsViewProps {
   workspaceId: string;
   workspaceRole?: string;
   decisions: DecisionsWorkspaceSlice;
+  auditLog?: AuditEvent[];
   onSaveRule: (rule: RuleSpec, note?: string) => void;
   onSaveTable: (table: DecisionTableSpec, note?: string) => void;
   onSaveRuleset: (rs: RulesetSpec, note?: string) => void;
   onSaveChain: (chain: RuleChainSpec, note?: string) => void;
   onSaveScorecard: (sc: ScorecardSpec, note?: string) => void;
+  onGovernedAction?: GovernedActionExecutor;
+  onUpdateWorkspaceRole?: (role: string) => void;
   onRecordExecution: (exec: DecisionExecutionSpec) => void;
   onUpdateSettings: (partial: Partial<DecisionSettings>) => void;
 }
@@ -62,11 +71,14 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
   workspaceId,
   workspaceRole = 'Workspace Maintainer',
   decisions,
+  auditLog = [],
   onSaveRule,
   onSaveTable,
   onSaveRuleset,
   onSaveChain,
   onSaveScorecard,
+  onGovernedAction,
+  onUpdateWorkspaceRole,
   onRecordExecution,
   onUpdateSettings,
 }) => {
@@ -98,8 +110,8 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
               }}
               className={`min-h-[44px] px-3.5 rounded-xl border text-xs font-semibold inline-flex items-center gap-2 whitespace-nowrap shrink-0 transition-colors ${
                 active
-                  ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                  : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] hover:border-[#6252E8]/40'
+                  ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                  : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] hover:border-[#2563EB]/40'
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -144,6 +156,7 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
           settings={decisions.settings}
           aiDrawerDefaultOpen={openAiOnMount}
           onSaveRule={onSaveRule}
+          onGovernedAction={onGovernedAction}
           onRecordExecution={onRecordExecution}
         />
       )}
@@ -156,6 +169,7 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
           selectedTableId={selectedTableId}
           settings={decisions.settings}
           onSaveTable={onSaveTable}
+          onGovernedAction={onGovernedAction}
           onRecordExecution={onRecordExecution}
         />
       )}
@@ -174,6 +188,7 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
           onSaveRuleset={onSaveRuleset}
           onSaveChain={onSaveChain}
           onSaveScorecard={onSaveScorecard}
+          onGovernedAction={onGovernedAction}
           onRecordExecution={onRecordExecution}
         />
       )}
@@ -192,11 +207,14 @@ export const AppDecisionsView: React.FC<AppDecisionsViewProps> = ({
           scorecards={decisions.scorecards}
           executions={decisions.executions}
           settings={decisions.settings}
+          auditLog={auditLog}
           onUpdateRule={onSaveRule}
           onUpdateTable={onSaveTable}
           onUpdateRuleset={onSaveRuleset}
           onUpdateChain={onSaveChain}
           onUpdateScorecard={onSaveScorecard}
+          onGovernedAction={onGovernedAction}
+          onUpdateWorkspaceRole={onUpdateWorkspaceRole}
           onUpdateSettings={onUpdateSettings}
         />
       )}

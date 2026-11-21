@@ -126,8 +126,8 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
               onClick={() => setSection(item.id)}
               className={`min-h-[44px] px-3.5 rounded-xl border text-xs font-semibold inline-flex items-center gap-2 whitespace-nowrap shrink-0 transition-colors ${
                 active
-                  ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                  : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5]'
+                  ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                  : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5]'
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -141,8 +141,8 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
       {section === 'governance' && (
         <div className="space-y-4">
           {/* Approvals Queue */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
-            <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
+            <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               Approval Requests ({pendingApprovals.length})
             </h3>
             {pendingApprovals.length === 0 ? (
@@ -156,13 +156,13 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                 return (
                   <div
                     key={run.id}
-                    className="rounded-xl border border-[#965BFF]/40 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2.5"
+                    className="rounded-xl border border-[#60A5FA]/40 bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-2.5"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="text-xs font-semibold text-[#101014] dark:text-white">
+                      <div className="text-xs font-semibold text-[#05070E] dark:text-white">
                         {run.approvalGate?.actionLabel || run.title}
                       </div>
-                      <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                      <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                         {run.approvalGate?.requiredRole || 'Workspace Maintainer'}
                       </span>
                     </div>
@@ -180,7 +180,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                         }
                         placeholder="Decision reason / compliance note..."
                         aria-label={`Audit reason for ${run.id}`}
-                        className="min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs"
+                        className="min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-xs"
                       />
                       <input
                         type="text"
@@ -190,7 +190,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                         }
                         placeholder="Escalate target role..."
                         aria-label={`Escalate role for ${run.id}`}
-                        className="min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs"
+                        className="min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-xs"
                       />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -202,7 +202,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                             reason: reasonVal.trim() || undefined,
                           })
                         }
-                        className="min-h-[44px] rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
+                        className="min-h-[44px] rounded-lg bg-[#2563EB] text-white text-xs font-semibold"
                       >
                         Approve
                       </button>
@@ -215,7 +215,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                             escalateTo: escalateVal.trim() || 'CFO / Chief Compliance Officer',
                           })
                         }
-                        className="min-h-[44px] rounded-lg border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] text-xs font-semibold inline-flex items-center justify-center gap-1"
+                        className="min-h-[44px] rounded-lg border border-[#2563EB]/40 text-[#2563EB] dark:text-[#7EC8FF] text-xs font-semibold inline-flex items-center justify-center gap-1"
                       >
                         <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>Escalate</span>
@@ -228,7 +228,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                             reason: reasonVal.trim() || undefined,
                           })
                         }
-                        className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+                        className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
                       >
                         Reject
                       </button>
@@ -241,21 +241,21 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
 
           {/* Approval History */}
           {recentApprovalHistory.length > 0 && (
-            <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
-              <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+            <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2.5">
+              <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
                 Approval &amp; Escalation History ({recentApprovalHistory.length})
               </h3>
               <div className="space-y-2">
                 {recentApprovalHistory.slice(0, 6).map((h) => (
                   <div
                     key={h.id}
-                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/[0.06] dark:border-white/10 p-3 text-xs space-y-1"
+                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/[0.06] dark:border-white/10 p-3 text-xs space-y-1"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-[#101014] dark:text-white capitalize">
+                      <span className="font-semibold text-[#05070E] dark:text-white capitalize">
                         {h.decision} · {h.runTitle}
                       </span>
-                      <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                      <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                         {h.timestamp}
                       </span>
                     </div>
@@ -274,18 +274,18 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           )}
 
           {/* Tool Permissions with Confirmation Sheet */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
-            <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
+            <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               MCP Tool Allowlist &amp; Toggles
             </h3>
             <div className="space-y-2">
               {tools.map((tool) => (
                 <div
                   key={tool.id}
-                  className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 flex items-center justify-between gap-3"
+                  className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0">
-                    <div className="font-mono text-xs font-semibold text-[#101014] dark:text-white">
+                    <div className="font-mono text-xs font-semibold text-[#05070E] dark:text-white">
                       {tool.name}
                     </div>
                     <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -297,8 +297,8 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                     onClick={() => setConfirmTool(tool)}
                     className={`min-h-[44px] px-3 rounded-lg text-xs font-semibold shrink-0 ${
                       tool.enabled
-                        ? 'bg-[#6252E8] text-white'
-                        : 'border border-[#101014]/20 dark:border-white/20 text-[#5E5E6E] dark:text-[#A4A4B5]'
+                        ? 'bg-[#2563EB] text-white'
+                        : 'border border-[#05070E]/20 dark:border-white/20 text-[#5E5E6E] dark:text-[#A4A4B5]'
                     }`}
                   >
                     {tool.enabled ? 'Enabled' : 'Disabled'}
@@ -309,8 +309,8 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           </section>
 
           {/* Pause / Revoke Running Tasks */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
-            <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
+            <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               Active Runs &amp; Revocation ({activeRuns.length})
             </h3>
             {activeRuns.length === 0 ? (
@@ -321,11 +321,11 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
               activeRuns.map((run) => (
                 <div
                   key={`gov-${run.id}`}
-                  className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 flex items-center justify-between gap-3"
+                  className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0">
                     <div className="text-xs font-semibold truncate">{run.title}</div>
-                    <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                    <div className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                       {run.id} · {run.status}
                     </div>
                   </div>
@@ -342,12 +342,12 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           </section>
 
           {/* Budget Limit Control + Members */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+              <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
                 Monthly Token Budget Cap
               </h3>
-              <span className="font-mono text-xs font-semibold text-[#6252E8] dark:text-[#B894FF]">
+              <span className="font-mono text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                 {workspace.tokenBudgetMonthly.toLocaleString()} tokens
               </span>
             </div>
@@ -359,19 +359,19 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
               value={workspace.tokenBudgetMonthly}
               onChange={(e) => onUpdateBudget(Number(e.target.value))}
               aria-label="Monthly token budget limit"
-              className="w-full accent-[#6252E8] h-10"
+              className="w-full accent-[#2563EB] h-10"
             />
-            <div className="pt-2 border-t border-[#101014]/10 dark:border-white/10 space-y-2">
+            <div className="pt-2 border-t border-[#05070E]/10 dark:border-white/10 space-y-2">
               <div className="text-xs font-semibold flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                <Users className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                 <span>Workspace Roles (Sample Membership)</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div className="rounded-lg bg-[#F7F7FA] dark:bg-[#101014] p-2.5 flex justify-between">
+                <div className="rounded-lg bg-[#F7F7FA] dark:bg-[#05070E] p-2.5 flex justify-between">
                   <span className="font-medium">Alex Rivera (You)</span>
-                  <span className="font-mono text-[#6252E8] dark:text-[#B894FF]">{workspace.role}</span>
+                  <span className="font-mono text-[#2563EB] dark:text-[#7EC8FF]">{workspace.role}</span>
                 </div>
-                <div className="rounded-lg bg-[#F7F7FA] dark:bg-[#101014] p-2.5 flex justify-between">
+                <div className="rounded-lg bg-[#F7F7FA] dark:bg-[#05070E] p-2.5 flex justify-between">
                   <span className="font-medium">SONIL SecOps</span>
                   <span className="font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">Gate Reviewer</span>
                 </div>
@@ -380,23 +380,53 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           </section>
 
           {/* Mobile-Friendly Audit Events (Stacked Cards instead of Wide Tables) */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
-            <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2.5">
+            <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               Recent Audit Events ({auditLog.length})
             </h3>
             <div className="space-y-2">
-              {auditLog.slice(0, 6).map((ev) => (
+              {auditLog.slice(0, 8).map((ev) => (
                 <div
                   key={ev.id}
-                  className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/[0.06] dark:border-white/10 p-3 text-xs space-y-1"
+                  className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/[0.06] dark:border-white/10 p-3 text-xs space-y-1"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-[#101014] dark:text-white">{ev.action}</span>
-                    <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                    <span className="font-semibold text-[#05070E] dark:text-white">{ev.action}</span>
+                    <span
+                      className={`font-mono text-[11px] shrink-0 ${
+                        ev.outcome === 'Blocked' || ev.outcome === 'Rejected'
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-[#2563EB] dark:text-[#7EC8FF]'
+                      }`}
+                    >
                       {ev.outcome}
                     </span>
                   </div>
-                  <StatusText items={[ev.actor, ev.target, ev.timestamp]} />
+                  <StatusText
+                    items={[
+                      ev.actor,
+                      ev.target,
+                      ...(ev.previousVersion && ev.resultingVersion
+                        ? [`${ev.previousVersion} → ${ev.resultingVersion}`]
+                        : ev.previousVersion
+                        ? [ev.previousVersion]
+                        : []),
+                      ...(ev.targetEnvironment ? [ev.targetEnvironment] : []),
+                      ev.timestamp,
+                    ]}
+                  />
+                  {(ev.specHash || ev.approvalId || ev.reason) && (
+                    <div className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5] space-y-0.5 pt-0.5">
+                      {(ev.specHash || ev.approvalId) && (
+                        <div className="truncate">
+                          {ev.specHash ? `Hash ${ev.specHash.slice(0, 20)}…` : ''}
+                          {ev.specHash && ev.approvalId ? ' · ' : ''}
+                          {ev.approvalId ? `Approval ${ev.approvalId}` : ''}
+                        </div>
+                      )}
+                      {ev.reason && <div>{ev.reason}</div>}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -430,9 +460,9 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
             ].map((m) => (
               <div
                 key={m.name}
-                className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-1.5"
+                className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-1.5"
               >
-                <div className="font-mono text-sm font-semibold text-[#101014] dark:text-white">
+                <div className="font-mono text-sm font-semibold text-[#05070E] dark:text-white">
                   {m.name}
                 </div>
                 <StatusText items={[m.schema, `Fallback: ${m.fallback}`]} accentLast />
@@ -441,12 +471,12 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
             ))}
           </div>
 
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+              <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
                 ML Lifecycle &amp; Model Registry (Preview)
               </h3>
-              <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+              <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                 SOPIN Gateway · ML
               </span>
             </div>
@@ -455,12 +485,12 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
               {['Dataset', 'Prep', 'Train', 'Eval F1', 'Gateway'].map((stepLabel, idx) => (
                 <div
                   key={stepLabel}
-                  className="rounded-lg border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] py-2 px-1"
+                  className="rounded-lg border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] py-2 px-1"
                 >
-                  <div className="font-mono text-[10px] text-[#6252E8] dark:text-[#965BFF]">
+                  <div className="font-mono text-[10px] text-[#2563EB] dark:text-[#60A5FA]">
                     0{idx + 1}
                   </div>
-                  <div className="text-[11px] font-semibold text-[#101014] dark:text-white truncate">
+                  <div className="text-[11px] font-semibold text-[#05070E] dark:text-white truncate">
                     {stepLabel}
                   </div>
                 </div>
@@ -482,18 +512,18 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
               ].map((ml) => (
                 <div
                   key={ml.modelId}
-                  className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1"
+                  className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-1"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-[#101014] dark:text-white">
+                    <span className="font-mono text-xs font-semibold text-[#05070E] dark:text-white">
                       {ml.modelId}
                     </span>
-                    <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                    <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                       Registered
                     </span>
                   </div>
                   <p className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">{ml.artifact}</p>
-                  <div className="font-mono text-[11px] text-[#101014] dark:text-[#D8D8E6]">
+                  <div className="font-mono text-[11px] text-[#05070E] dark:text-[#D8D8E6]">
                     {ml.route}
                   </div>
                 </div>
@@ -509,13 +539,13 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           {tools.map((t) => (
             <div
               key={`int-${t.id}`}
-              className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 flex items-center justify-between gap-3"
+              className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
                 <div className="font-mono text-xs font-semibold">{t.name}</div>
                 <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] mt-0.5">{t.description}</p>
               </div>
-              <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+              <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                 {t.transport}
               </span>
             </div>
@@ -533,11 +563,11 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           ].map((ev) => (
             <div
               key={ev.suite}
-              className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-1.5"
+              className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-1.5"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="font-display text-sm font-semibold">{ev.suite}</span>
-                <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">{ev.status}</span>
+                <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">{ev.status}</span>
               </div>
               <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">{ev.rule}</p>
             </div>
@@ -553,18 +583,18 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
             agents={agents}
             runs={runs}
           />
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2">
             <h3 className="font-display text-sm font-semibold">Workspace Status Summary</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3">
+              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3">
                 <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">Registered Agents</div>
                 <div className="mt-1 font-display text-xl font-bold">{agents.length}</div>
               </div>
-              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3">
+              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3">
                 <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">Trace Runs Stored</div>
                 <div className="mt-1 font-display text-xl font-bold">{runs.length}</div>
               </div>
-              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 col-span-2 sm:col-span-1">
+              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 col-span-2 sm:col-span-1">
                 <div className="text-[#5E5E6E] dark:text-[#A4A4B5]">Decision Traces</div>
                 <div className="mt-1 font-display text-xl font-bold">{decisionExecutions.length}</div>
               </div>
@@ -572,13 +602,13 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           </div>
 
           {/* Unified SOPIN Observe · Deterministic Decision Executions */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-display text-sm font-semibold inline-flex items-center gap-1.5">
-                <Scale className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                <Scale className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
                 <span>SOPIN Observe · Decision Telemetry (PII-Redacted)</span>
               </h3>
-              <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+              <span className="font-mono text-[10px] uppercase text-[#2563EB] dark:text-[#7EC8FF]">
                 {decisionExecutions.length} Recorded
               </span>
             </div>
@@ -594,17 +624,17 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                   return (
                     <div
                       key={ex.id}
-                      className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 text-xs space-y-1.5"
+                      className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 text-xs space-y-1.5"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-semibold text-[#101014] dark:text-white">
+                        <span className="font-semibold text-[#05070E] dark:text-white">
                           {ex.artifactName} ({ex.versionUsed})
                         </span>
                         <span
                           className={`font-mono text-[11px] font-semibold shrink-0 ${
                             ex.status === 'Error'
                               ? 'text-red-600 dark:text-red-400'
-                              : 'text-[#6252E8] dark:text-[#B894FF]'
+                              : 'text-[#2563EB] dark:text-[#7EC8FF]'
                           }`}
                         >
                           {ex.status} · {ex.durationMs.toFixed(1)}ms
@@ -621,7 +651,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                       <p className="text-[#5E5E6E] dark:text-[#B5B5C5] break-words">
                         {ex.explanation}
                       </p>
-                      <div className="font-mono text-[11px] text-[#101014] dark:text-[#D8D8E6] break-words">
+                      <div className="font-mono text-[11px] text-[#05070E] dark:text-[#D8D8E6] break-words">
                         Input: {JSON.stringify(ex.inputPayload)} → Output: {JSON.stringify(ex.finalOutput)}
                       </div>
                       {ex.errorCode && (
@@ -648,13 +678,13 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           {agents.map((ag) => (
             <div
               key={`dep-${ag.id}`}
-              className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 flex items-center justify-between gap-3"
+              className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
                 <div className="text-sm font-semibold truncate">{ag.name}</div>
                 <StatusText items={[ag.version, ag.status, 'Ephemeral Sandbox']} />
               </div>
-              <Lock className="w-4 h-4 text-[#6252E8] shrink-0" aria-hidden="true" />
+              <Lock className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
             </div>
           ))}
         </div>
@@ -664,11 +694,11 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
       {section === 'settings' && (
         <div className="space-y-4">
           {/* Installable PWA Control */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-display text-sm font-semibold flex items-center gap-2">
-                  <Smartphone className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                  <Smartphone className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
                   <span>Install SOPIN Mobile App (PWA)</span>
                 </h3>
                 <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] mt-1">
@@ -678,7 +708,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
             </div>
 
             {isInstalled ? (
-              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 text-xs font-medium flex items-center gap-2 text-[#6252E8] dark:text-[#B894FF]">
+              <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 text-xs font-medium flex items-center gap-2 text-[#2563EB] dark:text-[#7EC8FF]">
                 <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>Running as installed standalone PWA.</span>
               </div>
@@ -688,7 +718,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                 onClick={() => {
                   void promptInstall();
                 }}
-                className="w-full min-h-[44px] rounded-xl bg-[#6252E8] text-white text-xs font-semibold inline-flex items-center justify-center gap-2"
+                className="w-full min-h-[44px] rounded-xl bg-[#2563EB] text-white text-xs font-semibold inline-flex items-center justify-center gap-2"
               >
                 <Download className="w-4 h-4" aria-hidden="true" />
                 <span>Install SOPIN App</span>
@@ -697,9 +727,9 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIosGuideOpen(true)}
-                className="w-full min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center justify-center gap-2"
+                className="w-full min-h-[44px] rounded-xl border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center justify-center gap-2"
               >
-                <Download className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                <Download className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
                 <span>
                   {isIOS ? 'View iOS Add to Home Screen Guide' : 'View Browser Install Guide'}
                 </span>
@@ -708,7 +738,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           </section>
 
           {/* Preferences */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <h3 className="font-display text-sm font-semibold">Workspace Preferences</h3>
             <div className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between gap-3 py-1">
@@ -716,7 +746,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                 <button
                   type="button"
                   onClick={onToggleTheme}
-                  className="min-h-[40px] px-3.5 rounded-lg border border-[#101014]/15 dark:border-white/15 font-semibold capitalize"
+                  className="min-h-[40px] px-3.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 font-semibold capitalize"
                 >
                   {theme} Mode
                 </button>
@@ -728,8 +758,8 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                   onClick={() => onUpdateSettings({ approvalAlerts: !settings.approvalAlerts })}
                   className={`min-h-[40px] px-3.5 rounded-lg font-semibold ${
                     settings.approvalAlerts
-                      ? 'bg-[#6252E8] text-white'
-                      : 'border border-[#101014]/15 dark:border-white/15'
+                      ? 'bg-[#2563EB] text-white'
+                      : 'border border-[#05070E]/15 dark:border-white/15'
                   }`}
                 >
                   {settings.approvalAlerts ? 'On' : 'Off'}
@@ -744,8 +774,8 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                   }
                   className={`min-h-[40px] px-3.5 rounded-lg font-semibold ${
                     settings.strictSchemaDefault
-                      ? 'bg-[#6252E8] text-white'
-                      : 'border border-[#101014]/15 dark:border-white/15'
+                      ? 'bg-[#2563EB] text-white'
+                      : 'border border-[#05070E]/15 dark:border-white/15'
                   }`}
                 >
                   {settings.strictSchemaDefault ? 'Strict' : 'Advisory'}
@@ -755,7 +785,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           </section>
 
           {/* Reset Prototype */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2">
             <h3 className="font-display text-sm font-semibold">Local Prototype Storage</h3>
             <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
               All edits, agents, runs, and uploaded file previews live locally in this browser.
@@ -787,7 +817,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
             <button
               type="button"
               onClick={() => setConfirmTool(null)}
-              className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+              className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
             >
               Cancel
             </button>
@@ -797,7 +827,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
                 if (confirmTool) onToggleTool(confirmTool.id);
                 setConfirmTool(null);
               }}
-              className="min-h-[44px] rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
+              className="min-h-[44px] rounded-lg bg-[#2563EB] text-white text-xs font-semibold"
             >
               Confirm Change
             </button>
@@ -833,7 +863,7 @@ export const AppMoreView: React.FC<AppMoreViewProps> = ({
           <button
             type="button"
             onClick={() => setConfirmResetOpen(false)}
-            className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+            className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
           >
             Cancel
           </button>

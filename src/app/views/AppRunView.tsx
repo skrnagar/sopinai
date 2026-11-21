@@ -77,18 +77,18 @@ const TraceSpanNode: React.FC<{
     span.status === 'failed'
       ? 'text-red-600 dark:text-red-400 border-red-500/30 bg-red-500/10'
       : span.status === 'awaiting-approval'
-      ? 'text-[#6252E8] dark:text-[#B894FF] border-[#965BFF]/40 bg-[#965BFF]/10'
-      : 'text-[#6252E8] dark:text-[#B894FF] border-[#6252E8]/25 bg-[#6252E8]/10';
+      ? 'text-[#2563EB] dark:text-[#7EC8FF] border-[#60A5FA]/40 bg-[#60A5FA]/10'
+      : 'text-[#2563EB] dark:text-[#7EC8FF] border-[#2563EB]/25 bg-[#2563EB]/10';
 
   return (
-    <div className={depth > 0 ? 'pl-3 border-l-2 border-[#6252E8]/25 space-y-2' : 'space-y-2'}>
-      <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2">
+    <div className={depth > 0 ? 'pl-3 border-l-2 border-[#2563EB]/25 space-y-2' : 'space-y-2'}>
+      <div className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className={`px-2 py-0.5 rounded-md border font-mono text-[10px] uppercase shrink-0 ${badgeTone}`}>
               {span.kind}
             </span>
-            <span className="text-xs font-semibold text-[#101014] dark:text-white truncate">
+            <span className="text-xs font-semibold text-[#05070E] dark:text-white truncate">
               {span.label}
             </span>
           </div>
@@ -100,7 +100,7 @@ const TraceSpanNode: React.FC<{
               <button
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
-                className="min-h-[32px] px-2 rounded border border-[#101014]/15 dark:border-white/15 text-[10px] font-semibold"
+                className="min-h-[32px] px-2 rounded border border-[#05070E]/15 dark:border-white/15 text-[10px] font-semibold"
               >
                 {expanded ? 'Hide' : `Spans (${span.children.length})`}
               </button>
@@ -113,9 +113,9 @@ const TraceSpanNode: React.FC<{
         </p>
 
         {span.decisionRef && (
-          <div className="rounded-lg border border-[#6252E8]/25 bg-white dark:bg-[#101126] p-2.5 space-y-1.5 text-[11px]">
+          <div className="rounded-lg border border-[#2563EB]/25 bg-white dark:bg-[#0A1226] p-2.5 space-y-1.5 text-[11px]">
             <div className="flex flex-wrap items-center justify-between gap-1.5">
-              <span className="inline-flex items-center gap-1 font-mono font-semibold text-[#6252E8] dark:text-[#B894FF]">
+              <span className="inline-flex items-center gap-1 font-mono font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                 <Scale className="w-3 h-3 shrink-0" aria-hidden="true" />
                 <span>
                   {span.decisionRef.artifactName} · {span.decisionRef.versionUsed}
@@ -134,11 +134,11 @@ const TraceSpanNode: React.FC<{
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-              <div className="rounded bg-[#F7F7FA] dark:bg-[#101014] p-2 min-w-0">
+              <div className="rounded bg-[#F7F7FA] dark:bg-[#05070E] p-2 min-w-0">
                 <div className="font-mono text-[10px] uppercase text-[#5E5E6E] dark:text-[#9A9AB0]">
                   Redacted Input Summary
                 </div>
-                <div className="font-mono text-[11px] text-[#101014] dark:text-[#E8E8F2] break-words mt-0.5">
+                <div className="font-mono text-[11px] text-[#05070E] dark:text-[#E8E8F2] break-words mt-0.5">
                   {Object.keys(span.decisionRef.redactedInputSummary).length > 0
                     ? Object.entries(span.decisionRef.redactedInputSummary)
                         .map(([k, v]) => `${k}=${v}`)
@@ -146,11 +146,11 @@ const TraceSpanNode: React.FC<{
                     : '—'}
                 </div>
               </div>
-              <div className="rounded bg-[#F7F7FA] dark:bg-[#101014] p-2 min-w-0">
+              <div className="rounded bg-[#F7F7FA] dark:bg-[#05070E] p-2 min-w-0">
                 <div className="font-mono text-[10px] uppercase text-[#5E5E6E] dark:text-[#9A9AB0]">
                   Redacted Output Summary
                 </div>
-                <div className="font-mono text-[11px] text-[#101014] dark:text-[#E8E8F2] break-words mt-0.5">
+                <div className="font-mono text-[11px] text-[#05070E] dark:text-[#E8E8F2] break-words mt-0.5">
                   {Object.keys(span.decisionRef.redactedOutputSummary).length > 0
                     ? Object.entries(span.decisionRef.redactedOutputSummary)
                         .map(([k, v]) => `${k}=${v}`)
@@ -169,8 +169,8 @@ const TraceSpanNode: React.FC<{
         )}
 
         {span.approvalRef && (
-          <div className="rounded-lg border border-[#965BFF]/30 bg-white dark:bg-[#101126] p-2.5 text-[11px] space-y-1">
-            <div className="font-semibold text-[#101014] dark:text-white">
+          <div className="rounded-lg border border-[#60A5FA]/30 bg-white dark:bg-[#0A1226] p-2.5 text-[11px] space-y-1">
+            <div className="font-semibold text-[#05070E] dark:text-white">
               Gate: {span.approvalRef.actionLabel} ({span.approvalRef.status})
             </div>
             {span.approvalRef.reviewer && (
@@ -437,7 +437,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
       {/* Top Action Strip */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
+          <h2 className="font-display text-lg font-semibold text-[#05070E] dark:text-white">
             Execution Timeline
           </h2>
           <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -447,7 +447,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         <button
           type="button"
           onClick={() => setNewTaskOpen(true)}
-          className="min-h-[44px] px-4 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+          className="min-h-[44px] px-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
           <span>New Task</span>
@@ -456,13 +456,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
       {/* 1-Tap End-to-End Demo Scenarios */}
       {demoLaunchers.length > 0 && (
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-3.5 space-y-2.5">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-3.5 space-y-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#101014] dark:text-white">
-              <GitBranch className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#05070E] dark:text-white">
+              <GitBranch className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
               <span>Integrated Scenarios · Decisions + Flow + Graph</span>
             </div>
-            <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+            <span className="font-mono text-[10px] uppercase text-[#2563EB] dark:text-[#7EC8FF]">
               [Sample Demo Data]
             </span>
           </div>
@@ -480,12 +480,12 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                     workflowInputPayload: d.payload,
                   })
                 }
-                className="min-h-[44px] px-3 py-2 rounded-xl border border-[#6252E8]/30 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8] text-left shrink-0 space-y-0.5"
+                className="min-h-[44px] px-3 py-2 rounded-xl border border-[#2563EB]/30 bg-[#F7F7FA] dark:bg-[#05070E] hover:border-[#2563EB] text-left shrink-0 space-y-0.5"
               >
-                <div className="font-mono text-[10px] font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                <div className="font-mono text-[10px] font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                   {d.badge} · {d.targetType}
                 </div>
-                <div className="text-xs font-semibold text-[#101014] dark:text-white whitespace-nowrap">
+                <div className="text-xs font-semibold text-[#05070E] dark:text-white whitespace-nowrap">
                   {d.label}
                 </div>
               </button>
@@ -505,19 +505,19 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               onClick={() => onSelectRun(run.id)}
               className={`min-h-[52px] min-w-[205px] max-w-[245px] shrink-0 text-left rounded-xl border p-3 transition-colors ${
                 isCurrent
-                  ? 'border-[#6252E8] bg-white dark:bg-[#101126] shadow-sm'
-                  : 'border-[#101014]/10 dark:border-white/10 bg-white/70 dark:bg-[#101126]/50'
+                  ? 'border-[#2563EB] bg-white dark:bg-[#0A1226] shadow-sm'
+                  : 'border-[#05070E]/10 dark:border-white/10 bg-white/70 dark:bg-[#0A1226]/50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                <span className="font-mono text-[11px] font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                   {run.id} · {run.targetType}
                 </span>
                 <span className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5] capitalize">
                   {run.status}
                 </span>
               </div>
-              <div className="mt-1 text-xs font-semibold text-[#101014] dark:text-white truncate">
+              <div className="mt-1 text-xs font-semibold text-[#05070E] dark:text-white truncate">
                 {run.title}
               </div>
             </button>
@@ -536,7 +536,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
       ) : (
         <div className="space-y-4">
           {/* Active Run Summary & Controls */}
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3.5">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3.5">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <StatusText
@@ -548,7 +548,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   ]}
                   accentLast
                 />
-                <h3 className="mt-1 font-display text-lg font-semibold text-[#101014] dark:text-white break-words">
+                <h3 className="mt-1 font-display text-lg font-semibold text-[#05070E] dark:text-white break-words">
                   {activeRun.title}
                 </h3>
               </div>
@@ -557,7 +557,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               </span>
             </div>
 
-            <p className="text-xs text-[#5E5E6E] dark:text-[#C5C5D6] bg-[#F7F7FA] dark:bg-[#101014] rounded-xl p-3 border border-[#101014]/[0.06] dark:border-white/10 break-words">
+            <p className="text-xs text-[#5E5E6E] dark:text-[#C5C5D6] bg-[#F7F7FA] dark:bg-[#05070E] rounded-xl p-3 border border-[#05070E]/[0.06] dark:border-white/10 break-words">
               {activeRun.prompt}
             </p>
 
@@ -567,8 +567,8 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               {activeRun.activeSubAgents.map((sub, i) => (
                 <React.Fragment key={sub}>
                   {i > 0 && <span className="text-[#5E5E6E]" aria-hidden="true">→</span>}
-                  <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[#101014] dark:text-[#E8E8F2]">
-                    <Bot className="w-3 h-3 text-[#6252E8]" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[#05070E] dark:text-[#E8E8F2]">
+                    <Bot className="w-3 h-3 text-[#2563EB]" aria-hidden="true" />
                     {sub}
                   </span>
                 </React.Fragment>
@@ -582,7 +582,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onRunAction(activeRun.id, 'pause')}
-                    className="min-h-[44px] px-3.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+                    className="min-h-[44px] px-3.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
                   >
                     <Pause className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Pause</span>
@@ -602,7 +602,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onRunAction(activeRun.id, 'resume')}
-                  className="min-h-[44px] px-4 rounded-lg bg-[#6252E8] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+                  className="min-h-[44px] px-4 rounded-lg bg-[#2563EB] text-white text-xs font-semibold inline-flex items-center gap-1.5"
                 >
                   <Play className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Resume Run</span>
@@ -613,7 +613,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onRunAction(activeRun.id, 'retry')}
-                  className="min-h-[44px] px-4 rounded-lg bg-[#6252E8] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+                  className="min-h-[44px] px-4 rounded-lg bg-[#2563EB] text-white text-xs font-semibold inline-flex items-center gap-1.5"
                 >
                   <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Retry Failed Step</span>
@@ -624,7 +624,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
             {activeRun.failureReason && (
               <div
                 role="alert"
-                className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2.5 text-xs text-[#101014] dark:text-white"
+                className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2.5 text-xs text-[#05070E] dark:text-white"
               >
                 <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
                 <span className="break-words">{activeRun.failureReason}</span>
@@ -634,8 +634,8 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
           {/* Human Approval Gate Card */}
           {activeRun.status === 'awaiting-approval' && activeRun.approvalGate && (
-            <div className="rounded-2xl border-2 border-[#965BFF] bg-white dark:bg-[#101126] p-4 space-y-3 shadow-md">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-[#6252E8] dark:text-[#B894FF]">
+            <div className="rounded-2xl border-2 border-[#60A5FA] bg-white dark:bg-[#0A1226] p-4 space-y-3 shadow-md">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                 <span className="inline-flex items-center gap-1.5">
                   <ShieldAlert className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span>Human Approval Gate · Role: {activeRun.approvalGate.requiredRole}</span>
@@ -646,7 +646,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   </span>
                 )}
               </div>
-              <h4 className="font-display text-base font-semibold text-[#101014] dark:text-white">
+              <h4 className="font-display text-base font-semibold text-[#05070E] dark:text-white">
                 {activeRun.approvalGate.actionLabel}
               </h4>
               <p className="text-xs text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -659,7 +659,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                     setGateReason('');
                     setGateConfirm('approve');
                   }}
-                  className="min-h-[44px] rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+                  className="min-h-[44px] rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
                 >
                   <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                   <span>Approve &amp; Finish</span>
@@ -670,7 +670,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                     setGateReason('');
                     setGateConfirm('escalate');
                   }}
-                  className="min-h-[44px] rounded-xl border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+                  className="min-h-[44px] rounded-xl border border-[#2563EB]/40 text-[#2563EB] dark:text-[#7EC8FF] text-xs font-semibold inline-flex items-center justify-center gap-1.5"
                 >
                   <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
                   <span>Escalate Gate</span>
@@ -681,7 +681,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                     setGateReason('');
                     setGateConfirm('reject');
                   }}
-                  className="min-h-[44px] rounded-xl border border-[#101014]/20 dark:border-white/20 text-xs font-semibold text-[#101014] dark:text-white"
+                  className="min-h-[44px] rounded-xl border border-[#05070E]/20 dark:border-white/20 text-xs font-semibold text-[#05070E] dark:text-white"
                 >
                   Reject &amp; Halt
                 </button>
@@ -691,18 +691,18 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
           {/* Approval Audit History */}
           {activeRun.approvalHistory && activeRun.approvalHistory.length > 0 && (
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
-              <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+            <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2.5">
+              <h4 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
                 SOPIN Control · Approval Audit History ({activeRun.approvalHistory.length})
               </h4>
               <div className="space-y-2">
                 {activeRun.approvalHistory.map((h) => (
                   <div
                     key={h.id}
-                    className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 text-xs space-y-1"
+                    className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 text-xs space-y-1"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold text-[#101014] dark:text-white capitalize">
+                      <span className="font-semibold text-[#05070E] dark:text-white capitalize">
                         {h.decision} · {h.actor} ({h.role})
                       </span>
                       <span className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -711,7 +711,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                     </div>
                     <p className="text-[#5E5E6E] dark:text-[#B5B5C5]">{h.reason}</p>
                     {h.escalatedTo && (
-                      <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                      <div className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                         Escalated to: {h.escalatedTo}
                       </div>
                     )}
@@ -723,13 +723,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
           {/* Unified Trace Waterfall (SOPIN Observe) */}
           {activeRun.unifiedTrace && (
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+            <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white inline-flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                <h4 className="font-display text-sm font-semibold text-[#05070E] dark:text-white inline-flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
                   <span>Unified Trace Waterfall (Workflow → Agent → Decision → Gate)</span>
                 </h4>
-                <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                   Total: {activeRun.unifiedTrace.durationMs.toFixed(1)}ms
                 </span>
               </div>
@@ -742,9 +742,9 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
           {/* Redacted Workflow Variables State */}
           {activeRun.workflowVars && Object.keys(activeRun.workflowVars).length > 0 && (
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
+            <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2.5">
               <div className="flex items-center justify-between gap-2">
-                <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+                <h4 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
                   Runtime Output Variables (PII-Redacted)
                 </h4>
                 <span className="font-mono text-[10px] uppercase text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -755,12 +755,12 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 {Object.entries(activeRun.workflowVars).map(([key, val]) => (
                   <div
                     key={key}
-                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/[0.06] dark:border-white/10 p-2.5 text-xs min-w-0"
+                    className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/[0.06] dark:border-white/10 p-2.5 text-xs min-w-0"
                   >
-                    <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] truncate">
+                    <div className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] truncate">
                       {key}
                     </div>
-                    <div className="font-mono text-xs text-[#101014] dark:text-white break-words mt-0.5">
+                    <div className="font-mono text-xs text-[#05070E] dark:text-white break-words mt-0.5">
                       {typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}
                     </div>
                   </div>
@@ -770,21 +770,21 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
           )}
 
           {/* Plan & Execution Step Timeline */}
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
-            <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
+            <h4 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               Plan &amp; Tool Activity
             </h4>
             <div className="space-y-2.5">
               {activeRun.steps.map((step) => (
                 <div
                   key={step.id}
-                  className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1.5"
+                  className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-1.5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-[#101014] dark:text-white break-words">
+                    <span className="font-mono text-xs font-semibold text-[#05070E] dark:text-white break-words">
                       {step.label}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                       {step.status === 'completed' && <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />}
                       {step.status === 'running' && <Clock className="w-3.5 h-3.5" aria-hidden="true" />}
                       {step.status === 'failed' && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" />}
@@ -803,8 +803,8 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                       </span>
                     )}
                     {step.toolUsed && (
-                      <span className="inline-flex items-center gap-1 font-mono text-[#101014] dark:text-[#D8D8E6]">
-                        <Wrench className="w-3 h-3 text-[#6252E8]" aria-hidden="true" />
+                      <span className="inline-flex items-center gap-1 font-mono text-[#05070E] dark:text-[#D8D8E6]">
+                        <Wrench className="w-3 h-3 text-[#2563EB]" aria-hidden="true" />
                         {step.toolUsed}
                       </span>
                     )}
@@ -819,8 +819,8 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
           {/* Retrieved Context Citations */}
           {activeRun.sources.length > 0 && (
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-2.5">
-              <h4 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+            <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-2.5">
+              <h4 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
                 Retrieved Grounded Sources ({activeRun.sources.length})
               </h4>
               {activeRun.sources.map((src) => (
@@ -828,13 +828,13 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   key={`${src.docId}-${src.chunkId}`}
                   type="button"
                   onClick={() => setSelectedSource(src)}
-                  className="w-full min-h-[48px] text-left rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 hover:border-[#6252E8]"
+                  className="w-full min-h-[48px] text-left rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 hover:border-[#2563EB]"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-[#101014] dark:text-white truncate">
+                    <span className="text-xs font-semibold text-[#05070E] dark:text-white truncate">
                       {src.docTitle}
                     </span>
-                    <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                    <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                       {src.checksum ? `${src.chunkId} · ${src.checksum}` : src.chunkId}
                     </span>
                   </div>
@@ -848,11 +848,11 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
 
           {/* Final Output Artifact Viewer, Download & Share */}
           {activeRun.artifactMarkdown && (
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+            <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <FileText className="w-4 h-4 text-[#6252E8] shrink-0" aria-hidden="true" />
-                  <span className="font-mono text-xs font-semibold text-[#101014] dark:text-white truncate">
+                  <FileText className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
+                  <span className="font-mono text-xs font-semibold text-[#05070E] dark:text-white truncate">
                     {activeRun.artifactTitle}
                   </span>
                 </div>
@@ -860,7 +860,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleDownloadArtifact(activeRun)}
-                    className="min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+                    className="min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
                   >
                     <Download className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Download</span>
@@ -868,7 +868,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleShareArtifact(activeRun)}
-                    className="min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+                    className="min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
                   >
                     <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Share</span>
@@ -876,11 +876,11 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 </div>
               </div>
               {shareFeedback && (
-                <p className="text-xs font-medium text-[#6252E8] dark:text-[#B894FF]">
+                <p className="text-xs font-medium text-[#2563EB] dark:text-[#7EC8FF]">
                   {shareFeedback}
                 </p>
               )}
-              <pre className="font-mono text-xs bg-[#0D1021] rounded-xl p-3.5 overflow-x-auto leading-relaxed border border-white/10">
+              <pre className="font-mono text-xs bg-[#060B18] rounded-xl p-3.5 overflow-x-auto leading-relaxed border border-white/10">
                 <HighlightedCode
                   code={activeRun.artifactMarkdown}
                   language="markdown"
@@ -909,7 +909,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               id="task-target"
               value={taskTargetKey}
               onChange={(e) => handleTargetChange(e.target.value)}
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             >
               {agents.length > 0 && (
                 <optgroup label="Agents">
@@ -961,7 +961,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                           setTaskPrompt(`Execute ${selectedTargetInfo.name}: ${sample.label}`);
                         }
                       }}
-                      className="min-h-[38px] px-2.5 py-1.5 rounded-lg border border-[#6252E8]/35 bg-[#6252E8]/10 text-xs font-medium text-[#101014] dark:text-white"
+                      className="min-h-[38px] px-2.5 py-1.5 rounded-lg border border-[#2563EB]/35 bg-[#2563EB]/10 text-xs font-medium text-[#05070E] dark:text-white"
                     >
                       {sample.label}
                     </button>
@@ -983,7 +983,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   setPayloadJsonText(e.target.value);
                   setPayloadError('');
                 }}
-                className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                className="w-full px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-xs"
               />
               {payloadError && (
                 <p className="mt-1 text-xs text-red-600 dark:text-red-400">{payloadError}</p>
@@ -1001,7 +1001,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               placeholder="e.g., Audit Invoice Threshold Routing"
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             />
           </div>
 
@@ -1013,7 +1013,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               id="task-doc"
               value={taskDocId}
               onChange={(e) => setTaskDocId(e.target.value)}
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             >
               <option value="">None attached</option>
               {documents.map((d) => (
@@ -1035,14 +1035,14 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               value={taskPrompt}
               onChange={(e) => setTaskPrompt(e.target.value)}
               placeholder="Describe the verification, decision routing, or workflow task to execute..."
-              className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             />
           </div>
 
           <button
             type="submit"
             disabled={!taskPrompt.trim()}
-            className="w-full min-h-[48px] rounded-xl bg-[#6252E8] disabled:opacity-40 text-white text-sm font-semibold"
+            className="w-full min-h-[48px] rounded-xl bg-[#2563EB] disabled:opacity-40 text-white text-sm font-semibold"
           >
             Start Execution Trace
           </button>
@@ -1063,7 +1063,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
         }
       >
         {selectedSource && (
-          <p className="text-sm text-[#101014] dark:text-[#E8E8F2] leading-relaxed bg-[#F7F7FA] dark:bg-[#101014] rounded-xl p-4 border border-[#101014]/10 dark:border-white/10">
+          <p className="text-sm text-[#05070E] dark:text-[#E8E8F2] leading-relaxed bg-[#F7F7FA] dark:bg-[#05070E] rounded-xl p-4 border border-[#05070E]/10 dark:border-white/10">
             {selectedSource.excerpt}
           </p>
         )}
@@ -1100,7 +1100,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               type="text"
               value={gateReviewer}
               onChange={(e) => setGateReviewer(e.target.value)}
-              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
             />
           </div>
 
@@ -1114,7 +1114,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                 type="text"
                 value={gateEscalateTo}
                 onChange={(e) => setGateEscalateTo(e.target.value)}
-                className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+                className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
               />
             </div>
           )}
@@ -1135,7 +1135,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
                   ? 'Requires secondary compliance or CFO sign-off.'
                   : 'Policy criteria not satisfied.'
               }
-              className="w-full px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+              className="w-full px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
             />
           </div>
 
@@ -1143,7 +1143,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
             <button
               type="button"
               onClick={() => setGateConfirm(null)}
-              className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+              className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
             >
               Cancel
             </button>
@@ -1161,7 +1161,7 @@ export const AppRunView: React.FC<AppRunViewProps> = ({
               }}
               className={`min-h-[44px] rounded-lg text-white text-xs font-semibold ${
                 gateConfirm === 'approve'
-                  ? 'bg-[#6252E8]'
+                  ? 'bg-[#2563EB]'
                   : gateConfirm === 'escalate'
                   ? 'bg-amber-600'
                   : 'bg-red-600'

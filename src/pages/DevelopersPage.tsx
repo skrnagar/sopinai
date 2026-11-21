@@ -42,11 +42,11 @@ audit_agent = client.agent(
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Developers', 'SDK · MCP · A2A · Integrations']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
               Built for software engineers, not prompt-only toys.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -56,7 +56,7 @@ audit_agent = client.agent(
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Open Documentation</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -67,7 +67,7 @@ audit_agent = client.agent(
       </section>
 
       {/* API and SDK */}
-      <section id="sdk" className="py-20 border-b border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/40">
+      <section id="sdk" className="py-20 border-b border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-5 space-y-5 min-w-0">
             <SectionHeader
@@ -83,8 +83,8 @@ audit_agent = client.agent(
                 onClick={() => setSdkLang('typescript')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'typescript'
-                    ? 'bg-[#6252E8] text-white'
-                    : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
                 }`}
               >
                 TypeScript (@sopin/sdk)
@@ -96,8 +96,8 @@ audit_agent = client.agent(
                 onClick={() => setSdkLang('python')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'python'
-                    ? 'bg-[#6252E8] text-white'
-                    : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
                 }`}
               >
                 Python (sopin-sdk · Planned)
@@ -114,11 +114,11 @@ audit_agent = client.agent(
       </section>
 
       {/* MCP & A2A, Integrations, Open Source */}
-      <section id="protocols" className="py-20 bg-[#FFFFFF] dark:bg-[#101014]">
+      <section id="protocols" className="py-20 bg-[#FFFFFF] dark:bg-[#05070E]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-            <Plug className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-            <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+          <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <Plug className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+            <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
               MCP and A2A Protocols
             </h2>
             <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -126,9 +126,9 @@ audit_agent = client.agent(
             </p>
           </div>
 
-          <div id="integrations" className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-            <Terminal className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-            <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+          <div id="integrations" className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <Terminal className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+            <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
               Structured Integrations
             </h2>
             <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -136,12 +136,12 @@ audit_agent = client.agent(
             </p>
           </div>
 
-          <div id="open-source" className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div id="open-source" className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             <div className="flex items-center justify-between">
-              <Globe className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-              <span className="text-xs font-medium text-[#6252E8] dark:text-[#B894FF]">Coming Soon</span>
+              <Globe className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+              <span className="text-xs font-medium text-[#2563EB] dark:text-[#7EC8FF]">Coming Soon</span>
             </div>
-            <h2 className="mt-4 font-display text-xl font-semibold text-[#101014] dark:text-white">
+            <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
               Open Source Adapters
             </h2>
             <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -151,9 +151,9 @@ audit_agent = client.agent(
         </div>
 
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 mt-10">
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#101126] text-white p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#0A1226] text-white p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
-              <Code2 className="w-6 h-6 text-[#965BFF] mt-1 shrink-0" aria-hidden="true" />
+              <Code2 className="w-6 h-6 text-[#60A5FA] mt-1 shrink-0" aria-hidden="true" />
               <div>
                 <h3 className="font-display text-lg font-semibold">
                   Explore the SOPIN Developer Quickstart
@@ -166,7 +166,7 @@ audit_agent = client.agent(
             <button
               type="button"
               onClick={() => onNavigate('/docs')}
-              className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+              className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
             >
               Read Documentation
             </button>

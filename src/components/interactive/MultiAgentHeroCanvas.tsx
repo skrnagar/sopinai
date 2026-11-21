@@ -99,7 +99,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
   ];
 
   return (
-    <div className="h-full w-full min-w-0 rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white flex flex-col overflow-hidden shadow-2xl">
+    <div className="h-full w-full min-w-0 rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white flex flex-col overflow-hidden shadow-2xl">
       {/* Top Studio Header */}
       <div className="px-3.5 sm:px-5 py-3 border-b border-white/10 bg-white/[0.025] flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-1.5 min-w-0 overflow-x-auto no-scrollbar max-w-full">
@@ -118,7 +118,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   <motion.span
                     layoutId="hero-collab-scenario"
                     transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                    className="absolute inset-0 rounded-lg bg-[#6252E8]"
+                    className="absolute inset-0 rounded-lg bg-[#2563EB]"
                   />
                 )}
                 <span className="relative z-10">{item.name}</span>
@@ -133,7 +133,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
             onClick={() => setViewMode('collaboration')}
             className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
               viewMode === 'collaboration'
-                ? 'bg-white text-[#101014]'
+                ? 'bg-white text-[#05070E]'
                 : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
@@ -147,7 +147,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               setViewMode('sdk');
             }}
             className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-              viewMode === 'sdk' ? 'bg-white text-[#101014]' : 'text-[#B5B5C5] hover:text-white'
+              viewMode === 'sdk' ? 'bg-white text-[#05070E]' : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
             <Code2 className="w-3.5 h-3.5" aria-hidden="true" />
@@ -159,7 +159,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
       {/* Deterministic Step Progress Bar */}
       <div className="h-0.5 w-full bg-white/10 overflow-hidden" aria-hidden="true">
         <motion.div
-          className="h-full bg-gradient-to-r from-[#6252E8] to-[#965BFF]"
+          className="h-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA]"
           initial={false}
           animate={{ scaleX: (stepIdx + 1) / COLLAB_MAP.length }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
@@ -183,7 +183,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsPlaying((p) => !p)}
-                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 {isPlaying ? (
                   <>
@@ -203,9 +203,9 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   setIsPlaying(false);
                   setStepIdx((prev) => (prev + 1) % COLLAB_MAP.length);
                 }}
-                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-white text-[#101014] hover:bg-[#F7F7FA] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-white text-[#05070E] hover:bg-[#F7F7FA] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
-                <SkipForward className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                <SkipForward className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                 <span className="tabular-nums">
                   {stepIdx + 1}/{COLLAB_MAP.length}
                 </span>
@@ -250,23 +250,23 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                       }}
                       className={`relative text-left rounded-xl p-3 border transition-colors ${
                         isActive
-                          ? 'border-[#965BFF] bg-[#6252E8]/25'
-                          : 'border-white/10 bg-[#101014]/75 hover:border-white/25'
+                          ? 'border-[#60A5FA] bg-[#2563EB]/25'
+                          : 'border-white/10 bg-[#05070E]/75 hover:border-white/25'
                       }`}
                     >
                       {isActive && (
                         <motion.span
                           layoutId="hero-collab-actor"
                           transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                          className="absolute inset-0 rounded-xl ring-1 ring-[#965BFF] pointer-events-none"
+                          className="absolute inset-0 rounded-xl ring-1 ring-[#60A5FA] pointer-events-none"
                         />
                       )}
                       <div className="flex items-center justify-between gap-2 relative z-10">
                         <div
                           className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                             isActive
-                              ? 'bg-[#6252E8] text-white'
-                              : 'bg-white/[0.06] text-[#B894FF]'
+                              ? 'bg-[#2563EB] text-white'
+                              : 'bg-white/[0.06] text-[#7EC8FF]'
                           }`}
                         >
                           <Icon className="w-4 h-4" aria-hidden="true" />
@@ -312,7 +312,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                           y1="0"
                           x2={x}
                           y2="22"
-                          stroke={actorMatch ? '#965BFF' : 'rgba(255,255,255,0.14)'}
+                          stroke={actorMatch ? '#60A5FA' : 'rgba(255,255,255,0.14)'}
                           strokeWidth={actorMatch ? '2' : '1.25'}
                         />
                         <line
@@ -320,14 +320,14 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                           y1="22"
                           x2={x}
                           y2="44"
-                          stroke={busMatch ? '#6252E8' : 'rgba(255,255,255,0.14)'}
+                          stroke={busMatch ? '#2563EB' : 'rgba(255,255,255,0.14)'}
                           strokeWidth={busMatch ? '2' : '1.25'}
                         />
                         <circle
                           cx={x}
                           cy="22"
                           r={actorMatch || busMatch ? '4' : '2.5'}
-                          fill={actorMatch || busMatch ? '#965BFF' : 'rgba(255,255,255,0.35)'}
+                          fill={actorMatch || busMatch ? '#60A5FA' : 'rgba(255,255,255,0.35)'}
                         />
                       </g>
                     );
@@ -353,7 +353,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                       key={infra.id}
                       className={`rounded-xl p-2.5 border transition-colors ${
                         isBusActive
-                          ? 'border-[#6252E8] bg-[#6252E8]/15'
+                          ? 'border-[#2563EB] bg-[#2563EB]/15'
                           : 'border-white/10 bg-white/[0.02]'
                       }`}
                     >
@@ -363,7 +363,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                       <div className="mt-0.5 text-xs font-medium text-white truncate">
                         {infra.label}
                       </div>
-                      <div className="text-[11px] text-[#B894FF] truncate">
+                      <div className="text-[11px] text-[#7EC8FF] truncate">
                         {infra.spec}
                       </div>
                     </div>
@@ -372,7 +372,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               </div>
 
               {/* Row 3: 6-Stage Step Selector + Live Payload Inspector */}
-              <div className="rounded-xl border border-white/12 bg-[#101014]/90 p-4 space-y-3">
+              <div className="rounded-xl border border-white/12 bg-[#05070E]/90 p-4 space-y-3">
                 <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-white/10">
                   {scenario.nodes.map((node, idx) => {
                     const selected = idx === stepIdx;
@@ -386,7 +386,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                         }}
                         className={`px-2.5 py-1 rounded-md font-mono text-[11px] tabular-nums transition-colors ${
                           selected
-                            ? 'bg-[#6252E8] text-white'
+                            ? 'bg-[#2563EB] text-white'
                             : idx < stepIdx
                             ? 'bg-white/10 text-[#E8E8F2]'
                             : 'text-[#9A9AB0] hover:text-white hover:bg-white/5'
@@ -409,7 +409,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <span className="font-mono text-xs text-[#965BFF]">
+                        <span className="font-mono text-xs text-[#60A5FA]">
                           {activeNode.stage} · {activeNode.module}
                         </span>
                         <h3 className="font-display text-base font-semibold text-white">
@@ -445,7 +445,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2 text-xs text-[#C5C5D6]">
-                      <ShieldCheck className="w-4 h-4 text-[#965BFF] shrink-0" aria-hidden="true" />
+                      <ShieldCheck className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
                       <span>{activeNode.policyCheck}</span>
                     </div>
                   </motion.div>

@@ -107,7 +107,7 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
   return (
     <div className="space-y-4">
       {/* Positioning Header Banner */}
-      <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#101126] text-white p-5 space-y-3">
+      <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#0A1226] text-white p-5 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <StatusText
             items={['SOPIN Decisions', 'Make business logic executable.', 'Local Deterministic Evaluator']}
@@ -124,7 +124,7 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSwitchSection('rules')}
-            className="min-h-[44px] px-3 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+            className="min-h-[44px] px-3 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
           >
             <Plus className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>New Rule</span>
@@ -134,7 +134,7 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
             onClick={() => onSwitchSection('tables')}
             className="min-h-[44px] px-3 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/10 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
           >
-            <Table2 className="w-4 h-4 text-[#B894FF] shrink-0" aria-hidden="true" />
+            <Table2 className="w-4 h-4 text-[#7EC8FF] shrink-0" aria-hidden="true" />
             <span>New Table</span>
           </button>
           <button
@@ -142,15 +142,15 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
             onClick={() => onSwitchSection('rulesets')}
             className="min-h-[44px] px-3 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/10 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
           >
-            <Layers className="w-4 h-4 text-[#B894FF] shrink-0" aria-hidden="true" />
+            <Layers className="w-4 h-4 text-[#7EC8FF] shrink-0" aria-hidden="true" />
             <span>Rulesets</span>
           </button>
           <button
             type="button"
             onClick={onOpenAiAssist}
-            className="min-h-[44px] px-3 rounded-xl border border-[#965BFF]/50 bg-[#965BFF]/20 hover:bg-[#965BFF]/30 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+            className="min-h-[44px] px-3 rounded-xl border border-[#60A5FA]/50 bg-[#60A5FA]/20 hover:bg-[#60A5FA]/30 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
           >
-            <Sparkles className="w-4 h-4 text-[#B894FF] shrink-0" aria-hidden="true" />
+            <Sparkles className="w-4 h-4 text-[#7EC8FF] shrink-0" aria-hidden="true" />
             <span>AI Draft Rule</span>
           </button>
         </div>
@@ -158,23 +158,23 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4">
           <div className="text-[11px] font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
             Total Decision Assets
           </div>
-          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#101014] dark:text-white">
+          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#05070E] dark:text-white">
             {totalArtifacts}
           </div>
-          <div className="mt-1 text-[11px] font-mono text-[#6252E8] dark:text-[#B894FF]">
+          <div className="mt-1 text-[11px] font-mono text-[#2563EB] dark:text-[#7EC8FF]">
             {rules.length}R · {tables.length}T · {rulesets.length}RS · {chains.length}C · {scorecards.length}SC
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4">
           <div className="text-[11px] font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
             Published Decisions
           </div>
-          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#101014] dark:text-white">
+          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#05070E] dark:text-white">
             {publishedCount}
           </div>
           <div className="mt-1 text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -182,11 +182,11 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4">
           <div className="text-[11px] font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
             Draft / Validated / Tested
           </div>
-          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#101014] dark:text-white">
+          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#05070E] dark:text-white">
             {draftOrTestedCount}
           </div>
           <div className="mt-1 text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -194,14 +194,14 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4">
           <div className="text-[11px] font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
             Recorded Executions
           </div>
-          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#101014] dark:text-white">
+          <div className="mt-1 font-display text-2xl font-bold tabular-nums text-[#05070E] dark:text-white">
             {executions.length}
           </div>
-          <div className="mt-1 text-[11px] font-mono text-[#6252E8] dark:text-[#B894FF]">
+          <div className="mt-1 text-[11px] font-mono text-[#2563EB] dark:text-[#7EC8FF]">
             {successCount} ok · {errorCount} errors
           </div>
         </div>
@@ -209,9 +209,9 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
 
       {/* Recently Modified + Recent Executions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+        <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+            <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               Recently Modified Decisions
             </h3>
             <span className="text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -228,11 +228,11 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
                   else if (item.kind === 'Table') onSelectTable(item.id);
                   else onSwitchSection(item.section);
                 }}
-                className="w-full min-h-[52px] text-left rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8] p-3 flex items-center justify-between gap-3 transition-colors"
+                className="w-full min-h-[52px] text-left rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] hover:border-[#2563EB] p-3 flex items-center justify-between gap-3 transition-colors"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+                    <span className="font-mono text-[10px] uppercase text-[#2563EB] dark:text-[#7EC8FF]">
                       {item.kind} · {item.version}
                     </span>
                     {item.isDemoData && (
@@ -241,12 +241,12 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
                       </span>
                     )}
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#101014] dark:text-white truncate">
+                  <div className="text-xs sm:text-sm font-semibold text-[#05070E] dark:text-white truncate">
                     {item.name}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-mono text-[11px] font-semibold text-[#101014] dark:text-white">
+                  <div className="font-mono text-[11px] font-semibold text-[#05070E] dark:text-white">
                     {item.status}
                   </div>
                   <div className="text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -258,15 +258,15 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+        <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-display text-sm font-semibold text-[#101014] dark:text-white">
+            <h3 className="font-display text-sm font-semibold text-[#05070E] dark:text-white">
               Recent Deterministic Executions
             </h3>
             <button
               type="button"
               onClick={() => onSwitchSection('executions')}
-              className="text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] inline-flex items-center gap-1"
             >
               <span>Inspect All</span>
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -279,13 +279,13 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
                 key={ex.id}
                 type="button"
                 onClick={() => onSwitchSection('executions')}
-                className="w-full min-h-[52px] text-left rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8] p-3 space-y-1 transition-colors"
+                className="w-full min-h-[52px] text-left rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] hover:border-[#2563EB] p-3 space-y-1 transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-[#101014] dark:text-white truncate">
+                  <span className="text-xs font-semibold text-[#05070E] dark:text-white truncate">
                     {ex.artifactName}
                   </span>
-                  <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                  <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                     {ex.status} · {ex.durationMs}ms
                   </span>
                 </div>
@@ -299,13 +299,13 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
       </div>
 
       {/* Ecosystem Separation Map */}
-      <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
-        <div className="text-xs font-semibold text-[#101014] dark:text-white">
+      <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
+        <div className="text-xs font-semibold text-[#05070E] dark:text-white">
           Strict Separation Across the SOPIN Ecosystem
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1">
-            <div className="font-semibold flex items-center gap-1.5 text-[#6252E8] dark:text-[#B894FF]">
+          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-1">
+            <div className="font-semibold flex items-center gap-1.5 text-[#2563EB] dark:text-[#7EC8FF]">
               <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>SOPIN Decisions</span>
             </div>
@@ -313,27 +313,27 @@ export const DecisionsOverview: React.FC<DecisionsOverviewProps> = ({
               Computes deterministic business outcomes via explicit rules, tables & scorecards.
             </p>
           </div>
-          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1">
-            <div className="font-semibold flex items-center gap-1.5 text-[#101014] dark:text-white">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-1">
+            <div className="font-semibold flex items-center gap-1.5 text-[#05070E] dark:text-white">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
               <span>SOPIN Control</span>
             </div>
             <p className="text-[#5E5E6E] dark:text-[#A4A4B5]">
               Governs RBAC permissions & approvals. AI agents cannot bypass Control to edit rules.
             </p>
           </div>
-          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1">
-            <div className="font-semibold flex items-center gap-1.5 text-[#101014] dark:text-white">
-              <Sparkles className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-1">
+            <div className="font-semibold flex items-center gap-1.5 text-[#05070E] dark:text-white">
+              <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
               <span>SOPIN Studio / Graph</span>
             </div>
             <p className="text-[#5E5E6E] dark:text-[#A4A4B5]">
               Synthesizes rule drafts & coordinates multi-agent handoffs—never final rule authority.
             </p>
           </div>
-          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-1">
-            <div className="font-semibold flex items-center gap-1.5 text-[#101014] dark:text-white">
-              <GitBranch className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-1">
+            <div className="font-semibold flex items-center gap-1.5 text-[#05070E] dark:text-white">
+              <GitBranch className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
               <span>SOPIN Flow / Observe</span>
             </div>
             <p className="text-[#5E5E6E] dark:text-[#A4A4B5]">

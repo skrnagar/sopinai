@@ -25,10 +25,12 @@ const STATIC_VALID_ROUTES = new Set<string>([
   '/security',
   '/developers',
   '/solutions',
+  '/research',
   '/resources',
   '/pricing',
   '/about',
   '/contact',
+  '/legal',
   '/docs',
   '/app',
 ]);
@@ -48,6 +50,13 @@ function parsePath(pathname: string): { route: RoutePath; isNotFound: boolean } 
 
   if (clean.startsWith('/resources/')) {
     const slug = clean.slice('/resources/'.length);
+    if (RESOURCE_ARTICLES.some((r) => r.id === slug)) {
+      return { route: clean as RoutePath, isNotFound: false };
+    }
+  }
+
+  if (clean.startsWith('/research/')) {
+    const slug = clean.slice('/research/'.length);
     if (RESOURCE_ARTICLES.some((r) => r.id === slug)) {
       return { route: clean as RoutePath, isNotFound: false };
     }
@@ -79,14 +88,15 @@ function resolveRouteMeta(route: RoutePath, isNotFound: boolean) {
     }
   }
 
-  if (route.startsWith('/resources/')) {
-    const slug = route.slice('/resources/'.length);
+  if (route.startsWith('/resources/') || route.startsWith('/research/')) {
+    const isResearch = route.startsWith('/research/');
+    const slug = route.slice(isResearch ? '/research/'.length : '/resources/'.length);
     const article = RESOURCE_ARTICLES.find((a) => a.id === slug);
     if (article) {
       return {
-        title: `${article.title} — SOPIN Resources`,
+        title: `${article.title} — SOPIN ${isResearch ? 'Research & Insights' : 'Resources'}`,
         description: article.summary,
-        canonicalPath: `/resources/${article.id}`,
+        canonicalPath: `${isResearch ? '/research' : '/resources'}/${article.id}`,
         robots: 'index, follow',
       };
     }

@@ -49,21 +49,21 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       aria-label={title}
     >
       <div
-        className="fixed inset-0 bg-[#101014]/60 backdrop-blur-[2px]"
+        className="fixed inset-0 bg-[#05070E]/60 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden="true"
       />
 
       <div
-        className={`relative z-10 w-full ${maxWidthClass} max-h-[88dvh] flex flex-col rounded-t-2xl md:rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#FFFFFF] dark:bg-[#101126] text-[#101014] dark:text-white shadow-2xl overflow-hidden`}
+        className={`relative z-10 w-full ${maxWidthClass} max-h-[88dvh] flex flex-col rounded-t-2xl md:rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#FFFFFF] dark:bg-[#0A1226] text-[#05070E] dark:text-white shadow-2xl overflow-hidden`}
       >
         <div className="md:hidden pt-2.5 pb-1 flex justify-center shrink-0" aria-hidden="true">
-          <span className="w-10 h-1 rounded-full bg-[#101014]/15 dark:bg-white/20" />
+          <span className="w-10 h-1 rounded-full bg-[#05070E]/15 dark:bg-white/20" />
         </div>
 
-        <div className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-3 md:pt-5 pb-3.5 border-b border-[#101014]/10 dark:border-white/10 shrink-0">
+        <div className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-3 md:pt-5 pb-3.5 border-b border-[#05070E]/10 dark:border-white/10 shrink-0">
           <div className="min-w-0">
-            <h3 className="font-display text-lg font-semibold text-[#101014] dark:text-white leading-snug truncate">
+            <h3 className="font-display text-lg font-semibold text-[#05070E] dark:text-white leading-snug truncate">
               {title}
             </h3>
             {subtitle && (
@@ -76,7 +76,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             type="button"
             onClick={onClose}
             aria-label={`Close ${title}`}
-            className="w-11 h-11 -mr-2 -mt-1 inline-flex items-center justify-center rounded-lg text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#101014] dark:hover:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors shrink-0"
+            className="w-11 h-11 -mr-2 -mt-1 inline-flex items-center justify-center rounded-lg text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#05070E] dark:hover:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors shrink-0"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -87,7 +87,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         </div>
 
         {footer && (
-          <div className="px-4 sm:px-6 py-3.5 pb-safe border-t border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014]/60 shrink-0">
+          <div className="px-4 sm:px-6 py-3.5 pb-safe border-t border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E]/60 shrink-0">
             {footer}
           </div>
         )}

@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   XCircle,
 } from 'lucide-react';
+import { AuditEvent } from '../../app/types';
 import {
+  DecisionApprovalPurpose,
   DecisionArtifactSpec,
   DecisionArtifactType,
   DecisionEnvironment,
@@ -27,13 +29,19 @@ import {
   ScorecardSpec,
 } from '../types';
 import {
+  applyGovernedDecisionOperationToSlice,
+  checkApprovalPermission,
   checkEditPermission,
+  checkPublishPermission,
   checkTestEvidenceFreshness,
   compareVersionSnapshots,
   computeArtifactSpecHash,
   evaluatePublishGovernancePolicy,
-  isPublishedSnapshotStatus,
-  rollbackArtifactToSnapshot,
+  GovernedDecisionRequest,
+  inspectApprovalFreshness,
+  performGovernedApprove,
+  performGovernedPromote,
+  performGovernedRollback,
   runBatchTestCases,
   runSingleTestCase,
   verifySnapshotIntegrity,
@@ -52,11 +60,16 @@ interface SimulationAndMonitoringProps {
   scorecards: ScorecardSpec[];
   executions: DecisionExecutionSpec[];
   settings: DecisionSettings;
+  auditLog?: AuditEvent[];
   onUpdateRule: (rule: RuleSpec, note?: string) => void;
   onUpdateTable: (table: DecisionTableSpec, note?: string) => void;
   onUpdateRuleset?: (rs: RulesetSpec, note?: string) => void;
   onUpdateChain?: (chain: RuleChainSpec, note?: string) => void;
   onUpdateScorecard?: (sc: ScorecardSpec, note?: string) => void;
+  onGovernedAction?: (
+    req: GovernedDecisionRequest
+  ) => ReturnType<typeof applyGovernedDecisionOperationToSlice>;
+  onUpdateWorkspaceRole?: (role: string) => void;
   onUpdateSettings: (partial: Partial<DecisionSettings>) => void;
 }
 
@@ -76,11 +89,14 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
   scorecards,
   executions,
   settings,
+  auditLog = [],
   onUpdateRule,
   onUpdateTable,
   onUpdateRuleset,
   onUpdateChain,
   onUpdateScorecard,
+  onGovernedAction,
+  onUpdateWorkspaceRole,
   onUpdateSettings,
 }) => {
   const allArtifacts: UnifiedArtifactEntry[] = useMemo(
@@ -130,7 +146,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
     entry: UnifiedArtifactEntry;
     targetEnv: DecisionEnvironment;
   } | null>(null);
-  const [promoteApprovalChecked, setPromoteApprovalChecked] = useState(false);
+  const [governanceNote, setGovernanceNote] = useState('');
 
   const collections = useMemo(
     () => ({ rules, tables, rulesets, chains, scorecards }),
@@ -156,6 +172,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
     const passedCount = activeCases.filter((tc) => tc.lastPassed === true).length;
     const boundaryCount = activeCases.filter((tc) => tc.isBoundaryOrNegative).length;
 
+    const editPerm = checkEditPermission(workspaceRole, settings);
+
     const handleRunSingle = (tc: DecisionTestCase) => {
       if (!activeEntry) return;
       const { updatedCase } = runSingleTestCase(
@@ -164,6 +182,17 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
         tc,
         collections
       );
+      if (!editPerm.allowed) {
+        persistArtifactUpdate(
+          activeEntry.type,
+          activeEntry.spec,
+          `Attempted test evidence update on "${activeEntry.spec.name}"`
+        );
+        setBatchSummary(
+          `Preview only (${updatedCase.lastPassed ? 'PASSED' : 'FAILED'}): cannot persist test evidence because ${editPerm.reasons[0]}`
+        );
+        return;
+      }
       const nextCases = activeCases.map((c) => (c.id === tc.id ? updatedCase : c));
       persistArtifactUpdate(
         activeEntry.type,
@@ -183,6 +212,17 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
         activeCases,
         collections
       );
+      if (!editPerm.allowed) {
+        persistArtifactUpdate(
+          activeEntry.type,
+          activeEntry.spec,
+          `Attempted batch test evidence update on "${activeEntry.spec.name}"`
+        );
+        setBatchSummary(
+          `Preview only (${res.passedCount} pass, ${res.failedCount} fail): cannot persist suite evidence because ${editPerm.reasons[0]}`
+        );
+        return;
+      }
       const shouldPromoteToTested =
         res.failedCount === 0 &&
         res.updatedCases.length > 0 &&
@@ -205,6 +245,15 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
     const handleAddFixture = () => {
       if (!activeEntry) return;
       setFixtureErr('');
+      if (!editPerm.allowed) {
+        persistArtifactUpdate(
+          activeEntry.type,
+          activeEntry.spec,
+          `Attempted fixture creation on "${activeEntry.spec.name}"`
+        );
+        setFixtureErr(editPerm.reasons[0]);
+        return;
+      }
       try {
         const inputJson = JSON.parse(fixtureInputJson) as Record<string, unknown>;
         const expectedOutput = JSON.parse(fixtureExpectedJson) as Record<string, unknown>;
@@ -233,7 +282,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <label htmlFor="test-suite-target" className="block text-xs font-semibold">
               Select Decision Artifact Regression Suite (All 5 Types)
@@ -245,7 +294,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 setSelectedTestTargetId(e.target.value);
                 setBatchSummary('');
               }}
-              className="min-h-[44px] px-3 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm max-w-full"
+              className="min-h-[44px] px-3 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm max-w-full"
             >
               {allArtifacts.map((entry) => (
                 <option key={entry.spec.id} value={entry.spec.id}>
@@ -259,16 +308,16 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
             <button
               type="button"
               onClick={() => setAddFixtureOpen((v) => !v)}
-              className="min-h-[44px] px-3.5 rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
+              className="min-h-[44px] px-3.5 rounded-xl border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5"
             >
-              <Plus className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+              <Plus className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
               <span>Add Fixture</span>
             </button>
             <button
               type="button"
               onClick={handleRunSuite}
               disabled={activeCases.length === 0}
-              className="min-h-[44px] px-5 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] disabled:opacity-40 text-white text-xs font-semibold inline-flex items-center justify-center gap-2"
+              className="min-h-[44px] px-5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-40 text-white text-xs font-semibold inline-flex items-center justify-center gap-2"
             >
               <Play className="w-4 h-4" aria-hidden="true" />
               <span>Run Batch Tests ({activeCases.length})</span>
@@ -277,7 +326,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
         </div>
 
         {activeEntry && freshness && (
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
             <StatusText
               items={[
                 `${activeEntry.label}: ${activeEntry.spec.version}`,
@@ -308,7 +357,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
         )}
 
         {addFixtureOpen && (
-          <div className="rounded-2xl border border-[#6252E8]/35 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <div className="rounded-2xl border border-[#2563EB]/35 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="text-xs font-semibold">Define Custom Input Fixture &amp; Expected Output</div>
             <div className="flex flex-wrap items-center gap-3">
               <input
@@ -316,7 +365,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 aria-label="Test fixture name"
                 value={fixtureName}
                 onChange={(e) => setFixtureName(e.target.value)}
-                className="flex-1 min-w-[200px] min-h-[40px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+                className="flex-1 min-w-[200px] min-h-[40px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
               />
               <label className="inline-flex items-center gap-2 text-xs">
                 <input
@@ -333,14 +382,14 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 aria-label="Fixture input JSON"
                 value={fixtureInputJson}
                 onChange={(e) => setFixtureInputJson(e.target.value)}
-                className="w-full p-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                className="w-full p-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-xs"
               />
               <textarea
                 rows={4}
                 aria-label="Fixture expected output JSON"
                 value={fixtureExpectedJson}
                 onChange={(e) => setFixtureExpectedJson(e.target.value)}
-                className="w-full p-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                className="w-full p-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-xs"
               />
             </div>
             {fixtureErr && <p className="text-xs text-red-500">{fixtureErr}</p>}
@@ -348,14 +397,14 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
               <button
                 type="button"
                 onClick={() => setAddFixtureOpen(false)}
-                className="min-h-[38px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+                className="min-h-[38px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleAddFixture}
-                className="min-h-[38px] px-4 rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
+                className="min-h-[38px] px-4 rounded-lg bg-[#2563EB] text-white text-xs font-semibold"
               >
                 Save Fixture
               </button>
@@ -366,7 +415,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
         {batchSummary && (
           <div
             role="status"
-            className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/10 px-4 py-2.5 text-xs font-semibold"
+            className="rounded-xl border border-[#2563EB]/35 bg-[#2563EB]/10 px-4 py-2.5 text-xs font-semibold"
           >
             {batchSummary}
           </div>
@@ -374,35 +423,46 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
         <div className="space-y-3">
           {activeCases.length === 0 ? (
-            <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-6 text-center text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+            <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-6 text-center text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
               No golden test cases registered for this asset yet. Add a fixture above to define regression tests.
             </div>
           ) : (
             activeCases.map((tc) => {
+              const isWrongArtifact =
+                tc.lastPassed !== undefined &&
+                ((tc.testedArtifactId !== undefined && tc.testedArtifactId !== activeEntry?.spec.id) ||
+                  (tc.testedArtifactType !== undefined && tc.testedArtifactType !== activeEntry?.type));
               const isStale =
                 freshness &&
                 tc.lastPassed !== undefined &&
-                ((tc.testedVersion !== undefined && tc.testedVersion !== activeEntry?.spec.version) ||
-                  (tc.testedSpecHash !== undefined && tc.testedSpecHash !== freshness.currentSpecHash));
+                (isWrongArtifact ||
+                  !tc.testedVersion ||
+                  tc.testedVersion !== activeEntry?.spec.version ||
+                  !tc.testedSpecHash ||
+                  tc.testedSpecHash !== freshness.currentSpecHash);
               return (
                 <div
                   key={tc.id}
-                  className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3"
+                  className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <FlaskConical className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+                      <FlaskConical className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
                       <span className="text-xs sm:text-sm font-semibold">{tc.name}</span>
                       {tc.isBoundaryOrNegative && (
-                        <span className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+                        <span className="font-mono text-[10px] uppercase text-[#2563EB] dark:text-[#7EC8FF]">
                           · Boundary/Neg
                         </span>
                       )}
-                      {isStale && (
-                        <span className="font-mono text-[10px] uppercase text-amber-600 dark:text-amber-300">
-                          · Stale ({tc.testedVersion})
+                      {isWrongArtifact ? (
+                        <span className="font-mono text-[10px] uppercase text-red-600 dark:text-red-300">
+                          · Mismatched Artifact ({tc.testedArtifactId ?? 'unknown'})
                         </span>
-                      )}
+                      ) : isStale ? (
+                        <span className="font-mono text-[10px] uppercase text-amber-600 dark:text-amber-300">
+                          · Stale ({tc.testedVersion ?? 'unversioned'})
+                        </span>
+                      ) : null}
                     </div>
                     <div className="flex items-center gap-2">
                       {tc.lastPassed !== undefined && (
@@ -422,16 +482,16 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                       <button
                         type="button"
                         onClick={() => handleRunSingle(tc)}
-                        className="min-h-[34px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
+                        className="min-h-[34px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
                       >
-                        <Play className="w-3 h-3 text-[#6252E8]" aria-hidden="true" />
+                        <Play className="w-3 h-3 text-[#2563EB]" aria-hidden="true" />
                         <span>Run Case</span>
                       </button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] font-mono">
-                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 p-2.5">
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#060B18] border border-[#05070E]/10 dark:border-white/10 p-2.5">
                       <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Input JSON</div>
                       <pre className="overflow-x-auto">
                         <HighlightedCode
@@ -441,7 +501,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                         />
                       </pre>
                     </div>
-                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 p-2.5">
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#060B18] border border-[#05070E]/10 dark:border-white/10 p-2.5">
                       <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Expected Output</div>
                       <pre className="overflow-x-auto">
                         <HighlightedCode
@@ -451,7 +511,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                         />
                       </pre>
                     </div>
-                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 p-2.5">
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#060B18] border border-[#05070E]/10 dark:border-white/10 p-2.5">
                       <div className="text-[#5E5E6E] dark:text-[#9A9AB0] mb-1">Actual Output</div>
                       <pre className="overflow-x-auto">
                         {tc.lastActualOutput ? (
@@ -476,8 +536,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   )}
 
                   {tc.failedConditions && tc.failedConditions.length > 0 && (
-                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-2.5 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5] space-y-0.5">
-                      <div className="font-semibold text-[#101014] dark:text-white">
+                    <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-2.5 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5] space-y-0.5">
+                      <div className="font-semibold text-[#05070E] dark:text-white">
                         Conditions Evaluated FALSE / Diagnostics:
                       </div>
                       {tc.failedConditions.map((fc, idx) => (
@@ -487,7 +547,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   )}
 
                   {tc.runHistory && tc.runHistory.length > 0 && (
-                    <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] px-3 py-2 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
+                    <div className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] px-3 py-2 text-[11px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
                       Run History: {tc.runHistory.slice(0, 3).map((rh) => `${rh.passed ? 'PASS' : 'FAIL'}@${rh.testedVersion} (${rh.actualStatus})`).join(' · ')}
                     </div>
                   )}
@@ -518,8 +578,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 onClick={() => setExecFilter(f)}
                 className={`min-h-[40px] px-3.5 rounded-xl text-xs font-semibold ${
                   execFilter === f
-                    ? 'bg-[#6252E8] text-white'
-                    : 'bg-white dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10 text-[#5E5E6E] dark:text-[#B5B5C5]'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'bg-white dark:bg-[#0A1226] border border-[#05070E]/10 dark:border-white/10 text-[#5E5E6E] dark:text-[#B5B5C5]'
                 }`}
               >
                 {f}
@@ -542,13 +602,13 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   onClick={() => setSelectedExecutionId(ex.id)}
                   className={`w-full text-left rounded-2xl border p-3.5 space-y-1 transition-colors ${
                     selected
-                      ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/20'
-                      : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                      ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/20'
+                      : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold truncate">{ex.artifactName}</span>
-                    <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                    <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                       {ex.status} · {ex.durationMs}ms
                     </span>
                   </div>
@@ -562,10 +622,10 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
           <div className="lg:col-span-7">
             {activeExec ? (
-              <div className="rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-5 space-y-4">
+              <div className="rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white p-5 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <div className="font-mono text-[11px] text-[#B894FF]">
+                    <div className="font-mono text-[11px] text-[#7EC8FF]">
                       EXECUTION INSPECTOR · {activeExec.id}
                       {activeExec.errorCode ? ` · ${activeExec.errorCode}` : ''}
                     </div>
@@ -583,7 +643,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 <p className="text-xs text-[#D8D8E6] leading-relaxed">{activeExec.explanation}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="rounded-xl border border-white/10 bg-[#0D1021] p-3">
+                  <div className="rounded-xl border border-white/10 bg-[#060B18] p-3">
                     <div className="font-mono text-[11px] text-[#9A9AB0] mb-1">Input Payload</div>
                     <pre className="font-mono text-[11px] overflow-x-auto">
                       <HighlightedCode
@@ -593,7 +653,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                       />
                     </pre>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-[#0D1021] p-3">
+                  <div className="rounded-xl border border-white/10 bg-[#060B18] p-3">
                     <div className="font-mono text-[11px] text-[#9A9AB0] mb-1">Final Decision Output</div>
                     <pre className="font-mono text-[11px] overflow-x-auto">
                       <HighlightedCode
@@ -615,7 +675,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
                 {activeExec.matchedTableRows.length > 0 && (
                   <div className="text-xs">
-                    <span className="font-mono text-[#B894FF]">Selected Table Row(s): </span>
+                    <span className="font-mono text-[#7EC8FF]">Selected Table Row(s): </span>
                     <span>{activeExec.matchedTableRows.join(' · ')}</span>
                   </div>
                 )}
@@ -626,7 +686,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                     {activeExec.executionTrace.map((st) => (
                       <div
                         key={st.stepIndex}
-                        className="rounded-lg border border-white/10 bg-[#101014] px-3 py-2 text-[11px] font-mono flex items-start justify-between gap-2"
+                        className="rounded-lg border border-white/10 bg-[#05070E] px-3 py-2 text-[11px] font-mono flex items-start justify-between gap-2"
                       >
                         <span className="text-[#D8D8E6]">
                           {st.stepIndex}. [{st.phase}] {st.label}: {st.detail}
@@ -658,12 +718,12 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   ))}
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-[#101014] p-3 font-mono text-[11px] text-[#C5C5D6] overflow-x-auto">
+                <div className="rounded-xl border border-white/10 bg-[#05070E] p-3 font-mono text-[11px] text-[#C5C5D6] overflow-x-auto">
                   Gateway API Invocation (Target): POST /v1/decisions/{activeExec.artifactId}/evaluate?version={activeExec.versionUsed}
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-6 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+              <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-6 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
                 Select an execution trace to inspect inputs, matched rules, and final outcomes.
               </div>
             )}
@@ -678,38 +738,130 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
     const visibleArtifacts = allArtifacts.filter(
       (entry) => versionTypeFilter === 'all' || entry.type === versionTypeFilter
     );
+    const decisionAuditEvents = auditLog.filter(
+      (ev) => Boolean(ev.operation || ev.artifactType)
+    );
+    const approvalPerm = checkApprovalPermission(workspaceRole, settings);
+
+    const recordSheetApproval = (
+      entry: UnifiedArtifactEntry,
+      targetEnvironment: DecisionEnvironment,
+      purpose: DecisionApprovalPurpose,
+      rollbackTargetVersion?: string
+    ) => {
+      const note =
+        governanceNote.trim() ||
+        (purpose === 'rollback'
+          ? `Rollback approval to ${rollbackTargetVersion ?? entry.spec.version}`
+          : `${purpose} approval for ${entry.spec.version}`);
+
+      if (onGovernedAction) {
+        const res = onGovernedAction({
+          operation: 'approve',
+          artifactType: entry.type,
+          artifactId: entry.spec.id,
+          targetEnvironment,
+          purpose,
+          decision: 'approved',
+          note,
+          rollbackTargetVersion,
+        });
+        if (!res.allowed || !res.updatedSpec) {
+          setVersionNotice({
+            kind: 'err',
+            text: `Approval blocked: ${res.reasons.join(' ')}`,
+          });
+          return;
+        }
+        if (promoteConfirm && promoteConfirm.entry.spec.id === entry.spec.id) {
+          setPromoteConfirm({
+            ...promoteConfirm,
+            entry: { ...entry, spec: res.updatedSpec },
+          });
+        }
+        if (rollbackConfirm && rollbackConfirm.entry.spec.id === entry.spec.id) {
+          setRollbackConfirm({
+            ...rollbackConfirm,
+            entry: { ...entry, spec: res.updatedSpec },
+          });
+        }
+        setVersionNotice({
+          kind: 'ok',
+          text: `Recorded bound ${purpose} approval (${res.approvalRecord?.id ?? 'local'}) for ${entry.spec.name} ${entry.spec.version}.`,
+        });
+        return;
+      }
+
+      const res = performGovernedApprove({
+        type: entry.type,
+        spec: entry.spec,
+        targetEnvironment,
+        purpose,
+        decision: 'approved',
+        workspaceRole,
+        settings,
+        collections,
+        note,
+        rollbackTargetVersion,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setVersionNotice({ kind: 'err', text: `Approval blocked: ${res.reasons.join(' ')}` });
+        return;
+      }
+      persistArtifactUpdate(entry.type, res.updatedSpec, res.auditEvent.action);
+      if (promoteConfirm && promoteConfirm.entry.spec.id === entry.spec.id) {
+        setPromoteConfirm({ ...promoteConfirm, entry: { ...entry, spec: res.updatedSpec } });
+      }
+      if (rollbackConfirm && rollbackConfirm.entry.spec.id === entry.spec.id) {
+        setRollbackConfirm({ ...rollbackConfirm, entry: { ...entry, spec: res.updatedSpec } });
+      }
+      setVersionNotice({ kind: 'ok', text: res.auditEvent.action });
+    };
 
     const requestPromote = (entry: UnifiedArtifactEntry, targetEnv: DecisionEnvironment) => {
       if (targetEnv === entry.spec.environment) return;
       if (targetEnv === 'production') {
-        setPromoteApprovalChecked(false);
+        setGovernanceNote('');
         setPromoteConfirm({ entry, targetEnv });
         return;
       }
-      const check = evaluatePublishGovernancePolicy(
-        entry.type,
-        entry.spec,
-        targetEnv,
-        workspaceRole,
-        settings,
-        collections
-      );
-      if (!check.allowed) {
+      if (onGovernedAction) {
+        const res = onGovernedAction({
+          operation: 'promote',
+          artifactType: entry.type,
+          artifactId: entry.spec.id,
+          targetEnvironment: targetEnv,
+        });
+        if (!res.allowed) {
+          setVersionNotice({
+            kind: 'err',
+            text: `Cannot promote "${entry.spec.name}" to ${targetEnv}: ${res.reasons.join(' ')}`,
+          });
+          return;
+        }
         setVersionNotice({
-          kind: 'err',
-          text: `Cannot promote "${entry.spec.name}" to ${targetEnv}: ${check.reasons.join(' ')}`,
+          kind: 'ok',
+          text: `Promoted "${entry.spec.name}" (${entry.spec.version}) to ${targetEnv}.`,
         });
         return;
       }
-      persistArtifactUpdate(
-        entry.type,
-        {
-          ...entry.spec,
-          environment: targetEnv,
-          updatedAt: 'Just now',
-        } as DecisionArtifactSpec,
-        `Promoted ${entry.label} "${entry.spec.name}" (${entry.spec.version}) to ${targetEnv}`
-      );
+
+      const res = performGovernedPromote({
+        type: entry.type,
+        spec: entry.spec,
+        targetEnvironment: targetEnv,
+        workspaceRole,
+        settings,
+        collections,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setVersionNotice({
+          kind: 'err',
+          text: `Cannot promote "${entry.spec.name}" to ${targetEnv}: ${res.reasons.join(' ')}`,
+        });
+        return;
+      }
+      persistArtifactUpdate(entry.type, res.updatedSpec, res.auditEvent.action);
       setVersionNotice({
         kind: 'ok',
         text: `Promoted "${entry.spec.name}" (${entry.spec.version}) to ${targetEnv}.`,
@@ -719,43 +871,49 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
     const confirmProductionPromote = () => {
       if (!promoteConfirm) return;
       const { entry, targetEnv } = promoteConfirm;
-      const check = evaluatePublishGovernancePolicy(
-        entry.type,
-        entry.spec,
-        targetEnv,
-        workspaceRole,
-        settings,
-        collections,
-        promoteApprovalChecked
-      );
-      if (!check.allowed) {
+      if (onGovernedAction) {
+        const res = onGovernedAction({
+          operation: 'promote',
+          artifactType: entry.type,
+          artifactId: entry.spec.id,
+          targetEnvironment: targetEnv,
+          note: governanceNote.trim() || undefined,
+        });
+        if (!res.allowed) {
+          setVersionNotice({
+            kind: 'err',
+            text: `Production promotion blocked: ${res.reasons.join(' ')}`,
+          });
+          return;
+        }
+        setPromoteConfirm(null);
+        setGovernanceNote('');
         setVersionNotice({
-          kind: 'err',
-          text: `Production promotion blocked: ${check.reasons.join(' ')}`,
+          kind: 'ok',
+          text: `Promoted "${entry.spec.name}" (${entry.spec.version}) to production cleanly.`,
         });
         return;
       }
-      const nextStatus = isPublishedSnapshotStatus(entry.spec.status) ? 'Promoted' : 'Published';
-      persistArtifactUpdate(
-        entry.type,
-        {
-          ...entry.spec,
-          environment: targetEnv,
-          status: nextStatus,
-          reviewApproval: settings.requireControlApprovalForProd
-            ? {
-                approved: promoteApprovalChecked,
-                reviewerLabel: `${workspaceRole} (Local Gate)`,
-                approvedAt: 'Just now',
-                note: `Promoted ${entry.spec.version} to production`,
-                controlRequired: true,
-              }
-            : entry.spec.reviewApproval,
-          updatedAt: 'Just now',
-        } as DecisionArtifactSpec,
-        `Promoted ${entry.label} "${entry.spec.name}" (${entry.spec.version}) to production`
-      );
+
+      const res = performGovernedPromote({
+        type: entry.type,
+        spec: entry.spec,
+        targetEnvironment: targetEnv,
+        workspaceRole,
+        settings,
+        collections,
+        note: governanceNote.trim() || undefined,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setVersionNotice({
+          kind: 'err',
+          text: `Production promotion blocked: ${res.reasons.join(' ')}`,
+        });
+        return;
+      }
+      persistArtifactUpdate(entry.type, res.updatedSpec, res.auditEvent.action);
       setPromoteConfirm(null);
+      setGovernanceNote('');
       setVersionNotice({
         kind: 'ok',
         text: `Promoted "${entry.spec.name}" (${entry.spec.version}) to production cleanly.`,
@@ -765,35 +923,57 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
     const confirmRollback = () => {
       if (!rollbackConfirm) return;
       const { entry, snapshot } = rollbackConfirm;
-      const { rolledBack, error } = rollbackArtifactToSnapshot(
-        entry.type,
-        entry.spec,
-        snapshot.version,
-        `${workspaceRole} (Local Rollback)`
-      );
-      if (!rolledBack) {
+      if (onGovernedAction) {
+        const res = onGovernedAction({
+          operation: 'rollback',
+          artifactType: entry.type,
+          artifactId: entry.spec.id,
+          targetVersion: snapshot.version,
+          note: governanceNote.trim() || undefined,
+        });
+        if (!res.allowed) {
+          setVersionNotice({
+            kind: 'err',
+            text: `Rollback blocked: ${res.reasons.join(' ')}`,
+          });
+          return;
+        }
         setRollbackConfirm(null);
+        setGovernanceNote('');
         setVersionNotice({
-          kind: 'err',
-          text: error || 'Rollback failed snapshot verification.',
+          kind: 'ok',
+          text: `Restored full ${entry.label} specification from snapshot ${snapshot.version} while preserving immutable version history and clearing stale approvals.`,
         });
         return;
       }
-      persistArtifactUpdate(
-        entry.type,
-        rolledBack,
-        `Rolled back ${entry.label} "${entry.spec.name}" to ${snapshot.version}`
-      );
+
+      const res = performGovernedRollback({
+        type: entry.type,
+        spec: entry.spec,
+        targetVersion: snapshot.version,
+        workspaceRole,
+        settings,
+        note: governanceNote.trim() || undefined,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setVersionNotice({
+          kind: 'err',
+          text: `Rollback blocked: ${res.reasons.join(' ')}`,
+        });
+        return;
+      }
+      persistArtifactUpdate(entry.type, res.updatedSpec, res.auditEvent.action);
       setRollbackConfirm(null);
+      setGovernanceNote('');
       setVersionNotice({
         kind: 'ok',
-        text: `Restored full ${entry.label} specification from snapshot ${snapshot.version} while preserving immutable version history.`,
+        text: `Restored full ${entry.label} specification from snapshot ${snapshot.version} while preserving immutable version history and clearing stale approvals.`,
       });
     };
 
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+        <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
           <div>
             <h3 className="font-display text-sm font-semibold">
               Immutable Versions, SHA-256 Verification, Diff &amp; Rollback (All 5 Artifact Types)
@@ -819,8 +999,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 onClick={() => setVersionTypeFilter(f.id)}
                 className={`min-h-[38px] px-3 rounded-xl text-xs font-semibold whitespace-nowrap ${
                   versionTypeFilter === f.id
-                    ? 'bg-[#6252E8] text-white'
-                    : 'border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014]'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E]'
                 }`}
               >
                 {f.label}
@@ -835,7 +1015,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
             className={`rounded-xl border px-4 py-2.5 flex items-center justify-between gap-2 text-xs font-semibold ${
               versionNotice.kind === 'err'
                 ? 'border-red-500/45 bg-red-500/10 text-red-700 dark:text-red-200'
-                : 'border-[#6252E8]/35 bg-[#6252E8]/10'
+                : 'border-[#2563EB]/35 bg-[#2563EB]/10'
             }`}
           >
             <span>{versionNotice.text}</span>
@@ -847,10 +1027,31 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
         {visibleArtifacts.map((entry) => {
           const currentHash = computeArtifactSpecHash(entry.type, entry.spec);
+          const prodApproval = inspectApprovalFreshness(
+            entry.type,
+            entry.spec,
+            'production',
+            'production-promotion'
+          );
+          const pubApproval = inspectApprovalFreshness(
+            entry.type,
+            entry.spec,
+            'production',
+            'publication'
+          );
+          const approvalSummary = prodApproval.valid
+            ? `Prod Promotion Approved (${prodApproval.matchedApproval?.id ?? 'bound'})`
+            : pubApproval.valid
+            ? `Publication Approved (${entry.spec.version})`
+            : prodApproval.status === 'stale-spec' || prodApproval.status === 'stale-version'
+            ? 'Prior Approval Stale'
+            : prodApproval.status === 'rejected'
+            ? 'Approval Rejected'
+            : 'No Prod Approval';
           return (
             <div
               key={entry.spec.id}
-              className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3"
+              className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
@@ -861,6 +1062,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                       entry.spec.version,
                       entry.spec.status,
                       `Env: ${entry.spec.environment}`,
+                      approvalSummary,
                     ]}
                     accentLast
                   />
@@ -877,8 +1079,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                       onClick={() => requestPromote(entry, env)}
                       className={`min-h-[36px] px-3 rounded-lg text-[11px] font-semibold capitalize ${
                         entry.spec.environment === env
-                          ? 'bg-[#6252E8] text-white'
-                          : 'border border-[#101014]/15 dark:border-white/15'
+                          ? 'bg-[#2563EB] text-white'
+                          : 'border border-[#05070E]/15 dark:border-white/15'
                       }`}
                     >
                       {env}
@@ -888,22 +1090,22 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
               </div>
 
               {entry.spec.versionHistory.length === 0 ? (
-                <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] px-3 py-2 text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0] font-mono">
+                <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] px-3 py-2 text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0] font-mono">
                   No immutable published snapshots recorded yet (Draft / pre-release).
                 </div>
               ) : (
-                <div className="space-y-2 pt-2 border-t border-[#101014]/10 dark:border-white/10">
+                <div className="space-y-2 pt-2 border-t border-[#05070E]/10 dark:border-white/10">
                   {entry.spec.versionHistory.map((snap, idx) => {
                     const integrity = verifySnapshotIntegrity(snap);
                     const nextOlder = entry.spec.versionHistory[idx + 1];
                     return (
                       <div
                         key={snap.version}
-                        className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2 text-xs"
+                        className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-2 text-xs"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="min-w-0">
-                            <div className="font-mono font-semibold text-[#6252E8] dark:text-[#B894FF] flex flex-wrap items-center gap-2">
+                            <div className="font-mono font-semibold text-[#2563EB] dark:text-[#7EC8FF] flex flex-wrap items-center gap-2">
                               <span>
                                 {snap.version} · {snap.environment} · {snap.status}
                               </span>
@@ -936,9 +1138,9 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                                     snapB: snap,
                                   })
                                 }
-                                className="min-h-[36px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
+                                className="min-h-[36px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
                               >
-                                <GitCompare className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                                <GitCompare className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                                 <span>Diff vs {nextOlder.version}</span>
                               </button>
                             )}
@@ -946,7 +1148,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                               <button
                                 type="button"
                                 onClick={() => setRollbackConfirm({ entry, snapshot: snap })}
-                                className="min-h-[36px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
+                                className="min-h-[36px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-[11px] font-semibold inline-flex items-center gap-1"
                               >
                                 <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                                 <span>Rollback</span>
@@ -962,8 +1164,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                               diffSelection.snapB
                             );
                             return (
-                              <div className="rounded-lg border border-[#6252E8]/35 bg-white dark:bg-[#101126] p-3 space-y-1.5 text-[11px] font-mono">
-                                <div className="flex items-center justify-between font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                              <div className="rounded-lg border border-[#2563EB]/35 bg-white dark:bg-[#0A1226] p-3 space-y-1.5 text-[11px] font-mono">
+                                <div className="flex items-center justify-between font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                                   <span>
                                     Canonical Diff: {diffSelection.snapA.version} → {diffSelection.snapB.version}
                                   </span>
@@ -981,8 +1183,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                                   </div>
                                 ) : (
                                   diffReport.changes.map((diff) => (
-                                    <div key={diff.key} className="space-y-0.5 pt-1 border-t border-[#101014]/10 dark:border-white/10">
-                                      <div className="font-semibold text-[#101014] dark:text-white">
+                                    <div key={diff.key} className="space-y-0.5 pt-1 border-t border-[#05070E]/10 dark:border-white/10">
+                                      <div className="font-semibold text-[#05070E] dark:text-white">
                                         {diff.key}:
                                       </div>
                                       <div className="text-red-600 dark:text-red-300 truncate">
@@ -1006,6 +1208,70 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
           );
         })}
 
+        <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <History className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
+              <span>Recent Decisions Governance Audit Trail ({decisionAuditEvents.length})</span>
+            </div>
+            <span className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
+              Simulated Local Audit Records
+            </span>
+          </div>
+          {decisionAuditEvents.length === 0 ? (
+            <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
+              No lifecycle save, approval, publish, promotion, or rollback events recorded yet.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {decisionAuditEvents.slice(0, 10).map((ev) => (
+                <div
+                  key={ev.id}
+                  className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 text-xs space-y-1"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-[#05070E] dark:text-white">{ev.action}</span>
+                    <span
+                      className={`font-mono text-[11px] font-semibold shrink-0 ${
+                        ev.outcome === 'Blocked' || ev.outcome === 'Rejected'
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-[#2563EB] dark:text-[#7EC8FF]'
+                      }`}
+                    >
+                      {ev.outcome}
+                    </span>
+                  </div>
+                  <StatusText
+                    items={[
+                      ev.actor,
+                      ev.target,
+                      ...(ev.previousVersion && ev.resultingVersion
+                        ? [`${ev.previousVersion} → ${ev.resultingVersion}`]
+                        : ev.previousVersion
+                        ? [ev.previousVersion]
+                        : []),
+                      ...(ev.targetEnvironment ? [ev.targetEnvironment] : []),
+                      ev.timestamp,
+                    ]}
+                  />
+                  {(ev.specHash || ev.approvalId || ev.reason) && (
+                    <div className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5] space-y-0.5">
+                      {(ev.specHash || ev.approvalId) && (
+                        <div className="truncate">
+                          {ev.specHash ? `Digest ${ev.specHash.slice(0, 20)}…` : ''}
+                          {ev.specHash && ev.approvalId ? ' · ' : ''}
+                          {ev.approvalId ? `Approval ${ev.approvalId}` : ''}
+                        </div>
+                      )}
+                      {ev.reason && <div>{ev.reason}</div>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Rollback Confirmation BottomSheet */}
         <BottomSheet
           open={Boolean(rollbackConfirm)}
@@ -1015,33 +1281,122 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
               ? `Rollback "${rollbackConfirm.entry.spec.name}" to ${rollbackConfirm.snapshot.version}?`
               : 'Confirm Rollback'
           }
-          subtitle="Restores full serialized decision logic from immutable snapshot while keeping version history intact."
+          subtitle="Restores full serialized decision logic from immutable snapshot, preserves history, and clears stale approvals."
         >
-          {rollbackConfirm && (
-            <div className="space-y-4 text-xs">
-              <div className="rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] p-3 font-mono space-y-1">
-                <div>Snapshot Hash: {rollbackConfirm.snapshot.snapshotHash}</div>
-                <div>Target Environment: {rollbackConfirm.snapshot.environment}</div>
-                <div>Published Summary: {rollbackConfirm.snapshot.summary}</div>
+          {rollbackConfirm && (() => {
+            const { entry, snapshot } = rollbackConfirm;
+            const rollbackPerm = checkPublishPermission(workspaceRole, settings, 'rollback');
+            const prodTouching =
+              entry.spec.environment === 'production' || snapshot.environment === 'production';
+            const rollbackEnv: DecisionEnvironment = prodTouching
+              ? 'production'
+              : snapshot.environment;
+            const rollbackApproval = inspectApprovalFreshness(
+              entry.type,
+              entry.spec,
+              rollbackEnv,
+              'rollback'
+            );
+            const needsProdRollbackApproval =
+              prodTouching && settings.requireControlApprovalForProd && !rollbackApproval.valid;
+            const rollbackBlocked = !rollbackPerm.allowed || needsProdRollbackApproval;
+
+            return (
+              <div className="space-y-4 text-xs">
+                <div className="rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] p-3 font-mono space-y-1">
+                  <div>
+                    Transition: {entry.spec.version} ({entry.spec.environment}) → {snapshot.version} ({snapshot.environment})
+                  </div>
+                  <div className="truncate">Snapshot Hash: {snapshot.snapshotHash}</div>
+                  <div>Published Summary: {snapshot.releaseNotes || snapshot.summary}</div>
+                  <div>Simulated Actor Role: {workspaceRole}</div>
+                </div>
+
+                {rollbackBlocked && (
+                  <div
+                    role="alert"
+                    className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-red-700 dark:text-red-200 space-y-1"
+                  >
+                    <div className="font-semibold">Rollback Governance Gate</div>
+                    {!rollbackPerm.allowed && (
+                      <div className="font-mono text-[11px]">• {rollbackPerm.reasons[0]}</div>
+                    )}
+                    {needsProdRollbackApproval && (
+                      <div className="font-mono text-[11px]">
+                        • {rollbackApproval.reason || 'Bound rollback approval is required for production rollback.'}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {prodTouching && settings.requireControlApprovalForProd && (
+                  <div className="rounded-xl border border-[#2563EB]/35 bg-[#2563EB]/[0.06] p-3 space-y-2">
+                    <div className="font-semibold">
+                      SOPIN Control Rollback Approval (Local Prototype Gate)
+                    </div>
+                    <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
+                      {rollbackApproval.valid
+                        ? `Approved (${rollbackApproval.matchedApproval?.id}) by ${rollbackApproval.matchedApproval?.reviewerLabel}`
+                        : rollbackApproval.reason}
+                    </div>
+                    {!rollbackApproval.valid && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          recordSheetApproval(entry, 'production', 'rollback', snapshot.version)
+                        }
+                        className={`w-full min-h-[44px] px-3 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
+                          approvalPerm.allowed
+                            ? 'bg-[#05070E] dark:bg-white text-white dark:text-[#05070E]'
+                            : 'border border-[#05070E]/15 dark:border-white/15 text-[#5E5E6E] dark:text-[#A4A4B5]'
+                        }`}
+                      >
+                        <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+                        <span>
+                          Record Bound Rollback Approval as {workspaceRole} (Simulated)
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="rb-note-input" className="block text-xs font-semibold mb-1">
+                    Rollback Reason / Audit Note
+                  </label>
+                  <input
+                    id="rb-note-input"
+                    type="text"
+                    value={governanceNote}
+                    onChange={(e) => setGovernanceNote(e.target.value)}
+                    placeholder={`Restore ${snapshot.version} baseline`}
+                    className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setRollbackConfirm(null)}
+                    className="min-h-[44px] rounded-xl border border-[#05070E]/15 dark:border-white/15 font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmRollback}
+                    className={`min-h-[44px] rounded-xl font-semibold ${
+                      rollbackBlocked
+                        ? 'border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-200'
+                        : 'bg-[#2563EB] text-white'
+                    }`}
+                  >
+                    {rollbackBlocked ? 'Attempt Rollback (Blocked)' : 'Confirm Full Rollback'}
+                  </button>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setRollbackConfirm(null)}
-                  className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={confirmRollback}
-                  className="min-h-[44px] rounded-xl bg-[#6252E8] text-white font-semibold"
-                >
-                  Confirm Full Rollback
-                </button>
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </BottomSheet>
 
         {/* Production Promotion Governance Confirmation BottomSheet */}
@@ -1053,21 +1408,38 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
               ? `Promote "${promoteConfirm.entry.spec.name}" to Production?`
               : 'Confirm Production Promotion'
           }
-          subtitle="Runs full production validation, test-evidence freshness, and SOPIN Control checks."
+          subtitle="Requires bound production-promotion approval, fresh passing test evidence, and SOPIN Control publish authority."
         >
-          {promoteConfirm && (
-            <div className="space-y-4 text-xs">
-              {(() => {
-                const check = evaluatePublishGovernancePolicy(
-                  promoteConfirm.entry.type,
-                  promoteConfirm.entry.spec,
-                  'production',
-                  workspaceRole,
-                  settings,
-                  collections,
-                  promoteApprovalChecked
-                );
-                return !check.allowed ? (
+          {promoteConfirm && (() => {
+            const { entry } = promoteConfirm;
+            const currentHash = computeArtifactSpecHash(entry.type, entry.spec);
+            const check = evaluatePublishGovernancePolicy(
+              entry.type,
+              entry.spec,
+              'production',
+              workspaceRole,
+              settings,
+              collections,
+              { purpose: 'production-promotion' }
+            );
+            const promoApproval = inspectApprovalFreshness(
+              entry.type,
+              entry.spec,
+              'production',
+              'production-promotion'
+            );
+
+            return (
+              <div className="space-y-4 text-xs">
+                <div className="rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] p-3 font-mono space-y-1">
+                  <div>
+                    Promotion: {entry.spec.version} ({entry.spec.environment} → production)
+                  </div>
+                  <div className="truncate">Canonical SHA-256: {currentHash}</div>
+                  <div>Simulated Actor Role: {workspaceRole}</div>
+                </div>
+
+                {!check.allowed ? (
                   <div className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-red-700 dark:text-red-200 space-y-1">
                     <div className="font-semibold inline-flex items-center gap-1.5">
                       <AlertTriangle className="w-4 h-4" aria-hidden="true" />
@@ -1081,44 +1453,80 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   </div>
                 ) : (
                   <div className="rounded-xl border border-emerald-500/35 bg-emerald-500/10 p-3 text-emerald-700 dark:text-emerald-200 font-semibold">
-                    All production validation, test freshness, and RBAC checks passed cleanly.
+                    All production validation, test freshness, bound approval, and RBAC checks passed cleanly.
                   </div>
-                );
-              })()}
+                )}
 
-              {settings.requireControlApprovalForProd && (
-                <label className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/[0.06] p-3 flex items-start gap-2.5 cursor-pointer">
+                {settings.requireControlApprovalForProd && (
+                  <div className="rounded-xl border border-[#2563EB]/35 bg-[#2563EB]/[0.06] p-3 space-y-2">
+                    <div className="font-semibold">
+                      SOPIN Control Production Promotion Approval (Separate from Publication Approval)
+                    </div>
+                    <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
+                      {promoApproval.valid
+                        ? `Bound to ${entry.spec.version} · ${promoApproval.matchedApproval?.id} · ${promoApproval.matchedApproval?.reviewerLabel}`
+                        : promoApproval.reason}
+                    </div>
+                    {!promoApproval.valid && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          recordSheetApproval(entry, 'production', 'production-promotion')
+                        }
+                        className={`w-full min-h-[44px] px-3 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
+                          approvalPerm.allowed
+                            ? 'bg-[#05070E] dark:bg-white text-white dark:text-[#05070E]'
+                            : 'border border-[#05070E]/15 dark:border-white/15 text-[#5E5E6E] dark:text-[#A4A4B5]'
+                        }`}
+                      >
+                        <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+                        <span>
+                          Record Bound Production Promotion Approval as {workspaceRole} (Simulated)
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="promo-note-input" className="block text-xs font-semibold mb-1">
+                    Promotion Audit Note
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={promoteApprovalChecked}
-                    onChange={(e) => setPromoteApprovalChecked(e.target.checked)}
-                    className="mt-0.5"
+                    id="promo-note-input"
+                    type="text"
+                    value={governanceNote}
+                    onChange={(e) => setGovernanceNote(e.target.value)}
+                    placeholder={`Promote ${entry.spec.version} to production`}
+                    className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
                   />
-                  <span>
-                    <strong>SOPIN Control Approval (Local Gate):</strong> Confirm production release review as{' '}
-                    <span className="font-mono">{workspaceRole}</span>.
-                  </span>
-                </label>
-              )}
+                </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setPromoteConfirm(null)}
-                  className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={confirmProductionPromote}
-                  className="min-h-[44px] rounded-xl bg-[#6252E8] text-white font-semibold"
-                >
-                  Confirm Production Promotion
-                </button>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setPromoteConfirm(null)}
+                    className="min-h-[44px] rounded-xl border border-[#05070E]/15 dark:border-white/15 font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmProductionPromote}
+                    className={`min-h-[44px] rounded-xl font-semibold ${
+                      check.allowed
+                        ? 'bg-[#2563EB] text-white'
+                        : 'border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-200'
+                    }`}
+                  >
+                    {check.allowed
+                      ? 'Confirm Production Promotion'
+                      : 'Attempt Promotion (Blocked)'}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </BottomSheet>
       </div>
     );
@@ -1126,26 +1534,48 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
 
   // 10. SETTINGS & GOVERNANCE BOUNDARIES
   const currentEditPerm = checkEditPermission(workspaceRole, settings);
-  const currentPubRoleOk = evaluatePublishGovernancePolicy(
-    'rule',
-    rules[0] ?? ({ id: 'tmp', name: 'tmp', testCases: [], versionHistory: [] } as unknown as RuleSpec),
-    'staging',
-    workspaceRole,
-    settings
-  );
+  const currentPubRolePerm = checkPublishPermission(workspaceRole, settings, 'publishing');
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+      <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-sm font-semibold">
-            <ShieldCheck className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+            <ShieldCheck className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
             <span>SOPIN Decisions Governance &amp; Safety Policies</span>
           </div>
-          <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
-            Active Role: {workspaceRole} ({currentEditPerm.allowed ? 'Can Edit' : 'Read-Only'})
+          <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
+            Simulated Role: {workspaceRole} ({currentEditPerm.allowed ? 'Can Edit' : 'Read-Only'} ·{' '}
+            {currentPubRolePerm.allowed ? 'Can Publish' : 'No Publish'})
           </span>
         </div>
+
+        {onUpdateWorkspaceRole && (
+          <div className="rounded-xl border border-[#2563EB]/30 bg-[#2563EB]/[0.05] p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+            <div>
+              <div className="font-semibold">
+                Simulated Workspace Role (Local Prototype Preview)
+              </div>
+              <p className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
+                Switch simulated local role to verify edit, approval, publish, promote, and rollback gates. Not production authentication.
+              </p>
+            </div>
+            <select
+              aria-label="Simulated workspace role"
+              value={workspaceRole}
+              onChange={(e) => onUpdateWorkspaceRole(e.target.value)}
+              className="min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs font-semibold shrink-0"
+            >
+              <option value="Workspace Owner">Workspace Owner</option>
+              <option value="Workspace Admin">Workspace Admin</option>
+              <option value="Workspace Maintainer">Workspace Maintainer</option>
+              <option value="Automation Architect">Automation Architect</option>
+              <option value="Builder">Builder</option>
+              <option value="Workspace Member">Workspace Member</option>
+              <option value="Viewer">Viewer</option>
+            </select>
+          </div>
+        )}
 
         {(
           [
@@ -1156,8 +1586,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
             },
             {
               key: 'requireControlApprovalForProd' as const,
-              label: 'Require SOPIN Control Approval for Production Promotion',
-              desc: 'Requires explicit local Control review sign-off checkbox before production publish/promote.',
+              label: 'Require Bound SOPIN Control Approval for Production',
+              desc: 'Requires hash-bound approval scoped separately to publication, production-promotion, or rollback.',
             },
             {
               key: 'strictInputSchemaValidation' as const,
@@ -1175,7 +1605,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
           return (
             <div
               key={item.key}
-              className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 flex items-center justify-between gap-3"
+              className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
                 <div className="text-xs font-semibold">{item.label}</div>
@@ -1186,8 +1616,8 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                 onClick={() => onUpdateSettings({ [item.key]: !enabled })}
                 className={`min-h-[40px] px-3.5 rounded-lg text-xs font-semibold shrink-0 ${
                   enabled
-                    ? 'bg-[#6252E8] text-white'
-                    : 'border border-[#101014]/15 dark:border-white/15'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'border border-[#05070E]/15 dark:border-white/15'
                 }`}
               >
                 {enabled ? 'Enforced' : 'Optional'}
@@ -1209,7 +1639,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   allowedEditorsRole: e.target.value as DecisionSettings['allowedEditorsRole'],
                 })
               }
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+              className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
             >
               <option value="Owner & Admin">Owner &amp; Admin</option>
               <option value="Builders & Maintainers">Builders &amp; Maintainers</option>
@@ -1228,7 +1658,7 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
                   allowedPublishersRole: e.target.value as DecisionSettings['allowedPublishersRole'],
                 })
               }
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+              className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
             >
               <option value="Owner & Admin Only">Owner &amp; Admin Only</option>
               <option value="Workspace Maintainer">Workspace Maintainer</option>
@@ -1236,20 +1666,20 @@ export const SimulationAndMonitoring: React.FC<SimulationAndMonitoringProps> = (
           </div>
         </div>
 
-        {currentPubRoleOk.reasons.some((r) => r.includes('Publish Authority')) && (
+        {!currentPubRolePerm.allowed && (
           <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200 font-mono">
-            Active role "{workspaceRole}" currently cannot publish under "{settings.allowedPublishersRole}" policy.
+            {currentPubRolePerm.reasons[0]}
           </div>
         )}
       </div>
 
-      <div className="rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-2 text-xs">
-        <div className="font-mono text-[#B894FF] flex items-center gap-1.5">
+      <div className="rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white p-4 space-y-2 text-xs">
+        <div className="font-mono text-[#7EC8FF] flex items-center gap-1.5">
           <Lock className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Local Prototype Simulation vs Planned Backend Architecture</span>
         </div>
         <p className="text-[#C5C5D6] leading-relaxed">
-          Running TypeScript deterministic local rule evaluation, synchronous canonical SHA-256 snapshot verification, local governance policy simulation, and browser workspace persistence. Attribution labels (publishedBy / approvedBy) represent local prototype placeholders until server-side identity, RBAC, PostgreSQL immutable version storage, CEL sandbox, and Temporal workers are connected.
+          Running TypeScript deterministic local rule evaluation, synchronous canonical SHA-256 snapshot verification, local governance policy simulation, and browser workspace persistence. Simulated role switching and actor/timestamp labels represent local prototype UX only until server-side identity, RBAC, PostgreSQL immutable version storage, CEL sandbox, and Temporal workers are connected.
         </p>
       </div>
     </div>

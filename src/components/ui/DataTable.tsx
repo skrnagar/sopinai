@@ -16,17 +16,17 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<T>) {
   return (
-    <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] overflow-hidden shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+    <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] overflow-hidden shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
-            <tr className="border-b border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]">
+            <tr className="border-b border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   scope="col"
-                  className={`py-3.5 px-4 sm:px-5 text-xs font-semibold text-[#101014] dark:text-white whitespace-nowrap ${
+                  className={`py-3.5 px-4 sm:px-5 text-xs font-semibold text-[#05070E] dark:text-white whitespace-nowrap ${
                     col.align === 'right' ? 'text-right' : 'text-left'
                   }`}
                 >
@@ -35,7 +35,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#101014]/[0.08] dark:divide-white/10 text-sm">
+          <tbody className="divide-y divide-[#05070E]/[0.08] dark:divide-white/10 text-sm">
             {rows.map((row, idx) => (
               <tr
                 key={rowKey(row, idx)}

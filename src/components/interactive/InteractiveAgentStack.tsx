@@ -150,15 +150,15 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 onMouseEnter={() => setActiveIndex(idx)}
                 className={`relative w-full text-left rounded-2xl border p-5 transition-colors ${
                   isActive
-                    ? 'border-[#6252E8] bg-white dark:bg-[#101126] shadow-lg'
-                    : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/45 hover:border-[#6252E8]/40'
+                    ? 'border-[#2563EB] bg-white dark:bg-[#0A1226] shadow-lg'
+                    : 'border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/45 hover:border-[#2563EB]/40'
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="sopin-stack-active-indicator"
                     transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                    className="absolute inset-0 rounded-2xl ring-1 ring-[#6252E8]/60 pointer-events-none"
+                    className="absolute inset-0 rounded-2xl ring-1 ring-[#2563EB]/60 pointer-events-none"
                   />
                 )}
 
@@ -167,21 +167,21 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                     <div
                       className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                         isActive
-                          ? 'bg-[#6252E8] text-white'
-                          : 'bg-white dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 text-[#6252E8] dark:text-[#965BFF]'
+                          ? 'bg-[#2563EB] text-white'
+                          : 'bg-white dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 text-[#2563EB] dark:text-[#60A5FA]'
                       }`}
                     >
                       <Icon className="w-5 h-5" aria-hidden="true" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 text-xs font-medium text-[#5E5E6E] dark:text-[#A4A4B5]">
-                        <span className="font-mono text-[#6252E8] dark:text-[#965BFF]">
+                        <span className="font-mono text-[#2563EB] dark:text-[#60A5FA]">
                           {layer.order}
                         </span>
                         <span aria-hidden="true">·</span>
                         <span>{layer.status}</span>
                       </div>
-                      <h3 className="mt-0.5 font-display text-lg font-semibold text-[#101014] dark:text-white">
+                      <h3 className="mt-0.5 font-display text-lg font-semibold text-[#05070E] dark:text-white">
                         {layer.name}
                       </h3>
                       <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] mt-0.5">
@@ -193,7 +193,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                   <ArrowRight
                     className={`w-4 h-4 mt-1 shrink-0 transition-transform ${
                       isActive
-                        ? 'text-[#6252E8] dark:text-[#965BFF] translate-x-0.5'
+                        ? 'text-[#2563EB] dark:text-[#60A5FA] translate-x-0.5'
                         : 'text-[#5E5E6E]/60 dark:text-[#A4A4B5]/60'
                     }`}
                     aria-hidden="true"
@@ -204,13 +204,13 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
               {/* Animated vertical signal link between layers */}
               {idx < STACK_LAYERS.length - 1 && (
                 <div className="h-3 flex justify-center items-center" aria-hidden="true">
-                  <div className="w-px h-full bg-[#101014]/15 dark:bg-white/15 relative overflow-hidden">
+                  <div className="w-px h-full bg-[#05070E]/15 dark:bg-white/15 relative overflow-hidden">
                     {idx === activeIndex && (
                       <motion.div
                         initial={{ y: -12 }}
                         animate={{ y: 12 }}
                         transition={{ repeat: Infinity, duration: 1.1, ease: 'linear' }}
-                        className="w-full h-3 bg-[#965BFF]"
+                        className="w-full h-3 bg-[#60A5FA]"
                       />
                     )}
                   </div>
@@ -230,7 +230,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101126] p-7 sm:p-8 flex flex-col justify-between gap-6"
+            className="w-full rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#0A1226] p-7 sm:p-8 flex flex-col justify-between gap-6"
           >
             <div>
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -241,14 +241,14 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 <button
                   type="button"
                   onClick={() => onNavigate(activeLayer.route, activeLayer.sectionId)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline whitespace-nowrap shrink-0"
                 >
                   <span>Explore Layer</span>
                   <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
               </div>
 
-              <h3 className="mt-3 font-display text-2xl font-semibold text-[#101014] dark:text-white leading-snug">
+              <h3 className="mt-3 font-display text-2xl font-semibold text-[#05070E] dark:text-white leading-snug">
                 {activeLayer.headline}
               </h3>
 
@@ -260,10 +260,10 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 {activeLayer.highlights.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2.5 text-sm text-[#101014] dark:text-[#E8E8F2]"
+                    className="flex items-start gap-2.5 text-sm text-[#05070E] dark:text-[#E8E8F2]"
                   >
                     <CheckCircle2
-                      className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF] mt-0.5 shrink-0"
+                      className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0"
                       aria-hidden="true"
                     />
                     <span>{item}</span>

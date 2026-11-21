@@ -30,16 +30,16 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     >
       {kicker && (
         <p
-          className={`text-sm font-medium tracking-tight mb-3 ${
-            dark ? 'text-[#965BFF]' : 'text-[#6252E8] dark:text-[#965BFF]'
+          className={`text-sm font-semibold tracking-tight mb-2.5 ${
+            dark ? 'text-[#60A5FA]' : 'text-[#2563EB] dark:text-[#60A5FA]'
           }`}
         >
           {kicker}
         </p>
       )}
       <h2
-        className={`font-display text-3xl sm:text-4xl font-semibold tracking-tight leading-[1.15] text-balance ${
-          dark ? 'text-[#FFFFFF]' : 'text-[#101014] dark:text-[#FFFFFF]'
+        className={`font-display text-3xl sm:text-4xl font-semibold tracking-[-0.02em] leading-[1.14] text-balance ${
+          dark ? 'text-[#FFFFFF]' : 'text-[#111827] dark:text-[#FFFFFF]'
         }`}
       >
         {title}
@@ -47,7 +47,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {description && (
         <p
           className={`mt-4 text-base sm:text-lg leading-relaxed ${
-            dark ? 'text-[#B5B5C5]' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+            dark ? 'text-[#CBD5E1]' : 'text-[#667085] dark:text-[#94A3B8]'
           }`}
         >
           {description}
@@ -76,7 +76,7 @@ export const StatusText: React.FC<StatusTextProps> = ({
   return (
     <div
       className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium ${
-        dark ? 'text-[#9A9AB0]' : 'text-[#5E5E6E] dark:text-[#9A9AB0]'
+        dark ? 'text-[#94A3B8]' : 'text-[#667085] dark:text-[#94A3B8]'
       } ${className}`}
     >
       {items.map((item, idx) => {
@@ -88,8 +88,8 @@ export const StatusText: React.FC<StatusTextProps> = ({
               className={
                 accentLast && isLast
                   ? dark
-                    ? 'text-[#B894FF]'
-                    : 'text-[#6252E8] dark:text-[#B894FF]'
+                    ? 'text-[#60A5FA]'
+                    : 'text-[#2563EB] dark:text-[#60A5FA]'
                   : undefined
               }
             >
@@ -139,9 +139,9 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
 
   return (
     <div
-      className={`w-full min-w-0 max-w-full flex flex-col rounded-xl border border-[#101014]/15 dark:border-white/10 bg-[#0D1021] text-[#E4E6F0] shadow-[0_1px_2px_rgba(16,16,20,0.12)] overflow-hidden ${className}`}
+      className={`w-full min-w-0 max-w-full flex flex-col rounded-xl border border-[#05070E]/15 dark:border-white/10 bg-[#060B18] text-[#E4E6F0] shadow-[0_1px_2px_rgba(16,16,20,0.12)] overflow-hidden ${className}`}
     >
-      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-white/10 bg-[#14172C]">
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-white/10 bg-[#0B1328]">
         <div className="flex items-center gap-2 min-w-0 font-mono text-xs truncate">
           <span className="text-[#D4D6E6] truncate">{displayLabel}</span>
           {showLanguageTag && (
@@ -202,20 +202,20 @@ export const StateDisplay: React.FC<StateDisplayProps> = ({
   return (
     <div
       role={mode === 'error' ? 'alert' : 'status'}
-      className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/60 p-8 sm:p-10 text-center max-w-xl mx-auto"
+      className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/60 p-8 sm:p-10 text-center max-w-xl mx-auto"
     >
-      <div className="w-10 h-10 rounded-lg border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] mx-auto flex items-center justify-center mb-4">
+      <div className="w-10 h-10 rounded-lg border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#05070E] mx-auto flex items-center justify-center mb-4">
         {mode === 'loading' && (
-          <RefreshCw className="w-5 h-5 text-[#6252E8] animate-spin" aria-hidden="true" />
+          <RefreshCw className="w-5 h-5 text-[#2563EB] animate-spin" aria-hidden="true" />
         )}
         {mode === 'empty' && (
           <Inbox className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
         )}
         {mode === 'error' && (
-          <AlertCircle className="w-5 h-5 text-[#965BFF]" aria-hidden="true" />
+          <AlertCircle className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
         )}
       </div>
-      <h3 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
+      <h3 className="font-display text-lg font-semibold text-[#05070E] dark:text-white">
         {title}
       </h3>
       <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
@@ -225,7 +225,7 @@ export const StateDisplay: React.FC<StateDisplayProps> = ({
         <button
           type="button"
           onClick={onAction}
-          className="mt-5 inline-flex items-center justify-center px-5 min-h-[44px] text-sm font-medium rounded-lg bg-[#6252E8] text-white hover:bg-[#5344d4] transition-colors whitespace-nowrap shrink-0"
+          className="mt-5 inline-flex items-center justify-center px-5 min-h-[44px] text-sm font-medium rounded-lg bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors whitespace-nowrap shrink-0"
         >
           {actionLabel}
         </button>

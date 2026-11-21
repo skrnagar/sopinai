@@ -17,14 +17,19 @@ export type StaticRoutePath =
   | '/security'
   | '/developers'
   | '/solutions'
+  | '/research'
   | '/resources'
   | '/pricing'
   | '/about'
   | '/contact'
+  | '/legal'
   | '/docs'
   | '/app';
 
-export type DynamicRoutePath = `/docs/${string}` | `/resources/${string}`;
+export type DynamicRoutePath =
+  | `/docs/${string}`
+  | `/resources/${string}`
+  | `/research/${string}`;
 
 export type RoutePath = StaticRoutePath | DynamicRoutePath;
 
@@ -37,7 +42,7 @@ export interface NavDropdownItem {
 }
 
 export interface NavCategory {
-  id: 'platform' | 'solutions' | 'developers' | 'resources' | 'pricing' | 'company';
+  id: 'platform' | 'solutions' | 'research' | 'resources' | 'company' | 'docs';
   label: string;
   href?: RoutePath;
   items?: NavDropdownItem[];

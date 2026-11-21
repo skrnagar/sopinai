@@ -6,42 +6,57 @@ import { CodeBlock, StatusText } from '../components/ui/EditorialPrimitives';
 
 interface ResourceArticlePageProps {
   article: ResourceArticle;
+  basePath?: '/research' | '/resources';
   onNavigate: (path: RoutePath, sectionId?: string) => void;
 }
 
-export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({ article, onNavigate }) => {
+export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({
+  article,
+  basePath = '/resources',
+  onNavigate,
+}) => {
+  const isResearch = basePath === '/research';
+  const backLabel = isResearch ? 'Back to Research & Insights' : 'Back to All Resources';
+
   return (
-    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#101014]">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 py-12 lg:py-16">
+    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#080D18]">
+      <section className="border-b border-[#E5E7EB] dark:border-white/10 py-12 lg:py-16">
         <div className="max-w-[920px] mx-auto px-6 lg:px-10">
           <a
-            href="/resources"
+            href={basePath}
             onClick={(e) => {
               e.preventDefault();
-              onNavigate('/resources');
+              onNavigate(basePath);
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline mb-6"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline mb-6"
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Back to All Resources</span>
+            <span>{backLabel}</span>
           </a>
 
           <StatusText
-            items={[article.category, article.pillar, article.readTime, article.status]}
+            items={[
+              isResearch ? article.researchCategory : article.category,
+              article.pillar,
+              article.readTime,
+              article.status,
+            ]}
             accentLast={article.status !== 'Available'}
           />
 
-          <h1 className="mt-4 font-display text-3xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+          <h1 className="mt-4 font-display text-3xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] dark:text-white text-balance">
             {article.title}
           </h1>
 
-          <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+          <p className="mt-5 text-base sm:text-lg text-[#667085] dark:text-[#CBD5E1] leading-relaxed">
             {article.summary}
           </p>
 
-          <div className="mt-6 pt-5 border-t border-[#101014]/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs text-[#5E5E6E] dark:text-[#9A9AB0]">
+          <div className="mt-6 pt-5 border-t border-[#E5E7EB] dark:border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs text-[#667085] dark:text-[#94A3B8]">
             <span>By {article.author}</span>
-            <span>{article.dateLabel} · SOPIN Engineering</span>
+            <span>
+              {article.publishedDate} · {article.dateLabel} · SOPIN Engineering
+            </span>
           </div>
         </div>
       </section>
@@ -49,13 +64,13 @@ export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({ articl
       <article className="max-w-[920px] mx-auto px-6 lg:px-10 py-12 lg:py-16 space-y-10">
         {article.sections.map((sec) => (
           <section key={sec.heading} className="space-y-4">
-            <h2 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
+            <h2 className="font-display text-2xl font-semibold text-[#111827] dark:text-white">
               {sec.heading}
             </h2>
             {sec.paragraphs.map((p, idx) => (
               <p
                 key={idx}
-                className="text-base text-[#101014]/90 dark:text-[#D8D8E6] leading-relaxed"
+                className="text-base text-[#111827]/90 dark:text-[#CBD5E1] leading-relaxed"
               >
                 {p}
               </p>
@@ -69,8 +84,8 @@ export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({ articl
           </div>
         )}
 
-        <div className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-6 sm:p-8 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#6252E8] dark:text-[#965BFF]">
+        <div className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/60 p-6 sm:p-8 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
             <BookOpen className="w-4 h-4" aria-hidden="true" />
             <span>Related Platform Destinations</span>
           </div>
@@ -83,7 +98,7 @@ export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({ articl
                   e.preventDefault();
                   onNavigate(link.href);
                 }}
-                className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg bg-white dark:bg-[#101014] border border-[#101014]/15 dark:border-white/15 text-xs font-semibold text-[#101014] dark:text-white hover:border-[#6252E8] transition-colors"
+                className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg bg-white dark:bg-[#080D18] border border-[#E5E7EB] dark:border-white/15 text-xs font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors"
               >
                 <span>{link.label}</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

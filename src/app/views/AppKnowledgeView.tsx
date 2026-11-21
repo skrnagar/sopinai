@@ -149,7 +149,7 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display text-lg font-semibold text-[#101014] dark:text-white">
+        <h2 className="font-display text-lg font-semibold text-[#05070E] dark:text-white">
           Context &amp; Knowledge
         </h2>
         <p className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -198,7 +198,7 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="min-h-[56px] rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white px-2.5 py-2 flex flex-col items-center justify-center gap-1 text-[11px] font-semibold"
+          className="min-h-[56px] rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-2.5 py-2 flex flex-col items-center justify-center gap-1 text-[11px] font-semibold"
         >
           <Upload className="w-4 h-4" aria-hidden="true" />
           <span>Upload File</span>
@@ -206,17 +206,17 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
         <button
           type="button"
           onClick={() => imageInputRef.current?.click()}
-          className="min-h-[56px] rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[#101014] dark:text-white px-2.5 py-2 flex flex-col items-center justify-center gap-1 text-[11px] font-semibold"
+          className="min-h-[56px] rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-[#05070E] dark:text-white px-2.5 py-2 flex flex-col items-center justify-center gap-1 text-[11px] font-semibold"
         >
-          <Camera className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+          <Camera className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
           <span>Photo / Image</span>
         </button>
         <button
           type="button"
           onClick={() => setUrlSheetOpen(true)}
-          className="min-h-[56px] rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[#101014] dark:text-white px-2.5 py-2 flex flex-col items-center justify-center gap-1 text-[11px] font-semibold"
+          className="min-h-[56px] rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-[#05070E] dark:text-white px-2.5 py-2 flex flex-col items-center justify-center gap-1 text-[11px] font-semibold"
         >
-          <Globe className="w-4 h-4 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
+          <Globe className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
           <span>Add URL</span>
         </button>
       </div>
@@ -235,7 +235,7 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search knowledge docs, CSV, PDF, URLs..."
             aria-label="Search knowledge sources"
-            className="w-full min-h-[44px] pl-10 pr-4 py-2 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-base sm:text-sm text-[#101014] dark:text-white"
+            className="w-full min-h-[44px] pl-10 pr-4 py-2 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
           />
         </div>
 
@@ -247,8 +247,8 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
               onClick={() => setTierFilter(tier)}
               className={`min-h-[40px] px-3.5 rounded-lg text-xs font-semibold capitalize whitespace-nowrap shrink-0 ${
                 tierFilter === tier
-                  ? 'bg-[#101014] dark:bg-[#6252E8] text-white'
-                  : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#101014]/10 dark:border-white/10'
+                  ? 'bg-[#05070E] dark:bg-[#2563EB] text-white'
+                  : 'bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
               }`}
             >
               {tier === 'all' ? 'All Tiers' : `${tier} tier`}
@@ -276,24 +276,24 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
               key={doc.id}
               type="button"
               onClick={() => setSelectedDoc(doc)}
-              className="w-full text-left rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 hover:border-[#6252E8] transition-colors flex items-start gap-3"
+              className="w-full text-left rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 hover:border-[#2563EB] transition-colors flex items-start gap-3"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 flex items-center justify-center shrink-0">
                 {doc.sourceType === 'Image' ? (
-                  <ImageIcon className="w-5 h-5 text-[#965BFF]" aria-hidden="true" />
+                  <ImageIcon className="w-5 h-5 text-[#60A5FA]" aria-hidden="true" />
                 ) : doc.sourceType === 'URL' ? (
-                  <Globe className="w-5 h-5 text-[#6252E8]" aria-hidden="true" />
+                  <Globe className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
                 ) : (
-                  <FileText className="w-5 h-5 text-[#6252E8]" aria-hidden="true" />
+                  <FileText className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
                 )}
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-display text-sm font-semibold text-[#101014] dark:text-white truncate">
+                  <span className="font-display text-sm font-semibold text-[#05070E] dark:text-white truncate">
                     {doc.title}
                   </span>
-                  <span className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                  <span className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                     {doc.sourceType} · {doc.sizeLabel}
                   </span>
                 </div>
@@ -329,13 +329,13 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
               <img
                 src={selectedDoc.imagePreviewUrl}
                 alt={selectedDoc.title}
-                className="w-full max-h-56 object-contain rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014]"
+                className="w-full max-h-56 object-contain rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E]"
               />
             )}
 
             <div>
               <div className="text-xs font-semibold mb-1.5">Extracted Preview / Content</div>
-              <pre className="whitespace-pre-wrap font-mono text-xs bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 rounded-xl p-3.5 max-h-48 overflow-y-auto leading-relaxed">
+              <pre className="whitespace-pre-wrap font-mono text-xs bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 rounded-xl p-3.5 max-h-48 overflow-y-auto leading-relaxed">
                 {selectedDoc.excerpt}
               </pre>
             </div>
@@ -354,8 +354,8 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
                     }}
                     className={`min-h-[44px] rounded-lg border text-xs font-semibold capitalize ${
                       selectedDoc.memoryTier === tier
-                        ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                        : 'border-[#101014]/15 dark:border-white/15'
+                        ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                        : 'border-[#05070E]/15 dark:border-white/15'
                     }`}
                   >
                     {tier}
@@ -378,8 +378,8 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
                     }}
                     className={`min-h-[44px] px-2 rounded-lg border text-xs font-semibold ${
                       selectedDoc.accessScope === scope
-                        ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                        : 'border-[#101014]/15 dark:border-white/15'
+                        ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                        : 'border-[#05070E]/15 dark:border-white/15'
                     }`}
                   >
                     {scope}
@@ -388,14 +388,14 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
               </div>
             </div>
 
-            <div className="pt-2 border-t border-[#101014]/10 dark:border-white/10 grid grid-cols-2 gap-3">
+            <div className="pt-2 border-t border-[#05070E]/10 dark:border-white/10 grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setReplacingDocId(selectedDoc.id);
                   replaceInputRef.current?.click();
                 }}
-                className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+                className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center justify-center gap-1.5"
               >
                 <Upload className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Replace File</span>
@@ -433,7 +433,7 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://docs.example.org/spec"
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             />
           </div>
           <div>
@@ -446,13 +446,13 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
               value={urlTitle}
               onChange={(e) => setUrlTitle(e.target.value)}
               placeholder="e.g., External API Security Spec"
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             />
           </div>
           <button
             type="submit"
             disabled={!urlInput.trim()}
-            className="w-full min-h-[48px] rounded-xl bg-[#6252E8] disabled:opacity-40 text-white text-sm font-semibold"
+            className="w-full min-h-[48px] rounded-xl bg-[#2563EB] disabled:opacity-40 text-white text-sm font-semibold"
           >
             Add URL to Context
           </button>
@@ -474,7 +474,7 @@ export const AppKnowledgeView: React.FC<AppKnowledgeViewProps> = ({
             <button
               type="button"
               onClick={() => setConfirmDeleteDoc(null)}
-              className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+              className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
             >
               Cancel
             </button>

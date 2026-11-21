@@ -321,25 +321,25 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               onClick={() => setActiveTab(tab.id)}
               className={`relative snap-start shrink-0 w-[180px] sm:w-auto text-left rounded-xl border p-3.5 min-h-[56px] transition-colors min-w-0 ${
                 active
-                  ? 'border-[#6252E8] bg-white dark:bg-[#101126] shadow-sm'
-                  : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126]/50 hover:border-[#6252E8]/40'
+                  ? 'border-[#2563EB] bg-white dark:bg-[#0A1226] shadow-sm'
+                  : 'border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/50 hover:border-[#2563EB]/40'
               }`}
             >
               {active && (
                 <motion.span
                   layoutId="product-preview-tab-ring"
                   transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                  className="absolute inset-0 rounded-xl ring-1 ring-[#6252E8] pointer-events-none"
+                  className="absolute inset-0 rounded-xl ring-1 ring-[#2563EB] pointer-events-none"
                 />
               )}
               <div className="flex items-center gap-2 relative z-10 min-w-0">
                 <Icon
                   className={`w-4 h-4 shrink-0 ${
-                    active ? 'text-[#6252E8] dark:text-[#965BFF]' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+                    active ? 'text-[#2563EB] dark:text-[#60A5FA]' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                   }`}
                   aria-hidden="true"
                 />
-                <span className="font-display text-sm font-semibold text-[#101014] dark:text-white truncate">
+                <span className="font-display text-sm font-semibold text-[#05070E] dark:text-white truncate">
                   {tab.label}
                 </span>
               </div>
@@ -352,7 +352,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
       </div>
 
       {/* Realistic Software Application Window */}
-      <div className="rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white overflow-hidden shadow-2xl">
+      <div className="rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white overflow-hidden shadow-2xl">
         {/* Desktop App Window Chrome */}
         <div className="px-5 py-3 border-b border-white/10 bg-white/[0.03] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -397,11 +397,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setSelectedStudioNode(idx)}
                       className={`w-full text-left p-3 rounded-lg border transition-colors ${
                         selectedStudioNode === idx
-                          ? 'border-[#6252E8] bg-[#6252E8]/20'
+                          ? 'border-[#2563EB] bg-[#2563EB]/20'
                           : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                       }`}
                     >
-                      <div className="font-mono text-[11px] text-[#B894FF]">{node.kind}</div>
+                      <div className="font-mono text-[11px] text-[#7EC8FF]">{node.kind}</div>
                       <div className="text-sm font-medium text-white mt-0.5">{node.title}</div>
                     </button>
                   ))}
@@ -418,12 +418,12 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                         onClick={() => setSelectedStudioNode(idx)}
                         className={`w-full text-left rounded-xl p-4 border transition-all ${
                           selectedStudioNode === idx
-                            ? 'border-[#965BFF] bg-[#101014] shadow-lg'
-                            : 'border-white/12 bg-[#101014]/70 hover:border-white/30'
+                            ? 'border-[#60A5FA] bg-[#05070E] shadow-lg'
+                            : 'border-white/12 bg-[#05070E]/70 hover:border-white/30'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-mono text-[11px] text-[#965BFF]">{node.kind}</span>
+                          <span className="font-mono text-[11px] text-[#60A5FA]">{node.kind}</span>
                           <span className="font-mono text-[11px] text-[#9A9AB0]">{node.schema}</span>
                         </div>
                         <div className="mt-1 font-display text-sm font-semibold text-white">
@@ -432,7 +432,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       </button>
                       {idx < STUDIO_NODES.length - 1 && (
                         <div className="h-4 flex justify-center" aria-hidden="true">
-                          <div className="w-px h-full bg-[#6252E8]/60" />
+                          <div className="w-px h-full bg-[#2563EB]/60" />
                         </div>
                       )}
                     </React.Fragment>
@@ -440,10 +440,10 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 </div>
               </div>
 
-              <div className="lg:col-span-4 p-5 space-y-4 bg-[#101014]/50">
+              <div className="lg:col-span-4 p-5 space-y-4 bg-[#05070E]/50">
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white">
-                    <Sliders className="w-3.5 h-3.5 text-[#965BFF]" aria-hidden="true" />
+                    <Sliders className="w-3.5 h-3.5 text-[#60A5FA]" aria-hidden="true" />
                     <span>Node Inspector</span>
                   </span>
                   <span className="font-mono text-[11px] text-[#9A9AB0]">{currentNode.id}</span>
@@ -456,7 +456,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </div>
                   <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
                     <div className="text-[#9A9AB0]">Context Memory Scope</div>
-                    <div className="mt-1 font-mono text-[#B894FF]">{currentNode.memoryScope}</div>
+                    <div className="mt-1 font-mono text-[#7EC8FF]">{currentNode.memoryScope}</div>
                   </div>
                   <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
                     <div className="text-[#9A9AB0]">Bound MCP Tools</div>
@@ -483,7 +483,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
             >
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <div className="font-mono text-xs text-[#965BFF]">
+                  <div className="font-mono text-xs text-[#60A5FA]">
                     SOPIN Flow · Deterministic Branching
                   </div>
                   <h3 className="font-display text-lg font-semibold text-white mt-0.5">
@@ -497,7 +497,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                     onClick={() => setWorkflowBranch('high-risk')}
                     className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                       workflowBranch === 'high-risk'
-                        ? 'bg-[#6252E8] text-white'
+                        ? 'bg-[#2563EB] text-white'
                         : 'text-[#B5B5C5] hover:text-white'
                     }`}
                   >
@@ -508,7 +508,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                     onClick={() => setWorkflowBranch('standard')}
                     className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                       workflowBranch === 'standard'
-                        ? 'bg-[#6252E8] text-white'
+                        ? 'bg-[#2563EB] text-white'
                         : 'text-[#B5B5C5] hover:text-white'
                     }`}
                   >
@@ -518,8 +518,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <div className="rounded-xl border border-white/15 bg-[#101014] p-4 space-y-1.5">
-                  <span className="font-mono text-[11px] text-[#B894FF]">01. Classify</span>
+                <div className="rounded-xl border border-white/15 bg-[#05070E] p-4 space-y-1.5">
+                  <span className="font-mono text-[11px] text-[#7EC8FF]">01. Classify</span>
                   <div className="font-display text-sm font-semibold">Evaluate Change Scope</div>
                   <p className="text-xs text-[#9A9AB0]">
                     Retries: max 2 · Schema: RiskAssessment
@@ -530,11 +530,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <div
                     className={`rounded-xl border p-4 transition-colors ${
                       workflowBranch === 'high-risk'
-                        ? 'border-[#965BFF] bg-[#6252E8]/20'
-                        : 'border-white/10 bg-[#101014]/60 opacity-60'
+                        ? 'border-[#60A5FA] bg-[#2563EB]/20'
+                        : 'border-white/10 bg-[#05070E]/60 opacity-60'
                     }`}
                   >
-                    <div className="flex items-center gap-2 font-mono text-[11px] text-[#B894FF]">
+                    <div className="flex items-center gap-2 font-mono text-[11px] text-[#7EC8FF]">
                       <PauseCircle className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>Branch A · risk == &quot;elevated&quot;</span>
                     </div>
@@ -549,11 +549,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <div
                     className={`rounded-xl border p-4 transition-colors ${
                       workflowBranch === 'standard'
-                        ? 'border-[#6252E8] bg-[#6252E8]/20'
-                        : 'border-white/10 bg-[#101014]/60 opacity-60'
+                        ? 'border-[#2563EB] bg-[#2563EB]/20'
+                        : 'border-white/10 bg-[#05070E]/60 opacity-60'
                     }`}
                   >
-                    <div className="font-mono text-[11px] text-[#B894FF]">
+                    <div className="font-mono text-[11px] text-[#7EC8FF]">
                       Branch B · risk == &quot;standard&quot;
                     </div>
                     <div className="mt-1 font-display text-sm font-semibold text-white">
@@ -565,8 +565,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-white/15 bg-[#101014] p-4 space-y-1.5">
-                  <span className="font-mono text-[11px] text-[#B894FF]">03. Finalize</span>
+                <div className="rounded-xl border border-white/15 bg-[#05070E] p-4 space-y-1.5">
+                  <span className="font-mono text-[11px] text-[#7EC8FF]">03. Finalize</span>
                   <div className="font-display text-sm font-semibold">Publish Trace &amp; Output</div>
                   <p className="text-xs text-[#9A9AB0]">
                     Active path:{' '}
@@ -577,9 +577,9 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-[#101014]/80 p-3.5 flex items-center justify-between text-xs text-[#B5B5C5] overflow-x-auto">
+              <div className="rounded-xl border border-white/10 bg-[#05070E]/80 p-3.5 flex items-center justify-between text-xs text-[#B5B5C5] overflow-x-auto">
                 <span className="inline-flex items-center gap-2 font-mono whitespace-nowrap">
-                  <Code2 className="w-4 h-4 text-[#965BFF] shrink-0" aria-hidden="true" />
+                  <Code2 className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
                   <span>step.branch(&quot;risk&quot;, &#123; when: &quot;elevated&quot;, then: humanGate(&quot;maintainer&quot;) &#125;)</span>
                 </span>
               </div>
@@ -599,7 +599,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               <div className="lg:col-span-7 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <div className="font-mono text-xs text-[#965BFF]">
+                    <div className="font-mono text-xs text-[#60A5FA]">
                       SOPIN Decisions · Deterministic Rule &amp; Table Engine
                     </div>
                     <h3 className="font-display text-lg font-semibold text-white mt-0.5">
@@ -613,7 +613,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setDecisionViewMode('rule')}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium ${
                         decisionViewMode === 'rule'
-                          ? 'bg-[#6252E8] text-white'
+                          ? 'bg-[#2563EB] text-white'
                           : 'text-[#B5B5C5] hover:text-white'
                       }`}
                     >
@@ -624,7 +624,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setDecisionViewMode('table')}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium ${
                         decisionViewMode === 'table'
-                          ? 'bg-[#6252E8] text-white'
+                          ? 'bg-[#2563EB] text-white'
                           : 'text-[#B5B5C5] hover:text-white'
                       }`}
                     >
@@ -635,8 +635,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
 
                 {decisionViewMode === 'rule' ? (
                   <div className="space-y-2.5 text-xs">
-                    <div className="rounded-xl border border-[#6252E8]/40 bg-[#101014] p-4 space-y-2">
-                      <div className="font-mono text-[11px] text-[#B894FF]">IF (ALL CONDITIONS · AND)</div>
+                    <div className="rounded-xl border border-[#2563EB]/40 bg-[#05070E] p-4 space-y-2">
+                      <div className="font-mono text-[11px] text-[#7EC8FF]">IF (ALL CONDITIONS · AND)</div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
                         <div className="rounded-lg bg-white/[0.04] border border-white/10 p-2.5">
                           invoiceAmount &lt; 50000
@@ -653,29 +653,29 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       <div
                         className={`rounded-xl border p-3.5 ${
                           decisionScenario === 'under50k'
-                            ? 'border-[#6252E8] bg-[#6252E8]/20 text-white'
-                            : 'border-white/10 bg-[#101014]/70 text-[#A4A4B5]'
+                            ? 'border-[#2563EB] bg-[#2563EB]/20 text-white'
+                            : 'border-white/10 bg-[#05070E]/70 text-[#A4A4B5]'
                         }`}
                       >
-                        <div className="text-[#B894FF] mb-1">THEN</div>
+                        <div className="text-[#7EC8FF] mb-1">THEN</div>
                         <div>decision = &quot;approved&quot;</div>
                         <div>requiresHumanGate = false</div>
                       </div>
                       <div
                         className={`rounded-xl border p-3.5 ${
                           decisionScenario === 'over50k'
-                            ? 'border-[#965BFF] bg-[#965BFF]/20 text-white'
-                            : 'border-white/10 bg-[#101014]/70 text-[#A4A4B5]'
+                            ? 'border-[#60A5FA] bg-[#60A5FA]/20 text-white'
+                            : 'border-white/10 bg-[#05070E]/70 text-[#A4A4B5]'
                         }`}
                       >
-                        <div className="text-[#B894FF] mb-1">ELSE</div>
+                        <div className="text-[#7EC8FF] mb-1">ELSE</div>
                         <div>decision = &quot;manual_review&quot;</div>
                         <div>requiresHumanGate = true</div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-white/12 bg-[#101014] overflow-x-auto">
+                  <div className="rounded-xl border border-white/12 bg-[#05070E] overflow-x-auto">
                     <table className="w-full text-left font-mono text-[11px]">
                       <thead className="border-b border-white/10 text-[#9A9AB0]">
                         <tr>
@@ -686,17 +686,17 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/10">
-                        <tr className={decisionScenario === 'under50k' ? 'bg-[#6252E8]/20 text-white' : 'text-[#A4A4B5]'}>
+                        <tr className={decisionScenario === 'under50k' ? 'bg-[#2563EB]/20 text-white' : 'text-[#A4A4B5]'}>
                           <td className="p-2.5">#1</td>
                           <td className="p-2.5">&lt; 50000</td>
                           <td className="p-2.5">true</td>
-                          <td className="p-2.5 text-[#B894FF]">approved</td>
+                          <td className="p-2.5 text-[#7EC8FF]">approved</td>
                         </tr>
-                        <tr className={decisionScenario === 'over50k' ? 'bg-[#965BFF]/20 text-white' : 'text-[#A4A4B5]'}>
+                        <tr className={decisionScenario === 'over50k' ? 'bg-[#60A5FA]/20 text-white' : 'text-[#A4A4B5]'}>
                           <td className="p-2.5">#2</td>
                           <td className="p-2.5">&gt;= 50000</td>
                           <td className="p-2.5">*</td>
-                          <td className="p-2.5 text-[#B894FF]">manual_review</td>
+                          <td className="p-2.5 text-[#7EC8FF]">manual_review</td>
                         </tr>
                       </tbody>
                     </table>
@@ -704,10 +704,10 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 )}
               </div>
 
-              <div className="lg:col-span-5 rounded-xl border border-white/12 bg-[#101014] p-5 flex flex-col justify-between gap-4">
+              <div className="lg:col-span-5 rounded-xl border border-white/12 bg-[#05070E] p-5 flex flex-col justify-between gap-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs text-[#B894FF]">Deterministic Test Input</span>
+                    <span className="font-mono text-xs text-[#7EC8FF]">Deterministic Test Input</span>
                     <span className="font-mono text-[11px] text-[#9A9AB0]">Zero LLM Variance</span>
                   </div>
 
@@ -717,7 +717,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setDecisionScenario('under50k')}
                       className={`min-h-[40px] px-2.5 rounded-lg border text-xs font-semibold ${
                         decisionScenario === 'under50k'
-                          ? 'border-[#6252E8] bg-[#6252E8] text-white'
+                          ? 'border-[#2563EB] bg-[#2563EB] text-white'
                           : 'border-white/15 text-[#B5B5C5]'
                       }`}
                     >
@@ -728,7 +728,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setDecisionScenario('over50k')}
                       className={`min-h-[40px] px-2.5 rounded-lg border text-xs font-semibold ${
                         decisionScenario === 'over50k'
-                          ? 'border-[#965BFF] bg-[#6252E8] text-white'
+                          ? 'border-[#60A5FA] bg-[#2563EB] text-white'
                           : 'border-white/15 text-[#B5B5C5]'
                       }`}
                     >
@@ -742,8 +742,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       : '{ "invoiceAmount": 68000, "vendorVerified": true, "duplicateFound": false }'}
                   </div>
 
-                  <div className="rounded-lg border border-[#6252E8]/40 bg-[#6252E8]/15 p-3 font-mono text-[11px] text-white">
-                    <div className="text-[#B894FF] mb-1">Evaluated Output (1ms · v1.2)</div>
+                  <div className="rounded-lg border border-[#2563EB]/40 bg-[#2563EB]/15 p-3 font-mono text-[11px] text-white">
+                    <div className="text-[#7EC8FF] mb-1">Evaluated Output (1ms · v1.2)</div>
                     {decisionScenario === 'under50k'
                       ? '{ "decision": "approved", "requiresHumanGate": false, "netPayablePreview": 31850 }'
                       : '{ "decision": "manual_review", "requiresHumanGate": true, "approvalLane": "finance-controller" }'}
@@ -775,11 +775,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                     onClick={() => setSelectedContextTier(idx)}
                     className={`w-full text-left rounded-xl border p-3.5 transition-colors ${
                       selectedContextTier === idx
-                        ? 'border-[#6252E8] bg-[#6252E8]/20'
+                        ? 'border-[#2563EB] bg-[#2563EB]/20'
                         : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                     }`}
                   >
-                    <div className="font-mono text-[11px] text-[#B894FF]">{tier.label}</div>
+                    <div className="font-mono text-[11px] text-[#7EC8FF]">{tier.label}</div>
                     <div className="text-xs text-[#C5C5D6] mt-1 font-mono">{tier.scope}</div>
                     <div className="text-[11px] text-[#9A9AB0] mt-1">{tier.retention}</div>
                   </button>
@@ -789,7 +789,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               <div className="lg:col-span-8 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <div className="font-mono text-xs text-[#965BFF]">
+                    <div className="font-mono text-xs text-[#60A5FA]">
                       {currentContextTier.label}
                     </div>
                     <h3 className="font-display text-lg font-semibold text-white mt-0.5">
@@ -803,13 +803,13 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   {currentContextTier.records.map((rec) => (
                     <div
                       key={rec.key}
-                      className="rounded-xl border border-white/12 bg-[#101014] p-4 space-y-2"
+                      className="rounded-xl border border-white/12 bg-[#05070E] p-4 space-y-2"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="font-mono text-xs font-semibold text-white">
                           {rec.key}
                         </span>
-                        <span className="font-mono text-[11px] text-[#B894FF]">
+                        <span className="font-mono text-[11px] text-[#7EC8FF]">
                           {rec.checksum}
                         </span>
                       </div>
@@ -837,7 +837,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               className="p-6 min-h-[420px] grid grid-cols-1 lg:grid-cols-12 gap-6"
             >
               <div className="lg:col-span-6 space-y-3">
-                <div className="font-mono text-xs text-[#965BFF]">
+                <div className="font-mono text-xs text-[#60A5FA]">
                   SOPIN Runtime · Isolated Tool Sandboxes
                 </div>
                 <h3 className="font-display text-lg font-semibold text-white">
@@ -851,13 +851,13 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setSelectedSandbox(idx)}
                       className={`w-full text-left rounded-xl border p-4 transition-colors ${
                         selectedSandbox === idx
-                          ? 'border-[#965BFF] bg-[#6252E8]/20'
+                          ? 'border-[#60A5FA] bg-[#2563EB]/20'
                           : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-mono text-xs font-semibold text-white">{sbx.tool}</span>
-                        <span className="font-mono text-[11px] text-[#B894FF]">{sbx.state}</span>
+                        <span className="font-mono text-[11px] text-[#7EC8FF]">{sbx.state}</span>
                       </div>
                       <div className="mt-1 text-xs text-[#9A9AB0]">
                         {sbx.transport} · Egress: {sbx.egress}
@@ -867,10 +867,10 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 </div>
               </div>
 
-              <div className="lg:col-span-6 rounded-xl border border-white/12 bg-[#101014] p-5 flex flex-col justify-between gap-4">
+              <div className="lg:col-span-6 rounded-xl border border-white/12 bg-[#05070E] p-5 flex flex-col justify-between gap-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#B894FF]">Sandbox Manifest</span>
+                    <span className="font-mono text-xs text-[#7EC8FF]">Sandbox Manifest</span>
                     <span className="font-mono text-xs text-[#9A9AB0]">{currentSandbox.id}</span>
                   </div>
                   <h4 className="font-display text-base font-semibold text-white">
@@ -886,7 +886,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       <div className="mt-1 font-mono text-white">{currentSandbox.filesystem}</div>
                     </div>
                   </div>
-                  <div className="rounded-lg border border-white/10 bg-[#0D1021] p-3">
+                  <div className="rounded-lg border border-white/10 bg-[#060B18] p-3">
                     <div className="text-[11px] text-[#9A9AB0] mb-1">Scoped Command</div>
                     <HighlightedCode
                       code={currentSandbox.command}
@@ -898,7 +898,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#C5C5D6]">
-                  <Lock className="w-4 h-4 text-[#965BFF] shrink-0" aria-hidden="true" />
+                  <Lock className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
                   <span>Idempotent retry policy &amp; ephemeral token scope active.</span>
                 </div>
               </div>
@@ -916,7 +916,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               className="p-6 min-h-[420px] grid grid-cols-1 lg:grid-cols-12 gap-6"
             >
               <div className="lg:col-span-5 space-y-3">
-                <div className="font-mono text-xs text-[#965BFF]">
+                <div className="font-mono text-xs text-[#60A5FA]">
                   SOPIN Gateway · Model Route Profiles
                 </div>
                 <h3 className="font-display text-lg font-semibold text-white">
@@ -930,7 +930,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setSelectedGateway(idx)}
                       className={`w-full text-left rounded-xl border p-3.5 transition-colors ${
                         selectedGateway === idx
-                          ? 'border-[#6252E8] bg-[#6252E8]/20'
+                          ? 'border-[#2563EB] bg-[#2563EB]/20'
                           : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                       }`}
                     >
@@ -943,10 +943,10 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 </div>
               </div>
 
-              <div className="lg:col-span-7 rounded-xl border border-white/12 bg-[#101014] p-5 flex flex-col justify-between gap-4">
+              <div className="lg:col-span-7 rounded-xl border border-white/12 bg-[#05070E] p-5 flex flex-col justify-between gap-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <div className="font-mono text-xs text-[#B894FF]">Active Route Policy</div>
+                    <div className="font-mono text-xs text-[#7EC8FF]">Active Route Policy</div>
                     <h4 className="font-display text-base font-semibold text-white mt-0.5">
                       {currentGateway.name}
                     </h4>
@@ -956,7 +956,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                     onClick={() => setStrictSchema((s) => !s)}
                     className={`min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                       strictSchema
-                        ? 'border-[#965BFF] bg-[#6252E8]/25 text-white'
+                        ? 'border-[#60A5FA] bg-[#2563EB]/25 text-white'
                         : 'border-white/15 text-[#9A9AB0]'
                     }`}
                   >
@@ -971,11 +971,11 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   </div>
                   <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
                     <div className="text-[#9A9AB0]">Fallback Route</div>
-                    <div className="mt-1 font-mono text-[#B894FF]">{currentGateway.fallback}</div>
+                    <div className="mt-1 font-mono text-[#7EC8FF]">{currentGateway.fallback}</div>
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-white/10 bg-[#0D1021] p-3.5 space-y-1.5">
+                <div className="rounded-lg border border-white/10 bg-[#060B18] p-3.5 space-y-1.5">
                   <div className="text-[11px] text-[#9A9AB0]">
                     Contract: <span className="font-mono text-[#4EC9B0]">{currentGateway.schema}</span>
                   </div>
@@ -1003,7 +1003,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <div className="font-mono text-xs text-[#965BFF]">
+                  <div className="font-mono text-xs text-[#60A5FA]">
                     SOPIN Observe · Execution Span Waterfall (Planned)
                   </div>
                   <h3 className="font-display text-lg font-semibold text-white mt-0.5">
@@ -1023,7 +1023,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setSelectedSpan(idx)}
                       className={`w-full text-left rounded-xl border p-3 transition-colors grid grid-cols-1 md:grid-cols-12 gap-3 items-center ${
                         isSelected
-                          ? 'border-[#965BFF] bg-[#6252E8]/20'
+                          ? 'border-[#60A5FA] bg-[#2563EB]/20'
                           : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                       }`}
                     >
@@ -1034,7 +1034,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       <div className="md:col-span-6 h-3 rounded-full bg-white/5 relative overflow-hidden">
                         <div
                           className={`absolute top-0 bottom-0 rounded-full ${
-                            span.status === 'Awaiting Review' ? 'bg-[#965BFF]' : 'bg-[#6252E8]'
+                            span.status === 'Awaiting Review' ? 'bg-[#60A5FA]' : 'bg-[#2563EB]'
                           }`}
                           style={{ left: `${span.offsetPct}%`, width: `${span.widthPct}%` }}
                         />
@@ -1047,9 +1047,9 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 })}
               </div>
 
-              <div className="rounded-xl border border-white/12 bg-[#0D1021] p-4">
+              <div className="rounded-xl border border-white/12 bg-[#060B18] p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="inline-flex items-center gap-2 font-mono text-xs text-[#B894FF]">
+                  <span className="inline-flex items-center gap-2 font-mono text-xs text-[#7EC8FF]">
                     <Terminal className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>{currentSpan.name}</span>
                   </span>
@@ -1077,7 +1077,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               className="p-6 min-h-[420px] grid grid-cols-1 lg:grid-cols-12 gap-6"
             >
               <div className="lg:col-span-6 space-y-3">
-                <div className="font-mono text-xs text-[#965BFF]">
+                <div className="font-mono text-xs text-[#60A5FA]">
                   SOPIN Evaluate · Regression Harnesses (Planned)
                 </div>
                 <h3 className="font-display text-lg font-semibold text-white">
@@ -1091,7 +1091,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                       onClick={() => setSelectedEval(idx)}
                       className={`w-full text-left rounded-xl border p-4 transition-colors ${
                         selectedEval === idx
-                          ? 'border-[#965BFF] bg-[#6252E8]/20'
+                          ? 'border-[#60A5FA] bg-[#2563EB]/20'
                           : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                       }`}
                     >
@@ -1099,7 +1099,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                         <span className="font-mono text-xs font-semibold text-white">
                           {item.caseName}
                         </span>
-                        <span className="font-mono text-[11px] text-[#B894FF]">
+                        <span className="font-mono text-[11px] text-[#7EC8FF]">
                           Assertion: {item.status}
                         </span>
                       </div>
@@ -1109,10 +1109,10 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 </div>
               </div>
 
-              <div className="lg:col-span-6 rounded-xl border border-white/12 bg-[#101014] p-5 flex flex-col justify-between gap-4">
+              <div className="lg:col-span-6 rounded-xl border border-white/12 bg-[#05070E] p-5 flex flex-col justify-between gap-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#B894FF]">Assertion Breakdown</span>
+                    <span className="font-mono text-xs text-[#7EC8FF]">Assertion Breakdown</span>
                     <span className="font-mono text-xs text-[#9A9AB0]">{currentEval.id}</span>
                   </div>
                   <h4 className="font-display text-base font-semibold text-white">
@@ -1124,7 +1124,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                         key={assertion}
                         className="rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2.5 flex items-center gap-2.5 text-xs text-[#E8E8F2]"
                       >
-                        <CheckCircle2 className="w-4 h-4 text-[#965BFF] shrink-0" aria-hidden="true" />
+                        <CheckCircle2 className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
                         <span className="font-mono">{assertion}</span>
                       </li>
                     ))}
@@ -1149,7 +1149,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
             >
               <div className="lg:col-span-7 space-y-4">
                 <div>
-                  <div className="font-mono text-xs text-[#965BFF]">
+                  <div className="font-mono text-xs text-[#60A5FA]">
                     SOPIN Control · Scoped Permissions (Planned)
                   </div>
                   <h3 className="font-display text-lg font-semibold text-white mt-0.5">
@@ -1183,7 +1183,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                         <div className="font-mono text-xs text-white">{item.scope}</div>
                         <p className="text-xs text-[#9A9AB0] mt-1">{item.rule}</p>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#B894FF] shrink-0">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#7EC8FF] shrink-0">
                         <Lock className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>{item.policy}</span>
                       </span>
@@ -1192,10 +1192,10 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                 </div>
               </div>
 
-              <div className="lg:col-span-5 rounded-xl border border-white/12 bg-[#101014] p-5 flex flex-col justify-between gap-4">
+              <div className="lg:col-span-5 rounded-xl border border-white/12 bg-[#05070E] p-5 flex flex-col justify-between gap-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#B894FF]">Human Approval Gate</span>
+                    <span className="font-mono text-xs text-[#7EC8FF]">Human Approval Gate</span>
                     <span className="text-xs font-medium text-[#C5C5D6]">
                       Status:{' '}
                       {approvalState === 'pending'
@@ -1220,7 +1220,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <button
                     type="button"
                     onClick={() => setApprovalState('approved')}
-                    className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold transition-colors whitespace-nowrap"
+                    className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-colors whitespace-nowrap"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Approve</span>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react';
 import {
   ArrowLeft,
   Bell,
@@ -58,6 +59,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
     state,
     activeWorkspace,
     switchWorkspace,
+    updateActiveWorkspaceRole,
     createWorkspace,
     markAllNotificationsRead,
     saveAgent,
@@ -77,6 +79,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
     saveRuleset,
     saveRuleChain,
     saveScorecard,
+    executeDecisionGovernance,
     recordDecisionExecution,
     updateDecisionSettings,
     resetWorkspacePrototype,
@@ -201,10 +204,31 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
     setActiveTab('run');
   };
 
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  const { scrollY, scrollYProgress } = useScroll();
+  const headerProgress = useSpring(scrollYProgress, {
+    stiffness: 260,
+    damping: 32,
+    restDelta: 0.001,
+  });
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    setIsHeaderScrolled(latest > 8);
+  });
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white">
-      {/* Compact Mobile/App Header Bar */}
-      <header className="sticky top-0 z-40 pt-safe border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF]/95 dark:bg-[#101126]/95 backdrop-blur-md">
+    <div className="min-h-screen flex flex-col bg-[#F7F7FA] dark:bg-[#05070E] text-[#05070E] dark:text-white">
+      {/* Fixed App Header Spacer */}
+      <div className="h-14 pt-safe shrink-0" aria-hidden="true" />
+
+      {/* Fixed Animated Mobile/App Header Bar */}
+      <header
+        className={`fixed top-0 inset-x-0 z-40 pt-safe border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isHeaderScrolled
+            ? 'border-[#2563EB]/25 dark:border-[#3B82F6]/30 bg-[#FFFFFF]/95 dark:bg-[#050814]/92 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(37,99,235,0.28)]'
+            : 'border-[#05070E]/10 dark:border-white/10 bg-[#FFFFFF]/90 dark:bg-[#0A1226]/90 backdrop-blur-md'
+        }`}
+      >
         <div className="max-w-[1280px] mx-auto h-14 px-2.5 sm:px-5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
             <button
@@ -222,11 +246,11 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
               aria-label={`Switch workspace, current: ${activeWorkspace.name}`}
               aria-haspopup="dialog"
               aria-expanded={workspaceSheetOpen}
-              className="min-h-[40px] max-w-full px-2.5 py-1 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8] flex items-center gap-2 min-w-0 transition-colors"
+              className="min-h-[40px] max-w-full px-2.5 py-1 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] hover:border-[#2563EB] flex items-center gap-2 min-w-0 transition-colors"
             >
               <SopinLogo size="sm" showWordmark={false} />
-              <span className="w-2 h-2 rounded-full bg-[#6252E8] dark:bg-[#965BFF] shrink-0" aria-hidden="true" />
-              <span className="text-xs font-semibold text-[#101014] dark:text-white truncate max-w-[140px] sm:max-w-[240px]">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB] dark:bg-[#60A5FA] shrink-0" aria-hidden="true" />
+              <span className="text-xs font-semibold text-[#05070E] dark:text-white truncate max-w-[140px] sm:max-w-[240px]">
                 {activeWorkspace.name}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-[#5E5E6E] dark:text-[#A4A4B5] shrink-0" aria-hidden="true" />
@@ -241,11 +265,11 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                 markAllNotificationsRead();
               }}
               aria-label="Open notifications"
-              className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-lg inline-flex items-center justify-center text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10"
+              className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-lg inline-flex items-center justify-center text-[#05070E] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10"
             >
               <Bell className="w-4 h-4" aria-hidden="true" />
               {unreadCount > 0 && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#965BFF]" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#60A5FA]" />
               )}
             </button>
 
@@ -266,12 +290,17 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
               type="button"
               onClick={() => setProfileOpen(true)}
               aria-label="Workspace profile & account"
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg inline-flex items-center justify-center text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg inline-flex items-center justify-center text-[#05070E] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10"
             >
-              <User className="w-4 h-4 text-[#6252E8] dark:text-[#B894FF]" aria-hidden="true" />
+              <User className="w-4 h-4 text-[#2563EB] dark:text-[#7EC8FF]" aria-hidden="true" />
             </button>
           </div>
         </div>
+        <motion.div
+          aria-hidden="true"
+          style={{ scaleX: headerProgress, transformOrigin: 'left' }}
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#7EC8FF]"
+        />
       </header>
 
       {/* Main Responsive Layout: Bottom Tab Bar on Mobile/Tablet (<lg), Left Sidebar on lg+ */}
@@ -279,15 +308,15 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
         {/* Desktop Navigation Rail */}
         <aside
           aria-label="Workspace navigation"
-          className="hidden lg:flex flex-col justify-between w-60 shrink-0 border-r border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]/60 p-4"
+          className="hidden lg:flex flex-col justify-between w-60 shrink-0 border-r border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]/60 p-4"
         >
           <div className="space-y-4">
             <button
               type="button"
               onClick={() => setWorkspaceSheetOpen(true)}
-              className="w-full text-left rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3 hover:border-[#6252E8] transition-colors"
+              className="w-full text-left rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3 hover:border-[#2563EB] transition-colors"
             >
-              <div className="text-[10px] font-mono uppercase text-[#6252E8] dark:text-[#B894FF]">
+              <div className="text-[10px] font-mono uppercase text-[#2563EB] dark:text-[#7EC8FF]">
                 Active Workspace
               </div>
               <div className="mt-0.5 flex items-center justify-between gap-2">
@@ -310,7 +339,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full min-h-[44px] px-3.5 rounded-xl flex items-center gap-3 text-sm font-semibold transition-colors ${
                       active
-                        ? 'bg-[#6252E8] text-white'
+                        ? 'bg-[#2563EB] text-white'
                         : 'text-[#5E5E6E] dark:text-[#B5B5C5] hover:bg-[#F7F7FA] dark:hover:bg-white/5'
                     }`}
                   >
@@ -322,11 +351,11 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#101014]/10 dark:border-white/10">
+          <div className="pt-4 border-t border-[#05070E]/10 dark:border-white/10">
             <button
               type="button"
               onClick={() => onNavigate('/')}
-              className="w-full min-h-[44px] px-3.5 rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold text-[#101014] dark:text-white flex items-center justify-center gap-2 hover:bg-[#F7F7FA] dark:hover:bg-white/5"
+              className="w-full min-h-[44px] px-3.5 rounded-xl border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold text-[#05070E] dark:text-white flex items-center justify-center gap-2 hover:bg-[#F7F7FA] dark:hover:bg-white/5"
             >
               <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Public Website (sopin.ai)</span>
@@ -340,7 +369,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
           {workspaceBanner && (
             <div
               role="status"
-              className="mb-3 rounded-xl border border-[#6252E8]/40 bg-[#6252E8] text-white px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs font-semibold shadow-sm"
+              className="mb-3 rounded-xl border border-[#2563EB]/40 bg-[#2563EB] text-white px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs font-semibold shadow-sm"
             >
               <span className="inline-flex items-center gap-2 truncate">
                 <Check className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -357,17 +386,17 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
             <button
               type="button"
               onClick={() => handleOpenRun(activeRun.id)}
-              className="mb-4 w-full min-h-[44px] rounded-xl border border-[#965BFF]/40 bg-[#101126] text-white px-3.5 py-2.5 flex items-center justify-between gap-2 text-left"
+              className="mb-4 w-full min-h-[44px] rounded-xl border border-[#60A5FA]/40 bg-[#0A1226] text-white px-3.5 py-2.5 flex items-center justify-between gap-2 text-left"
             >
               <div className="min-w-0">
-                <span className="font-mono text-[10px] uppercase text-[#B894FF] block">
+                <span className="font-mono text-[10px] uppercase text-[#7EC8FF] block">
                   {activeRun.status === 'awaiting-approval'
                     ? 'Approval Gate Waiting'
                     : 'Local Prototype Run Active'}
                 </span>
                 <span className="text-xs font-semibold truncate block">{activeRun.title}</span>
               </div>
-              <span className="text-xs font-semibold text-[#B894FF] shrink-0">Inspect →</span>
+              <span className="text-xs font-semibold text-[#7EC8FF] shrink-0">Inspect →</span>
             </button>
           )}
 
@@ -410,11 +439,14 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
               workspaceId={activeWorkspace.id}
               workspaceRole={activeWorkspace.role}
               decisions={wsDecisions}
+              auditLog={wsAuditLog}
               onSaveRule={saveDecisionRule}
               onSaveTable={saveDecisionTable}
               onSaveRuleset={saveRuleset}
               onSaveChain={saveRuleChain}
               onSaveScorecard={saveScorecard}
+              onGovernedAction={executeDecisionGovernance}
+              onUpdateWorkspaceRole={updateActiveWorkspaceRole}
               onRecordExecution={recordDecisionExecution}
               onUpdateSettings={updateDecisionSettings}
             />
@@ -477,7 +509,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
       {/* Mobile & Tablet Thumb-Friendly Bottom Navigation (6 Core Tabs) */}
       <nav
         aria-label="Mobile workspace bottom navigation"
-        className="lg:hidden fixed inset-x-0 bottom-0 z-40 pb-safe border-t border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF]/95 dark:bg-[#101126]/95 backdrop-blur-md"
+        className="lg:hidden fixed inset-x-0 bottom-0 z-40 pb-safe border-t border-[#05070E]/10 dark:border-white/10 bg-[#FFFFFF]/95 dark:bg-[#0A1226]/95 backdrop-blur-md"
       >
         <div className="grid grid-cols-6 h-16 max-w-lg mx-auto">
           {NAV_TABS.map((tab) => {
@@ -491,7 +523,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                 aria-current={active ? 'page' : undefined}
                 className={`flex flex-col items-center justify-center gap-1 px-0.5 text-[10px] sm:text-[11px] font-semibold transition-colors ${
                   active
-                    ? 'text-[#6252E8] dark:text-[#B894FF]'
+                    ? 'text-[#2563EB] dark:text-[#7EC8FF]'
                     : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                 }`}
               >
@@ -527,13 +559,13 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                   onClick={() => handleSelectWorkspace(ws.id)}
                   className={`w-full min-h-[68px] text-left rounded-xl border p-3.5 transition-colors space-y-2 ${
                     isSelected
-                      ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/20'
-                      : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] hover:border-[#6252E8]/60'
+                      ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/20'
+                      : 'border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] hover:border-[#2563EB]/60'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-[#101014] dark:text-white truncate">
+                      <div className="text-sm font-semibold text-[#05070E] dark:text-white truncate">
                         {ws.name}
                       </div>
                       <div className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] mt-0.5">
@@ -541,7 +573,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                       </div>
                     </div>
                     {isSelected && (
-                      <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                      <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                         <Check className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>Active</span>
                       </span>
@@ -560,11 +592,11 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
 
           <form
             onSubmit={handleCreateWorkspace}
-            className="pt-3 border-t border-[#101014]/10 dark:border-white/10 space-y-2.5"
+            className="pt-3 border-t border-[#05070E]/10 dark:border-white/10 space-y-2.5"
           >
             <label
               htmlFor="new-workspace-name"
-              className="block text-xs font-semibold text-[#101014] dark:text-white"
+              className="block text-xs font-semibold text-[#05070E] dark:text-white"
             >
               Create New Local Workspace
             </label>
@@ -575,12 +607,12 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                 value={newWorkspaceName}
                 onChange={(e) => setNewWorkspaceName(e.target.value)}
                 placeholder="e.g., Security Compliance Sandbox"
-                className="flex-1 min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm text-[#101014] dark:text-white"
+                className="flex-1 min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm text-[#05070E] dark:text-white"
               />
               <button
                 type="submit"
                 disabled={!newWorkspaceName.trim()}
-                className="min-h-[44px] px-4 rounded-lg bg-[#6252E8] disabled:opacity-40 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
+                className="min-h-[44px] px-4 rounded-lg bg-[#2563EB] disabled:opacity-40 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
               >
                 <Plus className="w-4 h-4" aria-hidden="true" />
                 <span>Create</span>
@@ -611,7 +643,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
                   setActiveTab(n.targetTab);
                   setNotificationsOpen(false);
                 }}
-                className="w-full text-left rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3.5"
+                className="w-full text-left rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold">{n.title}</span>
@@ -632,7 +664,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
         subtitle={`Alex Rivera · ${activeWorkspace.role}`}
       >
         <div className="space-y-4">
-          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 p-3.5 text-xs space-y-1">
+          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 p-3.5 text-xs space-y-1">
             <div><strong>Active Workspace:</strong> {activeWorkspace.name}</div>
             <div><strong>Runtime Mode:</strong> Local Interactive Prototype</div>
             <div><strong>Organization:</strong> SONIL Group · sopin.ai</div>
@@ -643,7 +675,7 @@ export const SopinAppShell: React.FC<SopinAppShellProps> = ({
               setProfileOpen(false);
               onNavigate('/');
             }}
-            className="w-full min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+            className="w-full min-h-[44px] rounded-xl border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
           >
             Return to Public Website (sopin.ai)
           </button>

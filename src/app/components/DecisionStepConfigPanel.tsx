@@ -281,9 +281,9 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
   };
 
   return (
-    <div className="rounded-xl border border-[#6252E8]/30 bg-[#6252E8]/[0.05] dark:bg-[#6252E8]/15 p-3.5 space-y-4">
+    <div className="rounded-xl border border-[#2563EB]/30 bg-[#2563EB]/[0.05] dark:bg-[#2563EB]/15 p-3.5 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-mono text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF] flex items-center gap-1.5">
+        <span className="font-mono text-[11px] font-semibold text-[#2563EB] dark:text-[#7EC8FF] flex items-center gap-1.5">
           <Scale className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
           <span>SOPIN DECISIONS NODE CONFIG</span>
         </span>
@@ -291,7 +291,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
           <button
             type="button"
             onClick={onOpenDecisions}
-            className="text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] underline"
+            className="text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] underline"
           >
             Open Decisions Studio
           </button>
@@ -337,7 +337,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
             id="dn-target"
             value={`${decisionConfig.targetType}:${decisionConfig.targetId}`}
             onChange={(e) => handleTargetChange(e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-xs"
+            className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs"
           >
             <optgroup label="Rules">
               {decisions.rules.map((r) => (
@@ -390,7 +390,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                 versionPolicy: e.target.value as 'pinned' | 'latest-published',
               })
             }
-            className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-xs"
+            className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs"
           >
             <option value="pinned">Pinned Immutable Version ({decisionConfig.targetVersion})</option>
             <option value="latest-published">Latest Published Version</option>
@@ -399,7 +399,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
       </div>
 
       {/* Reusable Variable Mapping Interface */}
-      <div className="space-y-2.5 pt-2 border-t border-[#101014]/10 dark:border-white/10">
+      <div className="space-y-2.5 pt-2 border-t border-[#05070E]/10 dark:border-white/10">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="text-xs font-semibold">Variable Input Mappings ({bindings.length})</div>
@@ -411,7 +411,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
             <button
               type="button"
               onClick={handleSyncSchemaFields}
-              className="min-h-[36px] px-2.5 rounded-lg border border-[#6252E8]/40 text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF]"
+              className="min-h-[36px] px-2.5 rounded-lg border border-[#2563EB]/40 text-[11px] font-semibold text-[#2563EB] dark:text-[#7EC8FF]"
             >
               Sync Schema
             </button>
@@ -428,7 +428,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                   },
                 ])
               }
-              className="min-h-[36px] px-2.5 rounded-lg bg-[#6252E8] text-white text-[11px] font-semibold inline-flex items-center gap-1"
+              className="min-h-[36px] px-2.5 rounded-lg bg-[#2563EB] text-white text-[11px] font-semibold inline-flex items-center gap-1"
             >
               <Plus className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Add</span>
@@ -440,7 +440,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
           {bindings.map((b) => (
             <div
               key={b.id}
-              className="rounded-lg border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-2.5 space-y-2 text-xs"
+              className="rounded-lg border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#05070E] p-2.5 space-y-2 text-xs"
             >
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
@@ -456,7 +456,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                       )
                     }
                     placeholder="field"
-                    className="w-full min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                    className="w-full min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
                   />
                 </div>
                 <div>
@@ -472,7 +472,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                         )
                       )
                     }
-                    className="w-full min-h-[40px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-xs"
+                    className="w-full min-h-[40px] px-2 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-xs"
                   >
                     <option value="workflow_input">Workflow Input</option>
                     <option value="previous_node">Previous Node Output</option>
@@ -496,7 +496,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                         )
                       }
                       placeholder="optional"
-                      className="flex-1 min-w-0 min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                      className="flex-1 min-w-0 min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
                     />
                     <button
                       type="button"
@@ -519,7 +519,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                         bindings.map((x) => (x.id === b.id ? { ...x, contextDocId: e.target.value } : x))
                       )
                     }
-                    className="w-full min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-xs"
+                    className="w-full min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-xs"
                   >
                     <option value="">Select Context Document...</option>
                     {documents.map((d) => (
@@ -537,7 +537,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                       )
                     }
                     placeholder="Attribute key (e.g. budgetRemaining)"
-                    className="w-full min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                    className="w-full min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
                   />
                 </div>
               ) : (
@@ -556,7 +556,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                       ? 'Dot path (e.g. st-inv-1.invoiceAmount)'
                       : 'Input field / dot path (e.g. invoiceAmount)'
                   }
-                  className="w-full min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                  className="w-full min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
                 />
               )}
             </div>
@@ -565,7 +565,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
       </div>
 
       {/* Conditional Branching & Error Behavior */}
-      <div className="space-y-2.5 pt-2 border-t border-[#101014]/10 dark:border-white/10">
+      <div className="space-y-2.5 pt-2 border-t border-[#05070E]/10 dark:border-white/10">
         <div className="flex items-center justify-between gap-2">
           <div>
             <div className="text-xs font-semibold">
@@ -578,7 +578,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
           <button
             type="button"
             onClick={handleAddBranch}
-            className="min-h-[36px] px-2.5 rounded-lg bg-[#101126] text-white text-[11px] font-semibold inline-flex items-center gap-1"
+            className="min-h-[36px] px-2.5 rounded-lg bg-[#0A1226] text-white text-[11px] font-semibold inline-flex items-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Add Branch</span>
@@ -588,7 +588,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
         {(decisionConfig.branches ?? []).map((br) => (
           <div
             key={br.id}
-            className="rounded-lg border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101014] p-2.5 space-y-2 text-xs"
+            className="rounded-lg border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#05070E] p-2.5 space-y-2 text-xs"
           >
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <input
@@ -596,7 +596,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                 value={br.label}
                 onChange={(e) => handleUpdateBranch(br.id, { label: e.target.value })}
                 placeholder="Branch label"
-                className="min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                className="min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
               />
               {!br.isFallback ? (
                 <>
@@ -605,18 +605,18 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                     value={br.matchField}
                     onChange={(e) => handleUpdateBranch(br.id, { matchField: e.target.value })}
                     placeholder="Output field"
-                    className="min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                    className="min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
                   />
                   <input
                     type="text"
                     value={br.matchValue}
                     onChange={(e) => handleUpdateBranch(br.id, { matchValue: e.target.value })}
                     placeholder="Expected value"
-                    className="min-h-[40px] px-2.5 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] font-mono text-xs"
+                    className="min-h-[40px] px-2.5 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] font-mono text-xs"
                   />
                 </>
               ) : (
-                <div className="col-span-2 flex items-center text-[11px] font-mono text-[#6252E8] dark:text-[#B894FF] px-2">
+                <div className="col-span-2 flex items-center text-[11px] font-mono text-[#2563EB] dark:text-[#7EC8FF] px-2">
                   Unhandled-Outcome Fallback
                 </div>
               )}
@@ -624,7 +624,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                 <select
                   value={br.nextStepId}
                   onChange={(e) => handleUpdateBranch(br.id, { nextStepId: e.target.value })}
-                  className="flex-1 min-w-0 min-h-[40px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-xs"
+                  className="flex-1 min-w-0 min-h-[40px] px-2 rounded border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-xs"
                 >
                   <option value="">Select next step...</option>
                   {workflowSteps
@@ -662,7 +662,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                   onErrorBehavior: e.target.value as DecisionErrorBehavior,
                 })
               }
-              className="w-full min-h-[44px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-xs"
+              className="w-full min-h-[44px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs"
             >
               <option value="fail-workflow">Fail Workflow Immediately</option>
               <option value="fallback-branch">Route to Failure Fallback Step</option>
@@ -683,7 +683,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
                   failureNextStepId: e.target.value || undefined,
                 })
               }
-              className="w-full min-h-[44px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-xs"
+              className="w-full min-h-[44px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs"
             >
               <option value="">Sequential / None</option>
               {workflowSteps
@@ -699,14 +699,14 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
       </div>
 
       {/* Inline Deterministic Trace Inspector */}
-      <div className="space-y-2.5 pt-2 border-t border-[#101014]/10 dark:border-white/10">
+      <div className="space-y-2.5 pt-2 border-t border-[#05070E]/10 dark:border-white/10">
         <div className="flex flex-wrap items-center gap-2">
           {sampleInputs && sampleInputs.length > 0 && (
             <select
               value={selectedSampleId}
               onChange={(e) => setSelectedSampleId(e.target.value)}
               aria-label="Select demo sample payload"
-              className="flex-1 min-w-[180px] min-h-[40px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101014] text-xs"
+              className="flex-1 min-w-[180px] min-h-[40px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs"
             >
               {sampleInputs.map((si) => (
                 <option key={si.id} value={si.id}>
@@ -718,7 +718,7 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
           <button
             type="button"
             onClick={handleRunPreview}
-            className="min-h-[40px] px-3.5 rounded-lg bg-[#101126] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+            className="min-h-[40px] px-3.5 rounded-lg bg-[#0A1226] text-white text-xs font-semibold inline-flex items-center gap-1.5"
           >
             <Play className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Test Decision &amp; Inspect Trace</span>
@@ -726,21 +726,21 @@ export const DecisionStepConfigPanel: React.FC<DecisionStepConfigPanelProps> = (
         </div>
 
         {previewTrace && (
-          <div className="rounded-lg bg-[#101014] text-white p-3 space-y-2 text-[11px] font-mono">
-            <div className="text-[#B894FF] font-semibold">
+          <div className="rounded-lg bg-[#05070E] text-white p-3 space-y-2 text-[11px] font-mono">
+            <div className="text-[#7EC8FF] font-semibold">
               {previewTrace.status} · Version {previewTrace.versionUsed} · {previewTrace.branchNote}
             </div>
             {previewTrace.errors.length > 0 && (
               <div className="text-red-400">Errors: {previewTrace.errors.join(' | ')}</div>
             )}
             <div className="text-[#D8D8E6]">
-              <span className="text-[#965BFF]">Provenance:</span>{' '}
+              <span className="text-[#60A5FA]">Provenance:</span>{' '}
               {previewTrace.provenance
                 .map((p) => `${p.field}=${p.preview} ← ${p.source}${p.checksum ? ` [${p.checksum}]` : ''}`)
                 .join(' ; ')}
             </div>
             <div className="text-[#D8D8E6] break-all">
-              <span className="text-[#965BFF]">Output:</span> {previewTrace.outputJson}
+              <span className="text-[#60A5FA]">Output:</span> {previewTrace.outputJson}
             </div>
             {previewTrace.conditions.length > 0 && (
               <div className="space-y-0.5 pt-1 border-t border-white/10">

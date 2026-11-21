@@ -106,8 +106,14 @@ export const ROUTE_META: Record<StaticRoutePath, RouteMeta> = {
   '/solutions': {
     title: 'Solutions — Enterprise & Domain Agent Architectures — SOPIN',
     description:
-      'Reference architectures for Business Automation, AI Research, Software Engineering, Document Intelligence, Data Intelligence, Machine Learning, Multi-Agent Systems, and Enterprise AI.',
+      'Reference architectures for Enterprise AI Automation, Intelligent Knowledge Operations, Multi-Agent Workflows, Business Decision Automation, Developer Operations, and Governed Execution.',
     canonicalPath: '/solutions',
+  },
+  '/research': {
+    title: 'Research & Insights — AI Research, Engineering & Case Studies — SOPIN',
+    description:
+      'Original AI systems research, engineering guides, and transparent implementation notes from SOPIN and SONIL Group.',
+    canonicalPath: '/research',
   },
   '/resources': {
     title: 'Resources — Guides, Tutorials & Architecture Notes — SOPIN',
@@ -133,10 +139,16 @@ export const ROUTE_META: Record<StaticRoutePath, RouteMeta> = {
       'Connect with the SOPIN engineering team for design partner access, technical inquiries, or SONIL Group enterprise discussions.',
     canonicalPath: '/contact',
   },
+  '/legal': {
+    title: 'Legal, Privacy & Governance Policies — SOPIN · SONIL Group',
+    description:
+      'Privacy notice, terms of platform preview use, data residency commitments, and responsible AI execution principles for SOPIN under SONIL Group.',
+    canonicalPath: '/legal',
+  },
   '/docs': {
     title: 'Documentation — SOPIN Developer Hub',
     description:
-      'Quickstart guides, SDK references, MCP tool bindings, A2A protocol specifications, and runtime configuration documentation.',
+      'Quickstart guides, SDK references, MCP tool bindings, A2A protocol specifications, Decisions contracts, and runtime configuration documentation.',
     canonicalPath: '/docs',
   },
   '/app': {
@@ -154,44 +166,39 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
     label: 'Platform',
     items: [
       {
-        label: 'Overview',
-        description: 'Unified agent engineering and execution architecture.',
+        label: 'Platform Overview',
+        description: 'Unified architecture connecting Studio through Control.',
         href: '/platform',
       },
       {
         label: 'SOPIN Studio',
-        description: 'Natural language, visual canvas, and graph authoring.',
+        description: 'Visual, natural-language, and SDK authoring workspace.',
         href: '/studio',
       },
       {
         label: 'SOPIN Flow',
-        description: 'Deterministic DAG automation & human gates.',
+        description: 'Deterministic DAG workflows, retries & human gates.',
         href: '/flow',
       },
       {
-        label: 'SOPIN Decisions',
-        description: 'Deterministic business rules, tables, scoring & chains.',
-        href: '/decisions',
-      },
-      {
         label: 'SOPIN Context',
-        description: 'Three-tier memory & grounded RAG retrieval.',
+        description: 'Three-tier memory & grounded knowledge retrieval.',
         href: '/context',
       },
       {
         label: 'SOPIN Graph',
-        description: 'Cyclic state machines & A2A agent teams.',
+        description: 'Bounded cyclic multi-agent & A2A state machines.',
         href: '/graph',
+      },
+      {
+        label: 'SOPIN Runtime',
+        description: 'Isolated ephemeral sandboxes & durable checkpoints.',
+        href: '/runtime',
       },
       {
         label: 'SOPIN Gateway',
         description: 'Model, multimodal, ML registry & MCP router.',
         href: '/gateway',
-      },
-      {
-        label: 'SOPIN Runtime',
-        description: 'Isolated sandboxes & durable checkpoints.',
-        href: '/runtime',
       },
       {
         label: 'SOPIN Observe',
@@ -212,10 +219,9 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
         status: 'Planned',
       },
       {
-        label: 'SOPIN Cloud',
-        description: 'Managed multi-region execution platform.',
-        href: '/cloud',
-        status: 'Planned',
+        label: 'SOPIN Decisions',
+        description: 'Deterministic business rules, tables, scoring & chains.',
+        href: '/decisions',
       },
       {
         label: 'SOPIN Enterprise',
@@ -230,50 +236,37 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
     label: 'Solutions',
     items: [
       {
-        label: 'Business Automation',
-        description: 'Structured operational triage and workflow routing.',
+        label: 'Enterprise AI Automation',
+        description: 'Structured operational triage and end-to-end routing.',
         href: '/solutions',
         sectionId: 'business-automation',
       },
       {
-        label: 'Document Intelligence',
-        description: 'OCR, schema extraction & verified document parsing.',
+        label: 'Intelligent Knowledge Operations',
+        description: 'OCR, schema extraction & checksum-backed RAG synthesis.',
         href: '/solutions',
         sectionId: 'document-intelligence',
       },
       {
-        label: 'AI Research',
-        description: 'Multi-source synthesis with citation verification.',
-        href: '/solutions',
-        sectionId: 'ai-research',
-      },
-      {
-        label: 'Software Engineering',
-        description: 'Repository analysis, review, and sandboxed testing.',
-        href: '/solutions',
-        sectionId: 'software-engineering',
-      },
-      {
-        label: 'Data Intelligence',
-        description: 'Schema-grounded analytics and lineage checks.',
-        href: '/solutions',
-        sectionId: 'data-intelligence',
-      },
-      {
-        label: 'Machine Learning',
-        description: 'Dataset prep, training, eval & Gateway serving.',
-        href: '/solutions',
-        sectionId: 'machine-learning',
-      },
-      {
-        label: 'Multi-Agent Applications',
+        label: 'Multi-Agent Workflows',
         description: 'Bounded supervisor-worker & A2A topologies.',
         href: '/solutions',
         sectionId: 'multi-agent',
       },
       {
-        label: 'Enterprise AI',
-        description: 'Governed deployment topology for SONIL Group partners.',
+        label: 'Business Decision Automation',
+        description: 'Deterministic rule tables, chains, and explainable scorecards.',
+        href: '/decisions',
+      },
+      {
+        label: 'AI-Powered Developer Operations',
+        description: 'Repository analysis, review, and sandboxed CI verification.',
+        href: '/solutions',
+        sectionId: 'software-engineering',
+      },
+      {
+        label: 'Governed Enterprise Execution',
+        description: 'RBAC policies, human gates & private VPC topology.',
         href: '/solutions',
         sectionId: 'enterprise-ai',
         status: 'Planned',
@@ -281,37 +274,31 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
     ],
   },
   {
-    id: 'developers',
-    label: 'Developers',
+    id: 'research',
+    label: 'Research',
     items: [
       {
-        label: 'Documentation',
-        description: 'Architecture specs, quickstarts, and schemas.',
-        href: '/docs',
+        label: 'All Research & Insights',
+        description: 'Explore SOPIN publications across research and engineering.',
+        href: '/research',
       },
       {
-        label: 'API and SDK',
-        description: 'Typed TypeScript and Python orchestration packages.',
-        href: '/developers',
-        sectionId: 'sdk',
+        label: 'Research',
+        description: 'Agent architecture, emerging AI systems, and verification theory.',
+        href: '/research',
+        sectionId: 'research',
       },
       {
-        label: 'MCP and A2A',
-        description: 'Native Model Context Protocol & Agent-to-Agent support.',
-        href: '/developers',
-        sectionId: 'protocols',
+        label: 'Engineering',
+        description: 'Implementation tutorials, deterministic patterns, and guides.',
+        href: '/research',
+        sectionId: 'engineering',
       },
       {
-        label: 'Integrations',
-        description: 'Structured connectors for repos, queues, and stores.',
-        href: '/developers',
-        sectionId: 'integrations',
-      },
-      {
-        label: 'Open Source',
-        description: 'Public protocol adapters and SDK roadmap.',
-        href: '/developers',
-        sectionId: 'open-source',
+        label: 'Case Studies',
+        description: 'Transparent architecture publications and cohort notes.',
+        href: '/research',
+        sectionId: 'case-studies',
         status: 'Coming Soon',
       },
     ],
@@ -321,43 +308,26 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
     label: 'Resources',
     items: [
       {
-        label: 'Blog',
-        description: 'Engineering notes on agent reliability and runtime design.',
+        label: 'Resource Library',
+        description: 'Architecture notes, guides, and step-by-step tutorials.',
         href: '/resources',
-        sectionId: 'blog',
       },
       {
-        label: 'Guides',
-        description: 'Architectural patterns for deterministic agent workflows.',
-        href: '/resources',
-        sectionId: 'guides',
+        label: 'API & SDK Hub',
+        description: 'Typed TypeScript & Python SDKs, MCP, and A2A specs.',
+        href: '/developers',
       },
       {
-        label: 'Tutorials',
-        description: 'Step-by-step build walkthroughs using SOPIN Studio.',
-        href: '/resources',
-        sectionId: 'tutorials',
+        label: 'SOPIN Cloud & Access',
+        description: 'Preview pathways and deployment architecture.',
+        href: '/pricing',
       },
       {
-        label: 'Case Studies',
-        description: 'Reference blueprints and upcoming cohort publications.',
-        href: '/resources',
-        sectionId: 'case-studies',
-        status: 'Coming Soon',
-      },
-      {
-        label: 'Academy',
-        description: 'Structured curriculum for agent systems engineering.',
-        href: '/resources',
-        sectionId: 'academy',
-        status: 'Planned',
+        label: 'Trust & Security Center',
+        description: 'Sandboxing, RBAC, PII redaction, and data isolation.',
+        href: '/security',
       },
     ],
-  },
-  {
-    id: 'pricing',
-    label: 'Pricing',
-    href: '/pricing',
   },
   {
     id: 'company',
@@ -385,6 +355,200 @@ export const NAVIGATION_CATEGORIES: NavCategory[] = [
         href: '/contact',
       },
     ],
+  },
+  {
+    id: 'docs',
+    label: 'Docs',
+    href: '/docs',
+  },
+];
+
+export interface ProductSurfaceSummary {
+  id: 'studio' | 'flow' | 'context' | 'graph' | 'runtime' | 'gateway' | 'observe' | 'evaluate' | 'control' | 'decisions';
+  index: string;
+  name: string;
+  category: string;
+  tagline: string;
+  description: string;
+  purpose: string;
+  href: RoutePath;
+  status: 'Core Architecture' | 'Planned';
+  highlights: string[];
+}
+
+export const PRODUCT_SURFACES_10: ProductSurfaceSummary[] = [
+  {
+    id: 'studio',
+    index: '01',
+    name: 'SOPIN Studio',
+    category: 'Authoring Workspace',
+    tagline: 'Bridge natural language, visual graphs, and typed code in one workbench.',
+    description:
+      'Design agents and multi-step systems visually or in TypeScript without translation loss between prototyping and production engineering.',
+    purpose: 'Turns plain-language intent, visual graphs, and SDK code into one version-controlled blueprint.',
+    href: '/studio',
+    status: 'Core Architecture',
+    highlights: ['Visual & code-first parity', 'Schema & tool inspector', 'AI-assisted draft specs'],
+  },
+  {
+    id: 'flow',
+    index: '02',
+    name: 'SOPIN Flow',
+    category: 'Workflow Orchestration',
+    tagline: 'Deterministic DAG pipelines with branching, retries, and human checkpoints.',
+    description:
+      'Orchestrate structured pipelines combining model inference, Decision Nodes, MCP tools, dead-letter paths, and pause-and-resume human approvals.',
+    purpose: 'Eliminates fragile webhook glue by making branching, retries, and pauses explicit.',
+    href: '/flow',
+    status: 'Core Architecture',
+    highlights: ['Conditional typed routing', 'Native Decision Nodes', 'Durable human checkpoints'],
+  },
+  {
+    id: 'context',
+    index: '03',
+    name: 'SOPIN Context',
+    category: 'Memory & Retrieval',
+    tagline: 'Three-tier memory isolation and grounded retrieval with citation lineage.',
+    description:
+      'Separate ephemeral run scratchpads, episodic workspace history, and versioned knowledge corpora with immutable chunk checksums.',
+    purpose: 'Ensures every agent operates on scoped, verifiable facts rather than stuffed prompts.',
+    href: '/context',
+    status: 'Core Architecture',
+    highlights: ['Working / episodic / corpus tiers', 'Pre-retrieval ACL filters', 'SHA-256 citation provenance'],
+  },
+  {
+    id: 'graph',
+    index: '04',
+    name: 'SOPIN Graph',
+    category: 'Multi-Agent State',
+    tagline: 'Bounded cyclic state machines and Agent-to-Agent (A2A) peer collaboration.',
+    description:
+      'Coordinate planner, researcher, and verifier agents over shared typed state with hard superstep ceilings and signed A2A handoffs.',
+    purpose: 'Enables iterative reasoning and peer delegation without unbounded autonomous loops.',
+    href: '/graph',
+    status: 'Core Architecture',
+    highlights: ['Shared typed graph reducers', 'Hard maxSteps loop guardrails', 'Signed A2A envelopes'],
+  },
+  {
+    id: 'runtime',
+    index: '05',
+    name: 'SOPIN Runtime',
+    category: 'Sandboxed Execution',
+    tagline: 'Isolated ephemeral sandboxes and durable step checkpoints.',
+    description:
+      'Execute untrusted scripts, Python ML transforms, and MCP tool servers inside read-only containers with strict egress allowlists.',
+    purpose: 'Protects host infrastructure and persists execution state across long-running pauses.',
+    href: '/runtime',
+    status: 'Core Architecture',
+    highlights: ['Ephemeral micro-sandboxes', 'Egress disabled by default', 'Idempotent checkpoint recovery'],
+  },
+  {
+    id: 'gateway',
+    index: '06',
+    name: 'SOPIN Gateway',
+    category: 'Model & Tool Routing',
+    tagline: 'Unified control plane for frontier LLMs, open-weight models, ML & MCP.',
+    description:
+      'Route text, vision, document, audio, and custom ML inference through strict JSON schema validation, failover, and pre-inference PII redaction.',
+    purpose: 'Prevents single-vendor lock-in and enforces data sanitization before external inference.',
+    href: '/gateway',
+    status: 'Core Architecture',
+    highlights: ['Pre-inference PII redaction', 'Strict schema enforcement', 'Custom ML registry serving'],
+  },
+  {
+    id: 'observe',
+    index: '07',
+    name: 'SOPIN Observe',
+    category: 'Observability',
+    tagline: 'End-to-end execution traces, superstep diffs, and reliability telemetry.',
+    description:
+      'Inspect span waterfalls across Flow triggers, Context lookups, Gateway calls, Decision evaluations, and MCP outputs in one unified timeline.',
+    purpose: 'Makes multi-step agent failures and latency bottlenecks immediately diagnosable.',
+    href: '/observe',
+    status: 'Planned',
+    highlights: ['OpenTelemetry span waterfalls', 'Graph superstep state diffs', '30-day execution telemetry'],
+  },
+  {
+    id: 'evaluate',
+    index: '08',
+    name: 'SOPIN Evaluate',
+    category: 'Quality & Regression',
+    tagline: 'Automated regression harnesses and side-by-side model benchmarking.',
+    description:
+      'Test prompt edits, retrieval indexes, and candidate model routes against curated golden datasets using deterministic and grounding assertions.',
+    purpose: 'Replaces manual spot-checking with repeatable verification before production promotion.',
+    href: '/evaluate',
+    status: 'Planned',
+    highlights: ['Golden trace datasets', 'Grounding & schema checks', 'Model & ML benchmarking'],
+  },
+  {
+    id: 'control',
+    index: '09',
+    name: 'SOPIN Control',
+    category: 'Governance & RBAC',
+    tagline: 'Organization RBAC, tool allowlists, spend ceilings, and approval queues.',
+    description:
+      'Enforce out-of-band permissions, workspace budgets, and human sign-off queues across every agent, workflow, and external integration.',
+    purpose: 'Ensures agents cannot prompt-inject around enterprise access or spend boundaries.',
+    href: '/control',
+    status: 'Planned',
+    highlights: ['Out-of-band RBAC policy', 'Read/write MCP allowlists', 'Immutable audit exports'],
+  },
+  {
+    id: 'decisions',
+    index: '10',
+    name: 'SOPIN Decisions',
+    category: 'Decision Automation',
+    tagline: 'Make business logic executable with deterministic rules, tables & scorecards.',
+    description:
+      'Author IF/ELSE rules, multi-hit decision tables, ordered rulesets, sequential rule chains, and weighted scorecards invoked natively in Flow and APIs.',
+    purpose: 'Keeps binding pricing, eligibility, and SLA logic 100% deterministic—never left to LLM guesswork.',
+    href: '/decisions',
+    status: 'Core Architecture',
+    highlights: ['Rule Builder & Decision Tables', 'Chains, Rulesets & Scorecards', 'Versioned simulation & traces'],
+  },
+];
+
+export const LIFECYCLE_5_STAGES = [
+  {
+    step: '01',
+    title: 'Design',
+    headline: 'Author blueprints visually or in code',
+    description:
+      'Define agents, workflows, decision tables, and typed schemas in SOPIN Studio, Flow, and Decisions.',
+    surfaces: ['Studio', 'Flow', 'Decisions'],
+  },
+  {
+    step: '02',
+    title: 'Connect',
+    headline: 'Bind models, context & MCP tools',
+    description:
+      'Wire frontier or self-hosted models via Gateway, scoped corpora via Context, and least-privilege MCP servers.',
+    surfaces: ['Gateway', 'Context', 'Graph'],
+  },
+  {
+    step: '03',
+    title: 'Execute',
+    headline: 'Run inside sandboxed checkpoints',
+    description:
+      'Execute multi-step graphs and deterministic rules inside isolated sandboxes with durable state recovery.',
+    surfaces: ['Runtime', 'Flow', 'Graph'],
+  },
+  {
+    step: '04',
+    title: 'Verify',
+    headline: 'Inspect traces & run regressions',
+    description:
+      'Validate structured outputs against schemas, source checksums, and golden evaluation suites.',
+    surfaces: ['Observe', 'Evaluate', 'Decisions'],
+  },
+  {
+    step: '05',
+    title: 'Govern',
+    headline: 'Enforce RBAC, budgets & sign-off',
+    description:
+      'Gate elevated actions behind human approvals, workspace spend caps, and auditable policy rules.',
+    surfaces: ['Control', 'Enterprise'],
   },
 ];
 

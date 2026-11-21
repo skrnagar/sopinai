@@ -298,9 +298,20 @@ export interface AuditEvent {
   workspaceId?: string;
   timestamp: string;
   actor: string;
+  actorRole?: string;
+  isSimulatedActor?: boolean;
   action: string;
+  operation?: string;
   target: string;
+  artifactType?: DecisionTargetKind;
+  artifactId?: string;
+  previousVersion?: string;
+  resultingVersion?: string;
+  specHash?: string;
+  targetEnvironment?: string;
+  approvalId?: string;
   outcome: 'Allowed' | 'Blocked' | 'Approved' | 'Rejected' | 'Updated';
+  reason?: string;
 }
 
 export interface AppNotification {

@@ -95,6 +95,8 @@ export interface DecisionTestRunRecord {
   actualOutput: Record<string, unknown>;
   testedVersion: string;
   testedSpecHash: string;
+  testedArtifactId?: string;
+  testedArtifactType?: DecisionArtifactType;
   diffNotes: string[];
 }
 
@@ -113,15 +115,65 @@ export interface DecisionTestCase {
   lastRunAt?: string;
   testedVersion?: string;
   testedSpecHash?: string;
+  testedArtifactId?: string;
+  testedArtifactType?: DecisionArtifactType;
   runHistory?: DecisionTestRunRecord[];
 }
 
+export type DecisionApprovalPurpose =
+  | 'publication'
+  | 'production-promotion'
+  | 'rollback';
+
+export type DecisionApprovalDecision = 'approved' | 'rejected';
+
+export type DecisionLifecycleOperation =
+  | 'save'
+  | 'submit-review'
+  | 'approve'
+  | 'publish'
+  | 'promote'
+  | 'rollback';
+
 export interface DecisionReviewApproval {
+  id?: string;
   approved: boolean;
+  decision?: DecisionApprovalDecision;
+  purpose?: DecisionApprovalPurpose;
+  artifactType?: DecisionArtifactType;
+  artifactId?: string;
+  artifactVersion?: string;
+  specHash?: string;
+  targetEnvironment?: DecisionEnvironment;
   reviewerLabel: string;
+  reviewerRole?: string;
   approvedAt: string;
   note?: string;
   controlRequired?: boolean;
+  isSimulatedIdentity?: true;
+  prototypeNote?: string;
+  rollbackTargetVersion?: string;
+}
+
+export interface DecisionAuditRecord {
+  id: string;
+  workspaceId: string;
+  timestamp: string;
+  actor: string;
+  actorRole: string;
+  isSimulatedActor: true;
+  action: string;
+  operation: DecisionLifecycleOperation;
+  artifactType: DecisionArtifactType;
+  artifactId: string;
+  artifactName: string;
+  previousVersion?: string;
+  resultingVersion?: string;
+  specHash: string;
+  targetEnvironment?: DecisionEnvironment;
+  approvalId?: string;
+  outcome: 'Allowed' | 'Blocked' | 'Approved' | 'Rejected' | 'Updated';
+  reason: string;
 }
 
 export interface DecisionVersionSnapshot {
@@ -137,6 +189,7 @@ export interface DecisionVersionSnapshot {
   canonicalAlgorithm?: 'canonical-json-sha256' | 'legacy-seed';
   serializedSpec: string;
   reviewApproval?: DecisionReviewApproval;
+  approvalHistory?: DecisionReviewApproval[];
   attributionPlaceholder?: {
     authorLabel: string;
     publisherLabel: string;
@@ -172,6 +225,7 @@ export interface RuleSpec {
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
   reviewApproval?: DecisionReviewApproval;
+  approvalHistory?: DecisionReviewApproval[];
   testCases: DecisionTestCase[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
@@ -215,6 +269,7 @@ export interface DecisionTableSpec {
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
   reviewApproval?: DecisionReviewApproval;
+  approvalHistory?: DecisionReviewApproval[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
 }
@@ -246,6 +301,7 @@ export interface RulesetSpec {
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
   reviewApproval?: DecisionReviewApproval;
+  approvalHistory?: DecisionReviewApproval[];
   testCases: DecisionTestCase[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
@@ -281,6 +337,7 @@ export interface RuleChainSpec {
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
   reviewApproval?: DecisionReviewApproval;
+  approvalHistory?: DecisionReviewApproval[];
   testCases: DecisionTestCase[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;
@@ -324,6 +381,7 @@ export interface ScorecardSpec {
   environment: DecisionEnvironment;
   status: DecisionArtifactStatus;
   reviewApproval?: DecisionReviewApproval;
+  approvalHistory?: DecisionReviewApproval[];
   testCases: DecisionTestCase[];
   versionHistory: DecisionVersionSnapshot[];
   updatedAt: string;

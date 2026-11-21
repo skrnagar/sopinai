@@ -99,11 +99,11 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#101014]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Solutions', 'Eight Domain Blueprints']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
               Reference architectures engineered for domain rigor.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -118,7 +118,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                 key={b.id}
                 type="button"
                 onClick={() => scrollToDomain(b.id)}
-                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101126] text-xs font-semibold text-[#101014] dark:text-white hover:border-[#6252E8] transition-colors whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-xs font-semibold text-[#05070E] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
               >
                 {b.category}
               </button>
@@ -127,13 +127,13 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 bg-[#F7F7FA] dark:bg-[#101126]/40">
+      <section className="py-16 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-6">
           {solutionBlocks.map((block) => (
             <article
               key={block.id}
               id={block.id}
-              className="rounded-2xl border border-[#101014]/[0.08] dark:border-white/10 bg-white dark:bg-[#101014] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)] scroll-mt-20"
+              className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)] scroll-mt-20"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-6 space-y-3 min-w-0">
@@ -141,35 +141,35 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     items={[block.category, block.status]}
                     accentLast={block.status.includes('Planned') || block.status.includes('Core')}
                   />
-                  <h2 className="font-display text-2xl font-semibold text-[#101014] dark:text-white">
+                  <h2 className="font-display text-2xl font-semibold text-[#05070E] dark:text-white">
                     {block.headline}
                   </h2>
                   <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
                     {block.description}
                   </p>
                   <div className="pt-2">
-                    <div className="font-mono text-xs p-3 rounded-lg bg-[#F7F7FA] dark:bg-[#101126] border border-[#101014]/[0.08] dark:border-white/10 text-[#6252E8] dark:text-[#B894FF] break-words">
+                    <div className="font-mono text-xs p-3 rounded-lg bg-[#F7F7FA] dark:bg-[#0A1226] border border-[#05070E]/[0.08] dark:border-white/10 text-[#2563EB] dark:text-[#7EC8FF] break-words">
                       {block.topology}
                     </div>
                   </div>
                 </div>
 
                 <div className="lg:col-span-6 space-y-4 min-w-0">
-                  <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-4">
-                    <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1.5">
+                  <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 p-4">
+                    <div className="text-xs font-semibold text-[#05070E] dark:text-white mb-1.5">
                       Bindings &amp; Modules
                     </div>
                     <StatusText items={block.tools} />
                   </div>
-                  <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-4">
-                    <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1">
+                  <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 p-4">
+                    <div className="text-xs font-semibold text-[#05070E] dark:text-white mb-1">
                       Verification Criteria
                     </div>
                     <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">{block.verification}</p>
                   </div>
-                  <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <div className="text-xs font-semibold text-[#101014] dark:text-white mb-1">
+                      <div className="text-xs font-semibold text-[#05070E] dark:text-white mb-1">
                         Human Oversight
                       </div>
                       <p className="text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
@@ -179,7 +179,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     <button
                       type="button"
                       onClick={() => onNavigate('/contact', undefined, { topic: block.topic })}
-                      className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#6252E8] dark:text-[#965BFF] hover:underline whitespace-nowrap shrink-0 self-start sm:self-center"
+                      className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline whitespace-nowrap shrink-0 self-start sm:self-center"
                     >
                       <span>Discuss</span>
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />

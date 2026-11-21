@@ -38,6 +38,9 @@ const DevelopersPage = lazy(() =>
 const SolutionsPage = lazy(() =>
   import('./pages/SolutionsPage').then((m) => ({ default: m.SolutionsPage }))
 );
+const ResearchPage = lazy(() =>
+  import('./pages/ResearchPage').then((m) => ({ default: m.ResearchPage }))
+);
 const ResourcesPage = lazy(() =>
   import('./pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage }))
 );
@@ -50,6 +53,9 @@ const PricingPage = lazy(() =>
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })));
 const ContactPage = lazy(() =>
   import('./pages/ContactPage').then((m) => ({ default: m.ContactPage }))
+);
+const LegalPage = lazy(() =>
+  import('./pages/LegalPage').then((m) => ({ default: m.LegalPage }))
 );
 const DocsPage = lazy(() => import('./pages/DocsPage').then((m) => ({ default: m.DocsPage })));
 const NotFoundPage = lazy(() =>
@@ -73,7 +79,7 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-[#FFFFFF] dark:bg-[#101014]">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-[#FFFFFF] dark:bg-[#05070E]">
           <StateDisplay
             mode="error"
             title="Unable to render view"
@@ -89,7 +95,7 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
 }
 
 export default function App() {
-  const { route, isNotFound, searchQueryString, navigate } = useRoute();
+  const { route, isNotFound, activeSection, searchQueryString, navigate } = useRoute();
   const { theme, toggleTheme } = useTheme();
 
   if (route === '/app' && !isNotFound) {
@@ -114,11 +120,24 @@ export default function App() {
       return <DocsPage activeSlug={slug} onNavigate={navigate} />;
     }
 
+    if (route.startsWith('/research/')) {
+      const slug = route.slice('/research/'.length);
+      const article = RESOURCE_ARTICLES.find((a) => a.id === slug);
+      if (article) {
+        return (
+          <ResourceArticlePage article={article} basePath="/research" onNavigate={navigate} />
+        );
+      }
+      return <NotFoundPage onNavigate={navigate} />;
+    }
+
     if (route.startsWith('/resources/')) {
       const slug = route.slice('/resources/'.length);
       const article = RESOURCE_ARTICLES.find((a) => a.id === slug);
       if (article) {
-        return <ResourceArticlePage article={article} onNavigate={navigate} />;
+        return (
+          <ResourceArticlePage article={article} basePath="/resources" onNavigate={navigate} />
+        );
       }
       return <NotFoundPage onNavigate={navigate} />;
     }
@@ -144,6 +163,8 @@ export default function App() {
         return <DevelopersPage onNavigate={navigate} />;
       case '/solutions':
         return <SolutionsPage onNavigate={navigate} />;
+      case '/research':
+        return <ResearchPage activeSection={activeSection} onNavigate={navigate} />;
       case '/resources':
         return <ResourcesPage onNavigate={navigate} />;
       case '/pricing':
@@ -152,6 +173,8 @@ export default function App() {
         return <AboutPage onNavigate={navigate} />;
       case '/contact':
         return <ContactPage queryString={searchQueryString} />;
+      case '/legal':
+        return <LegalPage onNavigate={navigate} />;
       case '/docs':
         return <DocsPage onNavigate={navigate} />;
       case '/':
@@ -163,10 +186,10 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <AppErrorBoundary>
-        <div className="min-h-screen flex flex-col bg-[#FFFFFF] dark:bg-[#101014] text-[#101014] dark:text-[#FFFFFF] transition-colors">
+        <div className="min-h-screen flex flex-col bg-[#FFFFFF] dark:bg-[#080D18] text-[#111827] dark:text-[#FFFFFF] transition-colors">
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[#6252E8] focus:text-white focus:text-sm focus:font-semibold"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[#2563EB] focus:text-white focus:text-sm focus:font-semibold"
           >
             Skip to main content
           </a>

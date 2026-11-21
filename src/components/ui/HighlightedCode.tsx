@@ -35,7 +35,7 @@ const AUTO_TOKEN_CLASSES: Record<TokenType, string> = {
   decorator: 'text-[#795E26] dark:text-[#D7BA7D]',
   operator: 'text-[#383A42] dark:text-[#D4D4D8]',
   punctuation: 'text-[#5E5E6E] dark:text-[#9CA3B8]',
-  plain: 'text-[#101014] dark:text-[#E4E6F0]',
+  plain: 'text-[#05070E] dark:text-[#E4E6F0]',
 };
 
 export async function copyTextToClipboard(text: string): Promise<boolean> {

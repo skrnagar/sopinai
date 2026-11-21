@@ -11,11 +11,11 @@ interface WorkflowPageProps {
 export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#101014]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#101014] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Flow', 'Deterministic Workflow Automation']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#101014] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
               Orchestrate deterministic pipelines around intelligent steps.
             </h1>
             <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
@@ -25,7 +25,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <span>View Flow Specification</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -33,14 +33,14 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/decisions')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore SOPIN Decisions</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate('/context')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold text-[#101014] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore Context &amp; Memory</span>
               </button>
@@ -49,7 +49,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#101126]/40 border-b border-[#101014]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Workflow Designer Preview"
@@ -60,7 +60,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-[#FFFFFF] dark:bg-[#101014]">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#05070E]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-6 space-y-6 min-w-0">
             <SectionHeader
@@ -70,36 +70,36 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <GitBranch className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
+              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+                <GitBranch className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
                   Typed Branching
                 </h3>
                 <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Route edges based on validated schema fields rather than brittle string matching.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <RefreshCw className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
+              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+                <RefreshCw className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
                   Bounded Retries
                 </h3>
                 <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Configure backoff, circuit breakers, and fallback model routes per step.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <PauseCircle className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
+              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+                <PauseCircle className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
                   Pause &amp; Resume Gates
                 </h3>
                 <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
                   Checkpoint execution state while waiting on human review or external webhook signals.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#101014]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101126] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <ShieldAlert className="w-5 h-5 text-[#6252E8] dark:text-[#965BFF]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#101014] dark:text-white">
+              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+                <ShieldAlert className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
                   Dead-Letter Routing
                 </h3>
                 <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">

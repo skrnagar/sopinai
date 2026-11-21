@@ -1,22 +1,36 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  applyGovernedDecisionOperationToSlice,
   buildPublishedChainVersion,
   buildPublishedRuleVersion,
   buildPublishedRulesetVersion,
   buildPublishedScorecardVersion,
   buildPublishedTableVersion,
   canonicalSerialize,
+  checkApprovalPermission,
   checkEditPermission,
+  checkPublishedSnapshotTestEvidence,
+  checkPublishPermission,
   checkTestEvidenceFreshness,
   compareVersionSnapshots,
   computeArtifactSpecHash,
+  createApprovalRecord,
   evaluateDecisionTableSpec,
   evaluateDecisionTarget,
   evaluatePublishGovernancePolicy,
   evaluateRuleChainSpec,
   evaluateRuleSpec,
   evaluateScorecardSpec,
+  getRoleCapabilities,
+  inspectApprovalFreshness,
+  normalizeWorkspaceRole,
+  performGovernedApprove,
+  performGovernedPromote,
+  performGovernedPublish,
+  performGovernedRollback,
+  performGovernedSave,
+  performGovernedSubmitReview,
   resolvePublishedArtifact,
   rollbackArtifactToSnapshot,
   runBatchTestCases,
@@ -29,10 +43,15 @@ import {
 } from '../evaluator';
 import { INITIAL_DECISIONS_SLICE } from '../seedData';
 import {
+  DecisionArtifactSpec,
+  DecisionArtifactType,
+  DecisionReviewApproval,
   DecisionSettings,
+  DecisionsWorkspaceSlice,
   DecisionTableSpec,
   RuleChainSpec,
   RuleSpec,
+  RulesetSpec,
   ScorecardSpec,
 } from '../types';
 
@@ -492,8 +511,19 @@ test('L15. Governance RBAC and Control approval gate enforcement', () => {
   assert.equal(checkEditPermission('Workspace Maintainer', strictSettings).allowed, false);
   assert.equal(checkEditPermission('Workspace Owner', strictSettings).allowed, true);
 
-  const testedRule = INITIAL_DECISIONS_SLICE.rules[0];
-  // Maintainer blocked from publishing under Owner & Admin Only
+  const testedRule = structuredClone(INITIAL_DECISIONS_SLICE.rules[0]);
+  const ownerApproval = createApprovalRecord({
+    type: 'rule',
+    spec: testedRule,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    decision: 'approved',
+    workspaceRole: 'Workspace Owner',
+    reviewerLabel: 'Alice (Simulated Owner)',
+    note: 'Approved for L15 production publish check',
+  });
+
+  // Maintainer blocked from publishing under Owner & Admin Only even with a valid approval record
   const blockedRole = evaluatePublishGovernancePolicy(
     'rule',
     testedRule,
@@ -501,13 +531,13 @@ test('L15. Governance RBAC and Control approval gate enforcement', () => {
     'Workspace Maintainer',
     strictSettings,
     {},
-    true
+    { approval: ownerApproval, purpose: 'publication' }
   );
   assert.equal(blockedRole.allowed, false);
   assert.ok(blockedRole.reasons.some((r) => r.includes('Publish Authority')));
 
-  // Owner without Control approval checkbox blocked when requireControlApprovalForProd is true
-  const unapprovedRule: RuleSpec = { ...testedRule, reviewApproval: undefined };
+  // Owner without bound approval blocked when requireControlApprovalForProd is true
+  const unapprovedRule: RuleSpec = { ...testedRule, reviewApproval: undefined, approvalHistory: [] };
   const blockedApproval = evaluatePublishGovernancePolicy(
     'rule',
     unapprovedRule,
@@ -515,12 +545,14 @@ test('L15. Governance RBAC and Control approval gate enforcement', () => {
     'Workspace Owner',
     strictSettings,
     {},
-    false
+    { purpose: 'publication' }
   );
   assert.equal(blockedApproval.allowed, false);
-  assert.ok(blockedApproval.reasons.some((r) => r.includes('SOPIN Control Review Approval')));
+  assert.ok(
+    blockedApproval.reasons.some((r) => r.includes('No bound publication approval') || r.includes('approval'))
+  );
 
-  // Owner with Control approval passes cleanly
+  // Owner with bound publication approval passes cleanly
   const approved = evaluatePublishGovernancePolicy(
     'rule',
     unapprovedRule,
@@ -528,7 +560,7 @@ test('L15. Governance RBAC and Control approval gate enforcement', () => {
     'Workspace Owner',
     strictSettings,
     {},
-    true
+    { approval: ownerApproval, purpose: 'publication' }
   );
   assert.equal(approved.allowed, true);
 });
@@ -596,3 +628,1024 @@ test('L16 & L17. Rule chain cycles, missing stage targets, and unified published
   assert.equal(resolvedSc.resolved.baseScore, pubSc.baseScore);
   assert.notEqual(resolvedSc.resolved.baseScore, 999);
 });
+
+// ---------------------------------------------------------------------------
+// Prompt 7 — Approval Integrity, Governance Enforcement & Lifecycle Hardening
+// ---------------------------------------------------------------------------
+
+function makeFreshSlice(): DecisionsWorkspaceSlice {
+  return structuredClone(INITIAL_DECISIONS_SLICE);
+}
+
+function getArtifactFromSlice(
+  slice: DecisionsWorkspaceSlice,
+  type: DecisionArtifactType,
+  index = 0
+): DecisionArtifactSpec {
+  if (type === 'rule') return slice.rules[index];
+  if (type === 'table') return slice.tables[index];
+  if (type === 'ruleset') return slice.rulesets[index];
+  if (type === 'chain') return slice.chains[index];
+  return slice.scorecards[index];
+}
+
+function makeSliceCollections(slice: DecisionsWorkspaceSlice) {
+  return {
+    rules: slice.rules,
+    tables: slice.tables,
+    rulesets: slice.rulesets,
+    chains: slice.chains,
+    scorecards: slice.scorecards,
+  };
+}
+
+function refreshArtifactTests(
+  slice: DecisionsWorkspaceSlice,
+  type: DecisionArtifactType,
+  spec: DecisionArtifactSpec
+): DecisionArtifactSpec {
+  const cols = makeSliceCollections(slice);
+  const patchedCols = {
+    rules: type === 'rule' ? [spec as RuleSpec, ...cols.rules.filter((x) => x.id !== spec.id)] : cols.rules,
+    tables: type === 'table' ? [spec as DecisionTableSpec, ...cols.tables.filter((x) => x.id !== spec.id)] : cols.tables,
+    rulesets: type === 'ruleset' ? [spec as RulesetSpec, ...cols.rulesets.filter((x) => x.id !== spec.id)] : cols.rulesets,
+    chains: type === 'chain' ? [spec as RuleChainSpec, ...cols.chains.filter((x) => x.id !== spec.id)] : cols.chains,
+    scorecards: type === 'scorecard' ? [spec as ScorecardSpec, ...cols.scorecards.filter((x) => x.id !== spec.id)] : cols.scorecards,
+  };
+  const res = runBatchTestCases(type, spec.id, spec.testCases, patchedCols);
+  assert.equal(res.failedCount, 0, `Expected ${type}:${spec.id} seed tests to pass`);
+  return { ...spec, testCases: res.updatedCases };
+}
+
+const ALL_ARTIFACT_TYPES: DecisionArtifactType[] = ['rule', 'table', 'ruleset', 'chain', 'scorecard'];
+
+test('P7-1. Bound approval works cleanly when spec is unmodified across all 5 artifact types', () => {
+  const baseSlice = makeFreshSlice();
+  const strictProdSettings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireControlApprovalForProd: true,
+    requireTestPassBeforePublish: true,
+    allowedEditorsRole: 'Builders & Maintainers',
+    allowedPublishersRole: 'Owner & Admin Only',
+  };
+
+  for (const type of ALL_ARTIFACT_TYPES) {
+    const raw = structuredClone(getArtifactFromSlice(baseSlice, type, 0));
+    const tested = refreshArtifactTests(baseSlice, type, {
+      ...raw,
+      status: 'Review',
+      reviewApproval: undefined,
+      approvalHistory: [],
+    });
+
+    const approvalRes = performGovernedApprove({
+      type,
+      spec: tested,
+      targetEnvironment: 'production',
+      purpose: 'publication',
+      decision: 'approved',
+      workspaceRole: 'Workspace Owner',
+      settings: strictProdSettings,
+      collections: makeSliceCollections(baseSlice),
+      reviewerLabel: 'Elena (Owner)',
+      note: `P7-1 ${type} publication approval`,
+    });
+    assert.equal(approvalRes.allowed, true, `Approval failed for ${type}: ${approvalRes.reasons.join('; ')}`);
+    assert.ok(approvalRes.approvalRecord);
+    assert.equal(approvalRes.approvalRecord.specHash, computeArtifactSpecHash(type, tested));
+
+    const freshness = inspectApprovalFreshness(
+      type,
+      approvalRes.updatedSpec!,
+      'production',
+      'publication'
+    );
+    assert.equal(freshness.valid, true, `Freshness failed for ${type}`);
+    assert.equal(freshness.status, 'valid');
+
+    const pubRes = performGovernedPublish({
+      type,
+      spec: approvalRes.updatedSpec!,
+      targetEnvironment: 'production',
+      workspaceRole: 'Workspace Owner',
+      settings: strictProdSettings,
+      collections: makeSliceCollections(baseSlice),
+      summary: `P7-1 release for ${type}`,
+    });
+    assert.equal(pubRes.allowed, true, `Publish failed for ${type}: ${pubRes.reasons.join('; ')}`);
+    assert.equal(pubRes.auditEvent.approvalId, approvalRes.approvalRecord.id);
+  }
+});
+
+test('P7-2. Editing spec logic invalidates prior bound approval (stale-spec) across all 5 types', () => {
+  const baseSlice = makeFreshSlice();
+
+  // Rule condition edit
+  const rule = refreshArtifactTests(baseSlice, 'rule', baseSlice.rules[0]) as RuleSpec;
+  const ruleApr = createApprovalRecord({
+    type: 'rule',
+    spec: rule,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const editedRule: RuleSpec = {
+    ...rule,
+    reviewApproval: ruleApr,
+    approvalHistory: [ruleApr],
+    conditionRoot: {
+      ...rule.conditionRoot,
+      children: [{ kind: 'predicate', id: 'p-amt', field: 'invoiceAmount', operator: '<', value: '99999' }],
+    },
+  };
+  assert.equal(inspectApprovalFreshness('rule', editedRule, 'production', 'publication').status, 'stale-spec');
+
+  // Table row edit
+  const table = refreshArtifactTests(baseSlice, 'table', baseSlice.tables[0]) as DecisionTableSpec;
+  const tableApr = createApprovalRecord({
+    type: 'table',
+    spec: table,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const editedTable: DecisionTableSpec = {
+    ...table,
+    reviewApproval: tableApr,
+    approvalHistory: [tableApr],
+    rows: table.rows.map((r, i) => (i === 0 ? { ...r, outputs: { ...r.outputs, decision: 'manual_review' } } : r)),
+  };
+  assert.equal(inspectApprovalFreshness('table', editedTable, 'production', 'publication').status, 'stale-spec');
+
+  // Ruleset conflict resolution edit
+  const rs = refreshArtifactTests(baseSlice, 'ruleset', baseSlice.rulesets[0]) as RulesetSpec;
+  const rsApr = createApprovalRecord({
+    type: 'ruleset',
+    spec: rs,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const editedRs: RulesetSpec = {
+    ...rs,
+    reviewApproval: rsApr,
+    approvalHistory: [rsApr],
+    conflictResolution: rs.conflictResolution === 'first-match' ? 'highest-priority' : 'first-match',
+  };
+  assert.equal(inspectApprovalFreshness('ruleset', editedRs, 'production', 'publication').status, 'stale-spec');
+
+  // Chain stage edit
+  const chain = refreshArtifactTests(baseSlice, 'chain', baseSlice.chains[0]) as RuleChainSpec;
+  const chainApr = createApprovalRecord({
+    type: 'chain',
+    spec: chain,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const editedChain: RuleChainSpec = {
+    ...chain,
+    reviewApproval: chainApr,
+    approvalHistory: [chainApr],
+    stages: chain.stages.map((s, i) => (i === 0 ? { ...s, onOutcome: 'stop-on-match' } : s)),
+  };
+  assert.equal(inspectApprovalFreshness('chain', editedChain, 'production', 'publication').status, 'stale-spec');
+
+  // Scorecard threshold edit
+  const sc = refreshArtifactTests(baseSlice, 'scorecard', baseSlice.scorecards[0]) as ScorecardSpec;
+  const scApr = createApprovalRecord({
+    type: 'scorecard',
+    spec: sc,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const editedSc: ScorecardSpec = {
+    ...sc,
+    reviewApproval: scApr,
+    approvalHistory: [scApr],
+    baseScore: sc.baseScore + 5,
+  };
+  assert.equal(inspectApprovalFreshness('scorecard', editedSc, 'production', 'publication').status, 'stale-spec');
+});
+
+test('P7-3. Changing version string invalidates prior approval (stale-version)', () => {
+  const baseSlice = makeFreshSlice();
+  const rule = baseSlice.rules[0];
+  const apr = createApprovalRecord({
+    type: 'rule',
+    spec: rule,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const bumpedVersionRule: RuleSpec = {
+    ...rule,
+    version: 'v9.9-draft',
+    reviewApproval: apr,
+    approvalHistory: [apr],
+  };
+  const report = inspectApprovalFreshness('rule', bumpedVersionRule, 'production', 'publication');
+  assert.equal(report.valid, false);
+  assert.equal(report.status, 'stale-version');
+});
+
+test('P7-4. Changing target environment invalidates prior approval (wrong-environment)', () => {
+  const baseSlice = makeFreshSlice();
+  const table = refreshArtifactTests(baseSlice, 'table', baseSlice.tables[0]) as DecisionTableSpec;
+  const stagingApproval = createApprovalRecord({
+    type: 'table',
+    spec: table,
+    targetEnvironment: 'staging',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const tableWithStagingApr: DecisionTableSpec = {
+    ...table,
+    reviewApproval: stagingApproval,
+    approvalHistory: [stagingApproval],
+  };
+  const prodFreshness = inspectApprovalFreshness('table', tableWithStagingApr, 'production', 'publication');
+  assert.equal(prodFreshness.valid, false);
+  assert.equal(prodFreshness.status, 'wrong-environment');
+
+  const blockedProdPublish = performGovernedPublish({
+    type: 'table',
+    spec: tableWithStagingApr,
+    targetEnvironment: 'production',
+    workspaceRole: 'Workspace Owner',
+    settings: { ...baseSlice.settings, requireControlApprovalForProd: true },
+    collections: makeSliceCollections(baseSlice),
+  });
+  assert.equal(blockedProdPublish.allowed, false);
+  assert.equal(blockedProdPublish.auditEvent.outcome, 'Blocked');
+});
+
+test('P7-5. Publication approval cannot be reused for production-promotion (wrong-purpose)', () => {
+  const baseSlice = makeFreshSlice();
+  const strictSettings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireControlApprovalForProd: true,
+    requireTestPassBeforePublish: true,
+  };
+  const rule = refreshArtifactTests(baseSlice, 'rule', {
+    ...baseSlice.rules[0],
+    environment: 'staging',
+    status: 'Published',
+  }) as RuleSpec;
+
+  const pubApproval = createApprovalRecord({
+    type: 'rule',
+    spec: rule,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const ruleWithPubApproval: RuleSpec = {
+    ...rule,
+    reviewApproval: pubApproval,
+    approvalHistory: [pubApproval],
+  };
+
+  // Publication approval is NOT valid for production-promotion
+  const promoFreshness = inspectApprovalFreshness(
+    'rule',
+    ruleWithPubApproval,
+    'production',
+    'production-promotion'
+  );
+  assert.equal(promoFreshness.valid, false);
+  assert.equal(promoFreshness.status, 'wrong-purpose');
+
+  const blockedPromote = performGovernedPromote({
+    type: 'rule',
+    spec: ruleWithPubApproval,
+    targetEnvironment: 'production',
+    workspaceRole: 'Workspace Owner',
+    settings: strictSettings,
+    collections: makeSliceCollections(baseSlice),
+  });
+  assert.equal(blockedPromote.allowed, false);
+  assert.equal(blockedPromote.auditEvent.outcome, 'Blocked');
+
+  // Recording a separate bound production-promotion approval authorizes promotion
+  const promoApproval = createApprovalRecord({
+    type: 'rule',
+    spec: ruleWithPubApproval,
+    targetEnvironment: 'production',
+    purpose: 'production-promotion',
+    workspaceRole: 'Workspace Owner',
+  });
+  const allowedPromote = performGovernedPromote({
+    type: 'rule',
+    spec: ruleWithPubApproval,
+    targetEnvironment: 'production',
+    workspaceRole: 'Workspace Owner',
+    settings: strictSettings,
+    collections: makeSliceCollections(baseSlice),
+    approvalRecord: promoApproval,
+  });
+  assert.equal(allowedPromote.allowed, true);
+  assert.equal(allowedPromote.updatedSpec?.environment, 'production');
+  assert.equal(allowedPromote.updatedSpec?.status, 'Promoted');
+  assert.equal(allowedPromote.updatedSpec?.reviewApproval, undefined); // Consumed approval cleared
+});
+
+test('P7-6. Missing tests block publish across all 5 artifact types when requireTestPassBeforePublish is enabled', () => {
+  const baseSlice = makeFreshSlice();
+  const settings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireTestPassBeforePublish: true,
+    requireControlApprovalForProd: false,
+  };
+
+  for (const type of ALL_ARTIFACT_TYPES) {
+    const spec: DecisionArtifactSpec = {
+      ...structuredClone(getArtifactFromSlice(baseSlice, type, 0)),
+      testCases: [],
+    };
+    const check = evaluatePublishGovernancePolicy(
+      type,
+      spec,
+      'staging',
+      'Workspace Owner',
+      settings,
+      makeSliceCollections(baseSlice)
+    );
+    assert.equal(check.allowed, false, `Expected missing tests to block ${type}`);
+    assert.ok(check.reasons.some((r) => r.includes('at least one golden regression test case')));
+  }
+});
+
+test('P7-7. Failed or unrun tests block publish across all 5 artifact types', () => {
+  const baseSlice = makeFreshSlice();
+  const settings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireTestPassBeforePublish: true,
+    requireControlApprovalForProd: false,
+  };
+
+  for (const type of ALL_ARTIFACT_TYPES) {
+    const raw = structuredClone(getArtifactFromSlice(baseSlice, type, 0));
+    const currentHash = computeArtifactSpecHash(type, raw);
+    const failedSpec: DecisionArtifactSpec = {
+      ...raw,
+      testCases: [
+        {
+          id: `tc-fail-${type}`,
+          name: 'Failing test',
+          inputJson: {},
+          expectedOutput: { decision: '__impossible__' },
+          lastPassed: false,
+          testedArtifactId: raw.id,
+          testedArtifactType: type,
+          testedVersion: raw.version,
+          testedSpecHash: currentHash,
+        },
+      ],
+    };
+    const failedCheck = evaluatePublishGovernancePolicy(
+      type,
+      failedSpec,
+      'staging',
+      'Workspace Owner',
+      settings,
+      makeSliceCollections(baseSlice)
+    );
+    assert.equal(failedCheck.allowed, false);
+    assert.ok(failedCheck.reasons.some((r) => r.includes('failed')));
+
+    const unrunSpec: DecisionArtifactSpec = {
+      ...raw,
+      testCases: [
+        {
+          id: `tc-unrun-${type}`,
+          name: 'Unrun test',
+          inputJson: {},
+          expectedOutput: {},
+          lastPassed: undefined,
+        },
+      ],
+    };
+    const unrunCheck = evaluatePublishGovernancePolicy(
+      type,
+      unrunSpec,
+      'staging',
+      'Workspace Owner',
+      settings,
+      makeSliceCollections(baseSlice)
+    );
+    assert.equal(unrunCheck.allowed, false);
+    assert.ok(unrunCheck.reasons.some((r) => r.includes('have not been executed')));
+  }
+});
+
+test('P7-8. Stale test evidence and legacy/unbound approval metadata are rejected', () => {
+  const baseSlice = makeFreshSlice();
+  const rule = refreshArtifactTests(baseSlice, 'rule', baseSlice.rules[0]) as RuleSpec;
+  const legacyApproval = {
+    approved: true,
+    reviewerLabel: 'Legacy Reviewer',
+    approvedAt: '2026-01-01',
+  } as DecisionReviewApproval;
+
+  // Mutate rule condition without re-running tests + attach legacy unbound approval
+  const mutatedRule: RuleSpec = {
+    ...rule,
+    reviewApproval: legacyApproval,
+    approvalHistory: [legacyApproval],
+    conditionRoot: {
+      ...rule.conditionRoot,
+      children: [{ kind: 'predicate', id: 'p-amt', field: 'invoiceAmount', operator: '<', value: '75000' }],
+    },
+  };
+
+  const freshness = inspectApprovalFreshness('rule', mutatedRule, 'production', 'publication');
+  assert.equal(freshness.valid, false);
+
+  const policy = evaluatePublishGovernancePolicy(
+    'rule',
+    mutatedRule,
+    'production',
+    'Workspace Owner',
+    { ...baseSlice.settings, requireControlApprovalForProd: true, requireTestPassBeforePublish: true },
+    makeSliceCollections(baseSlice)
+  );
+  assert.equal(policy.allowed, false);
+  assert.ok(policy.reasons.some((r) => r.includes('must be re-run')));
+  assert.ok(policy.reasons.some((r) => r.includes('Legacy or unbound') || r.includes('approval')));
+});
+
+test('P7-9. Test evidence copied from another artifact ID or type fails freshness and blocks publish across all 5 types', () => {
+  const baseSlice = makeFreshSlice();
+  const settings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireTestPassBeforePublish: true,
+    requireControlApprovalForProd: false,
+  };
+
+  for (const type of ALL_ARTIFACT_TYPES) {
+    const raw = structuredClone(getArtifactFromSlice(baseSlice, type, 0));
+    const currentHash = computeArtifactSpecHash(type, raw);
+    const copiedSpec: DecisionArtifactSpec = {
+      ...raw,
+      testCases: [
+        {
+          id: `tc-copied-${type}`,
+          name: 'Copied test evidence',
+          inputJson: {},
+          expectedOutput: {},
+          lastPassed: true,
+          testedArtifactId: 'foreign-artifact-id',
+          testedArtifactType: type === 'rule' ? 'table' : 'rule',
+          testedVersion: raw.version,
+          testedSpecHash: currentHash,
+        },
+      ],
+    };
+
+    const report = checkTestEvidenceFreshness(type, copiedSpec);
+    assert.equal(report.mismatchedArtifactCount, 1);
+    assert.equal(report.allCurrentForSpec, false);
+
+    const policy = evaluatePublishGovernancePolicy(
+      type,
+      copiedSpec,
+      'staging',
+      'Workspace Owner',
+      settings,
+      makeSliceCollections(baseSlice)
+    );
+    assert.equal(policy.allowed, false);
+    assert.ok(policy.reasons.some((r) => r.includes('different artifact ID/type')));
+  }
+});
+
+test('P7-10. Roles without edit permission (Viewer, Member, ambiguous Non-Admin) are blocked on save and submit-review across all 5 types', () => {
+  const baseSlice = makeFreshSlice();
+  const buildersOnlySlice: DecisionsWorkspaceSlice = {
+    ...baseSlice,
+    settings: {
+      ...baseSlice.settings,
+      allowedEditorsRole: 'Builders & Maintainers',
+    },
+  };
+
+  assert.equal(normalizeWorkspaceRole('Non-Admin'), 'viewer');
+  assert.equal(getRoleCapabilities('Non-Admin', buildersOnlySlice.settings).canEdit, false);
+  assert.equal(getRoleCapabilities('Workspace Member', buildersOnlySlice.settings).canEdit, false);
+  assert.equal(getRoleCapabilities('Viewer', buildersOnlySlice.settings).canEdit, false);
+
+  const unauthorizedRoles = ['Viewer', 'Workspace Member', 'Non-Admin'];
+  for (const role of unauthorizedRoles) {
+    for (const type of ALL_ARTIFACT_TYPES) {
+      const spec = structuredClone(getArtifactFromSlice(buildersOnlySlice, type, 0));
+      const saveRes = applyGovernedDecisionOperationToSlice(buildersOnlySlice, role, {
+        operation: 'save',
+        artifactType: type,
+        spec,
+      });
+      assert.equal(saveRes.allowed, false, `Expected ${role} save on ${type} to be blocked`);
+      assert.equal(saveRes.slice, buildersOnlySlice);
+      assert.equal(saveRes.auditEvent.outcome, 'Blocked');
+
+      const reviewRes = applyGovernedDecisionOperationToSlice(buildersOnlySlice, role, {
+        operation: 'submit-review',
+        artifactType: type,
+        spec,
+      });
+      assert.equal(reviewRes.allowed, false, `Expected ${role} submit-review on ${type} to be blocked`);
+      assert.equal(reviewRes.slice, buildersOnlySlice);
+      assert.equal(reviewRes.auditEvent.outcome, 'Blocked');
+    }
+  }
+});
+
+test('P7-11. Roles without publish/promote/rollback/approve permission are blocked across all 5 artifact types', () => {
+  const baseSlice = makeFreshSlice();
+  const ownerAdminSlice: DecisionsWorkspaceSlice = {
+    ...baseSlice,
+    settings: {
+      ...baseSlice.settings,
+      allowedPublishersRole: 'Owner & Admin Only',
+      requireControlApprovalForProd: false,
+      requireTestPassBeforePublish: false,
+    },
+  };
+
+  const blockedPublishers = ['Builder', 'Workspace Maintainer', 'Viewer', 'Non-Admin'];
+  for (const role of blockedPublishers) {
+    assert.equal(checkPublishPermission(role, ownerAdminSlice.settings).allowed, false);
+    assert.equal(checkApprovalPermission(role, ownerAdminSlice.settings).allowed, false);
+
+    for (const type of ALL_ARTIFACT_TYPES) {
+      const baseSpec = structuredClone(getArtifactFromSlice(ownerAdminSlice, type, 0));
+      const stagingPubSpec: DecisionArtifactSpec = {
+        ...baseSpec,
+        environment: 'staging',
+        status: 'Published',
+      };
+      const sliceWithStaging: DecisionsWorkspaceSlice = {
+        ...ownerAdminSlice,
+        rules: type === 'rule' ? [stagingPubSpec as RuleSpec] : ownerAdminSlice.rules,
+        tables: type === 'table' ? [stagingPubSpec as DecisionTableSpec] : ownerAdminSlice.tables,
+        rulesets: type === 'ruleset' ? [stagingPubSpec as RulesetSpec] : ownerAdminSlice.rulesets,
+        chains: type === 'chain' ? [stagingPubSpec as RuleChainSpec] : ownerAdminSlice.chains,
+        scorecards: type === 'scorecard' ? [stagingPubSpec as ScorecardSpec] : ownerAdminSlice.scorecards,
+      };
+
+      const aprRes = applyGovernedDecisionOperationToSlice(sliceWithStaging, role, {
+        operation: 'approve',
+        artifactType: type,
+        artifactId: stagingPubSpec.id,
+        targetEnvironment: 'production',
+        purpose: 'publication',
+      });
+      assert.equal(aprRes.allowed, false);
+      assert.equal(aprRes.slice, sliceWithStaging);
+      assert.equal(aprRes.auditEvent.outcome, 'Blocked');
+
+      const pubRes = applyGovernedDecisionOperationToSlice(sliceWithStaging, role, {
+        operation: 'publish',
+        artifactType: type,
+        spec: stagingPubSpec,
+        targetEnvironment: 'staging',
+      });
+      assert.equal(pubRes.allowed, false);
+      assert.equal(pubRes.slice, sliceWithStaging);
+      assert.equal(pubRes.auditEvent.outcome, 'Blocked');
+
+      const promRes = applyGovernedDecisionOperationToSlice(sliceWithStaging, role, {
+        operation: 'promote',
+        artifactType: type,
+        artifactId: stagingPubSpec.id,
+        targetEnvironment: 'production',
+      });
+      assert.equal(promRes.allowed, false);
+      assert.equal(promRes.slice, sliceWithStaging);
+      assert.equal(promRes.auditEvent.outcome, 'Blocked');
+
+      const snapVersion = stagingPubSpec.versionHistory[0]?.version ?? 'v1.0';
+      const rbRes = applyGovernedDecisionOperationToSlice(sliceWithStaging, role, {
+        operation: 'rollback',
+        artifactType: type,
+        artifactId: stagingPubSpec.id,
+        targetVersion: snapVersion,
+      });
+      assert.equal(rbRes.allowed, false);
+      assert.equal(rbRes.slice, sliceWithStaging);
+      assert.equal(rbRes.auditEvent.outcome, 'Blocked');
+    }
+  }
+});
+
+test('P7-12. Control approval gate enforces bound approval on prod publish, promote, and rollback', () => {
+  const baseSlice = makeFreshSlice();
+  const prodSettings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireControlApprovalForProd: true,
+    requireTestPassBeforePublish: true,
+    allowedPublishersRole: 'Owner & Admin Only',
+  };
+
+  const rule = refreshArtifactTests(baseSlice, 'rule', {
+    ...baseSlice.rules[0],
+    environment: 'staging',
+    status: 'Published',
+    reviewApproval: undefined,
+    approvalHistory: [],
+  }) as RuleSpec;
+
+  const workingSlice: DecisionsWorkspaceSlice = {
+    ...baseSlice,
+    settings: prodSettings,
+    rules: [rule, ...baseSlice.rules.slice(1)],
+  };
+
+  // Blocked prod publish without approval
+  const blockedPub = applyGovernedDecisionOperationToSlice(workingSlice, 'Workspace Owner', {
+    operation: 'publish',
+    artifactType: 'rule',
+    spec: rule,
+    targetEnvironment: 'production',
+  });
+  assert.equal(blockedPub.allowed, false);
+  assert.equal(blockedPub.slice, workingSlice);
+
+  // Approve -> publish to prod succeeds
+  const aprPub = applyGovernedDecisionOperationToSlice(workingSlice, 'Workspace Owner', {
+    operation: 'approve',
+    artifactType: 'rule',
+    artifactId: rule.id,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+  });
+  assert.equal(aprPub.allowed, true);
+  const pubRes = applyGovernedDecisionOperationToSlice(aprPub.slice, 'Workspace Owner', {
+    operation: 'publish',
+    artifactType: 'rule',
+    spec: aprPub.updatedSpec!,
+    targetEnvironment: 'production',
+  });
+  assert.equal(pubRes.allowed, true);
+
+  // Blocked prod-touching rollback without rollback approval
+  const targetSnapVersion = pubRes.updatedSpec!.versionHistory[0].version;
+  const blockedRb = applyGovernedDecisionOperationToSlice(pubRes.slice, 'Workspace Owner', {
+    operation: 'rollback',
+    artifactType: 'rule',
+    artifactId: rule.id,
+    targetVersion: targetSnapVersion,
+  });
+  assert.equal(blockedRb.allowed, false);
+
+  // Approve rollback -> rollback succeeds
+  const aprRb = applyGovernedDecisionOperationToSlice(pubRes.slice, 'Workspace Owner', {
+    operation: 'approve',
+    artifactType: 'rule',
+    artifactId: rule.id,
+    targetEnvironment: 'production',
+    purpose: 'rollback',
+    rollbackTargetVersion: targetSnapVersion,
+  });
+  assert.equal(aprRb.allowed, true);
+  const rbRes = applyGovernedDecisionOperationToSlice(aprRb.slice, 'Workspace Owner', {
+    operation: 'rollback',
+    artifactType: 'rule',
+    artifactId: rule.id,
+    targetVersion: targetSnapVersion,
+  });
+  assert.equal(rbRes.allowed, true);
+});
+
+test('P7-13. Rejected approval blocks publish, preserves rejection in approvalHistory, and re-approval unlocks publish', () => {
+  const baseSlice = makeFreshSlice();
+  const prodSettings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireControlApprovalForProd: true,
+    requireTestPassBeforePublish: true,
+  };
+  const rule = refreshArtifactTests(baseSlice, 'rule', {
+    ...baseSlice.rules[0],
+    reviewApproval: undefined,
+    approvalHistory: [],
+  }) as RuleSpec;
+
+  const rejectedRes = performGovernedApprove({
+    type: 'rule',
+    spec: rule,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    decision: 'rejected',
+    workspaceRole: 'Workspace Owner',
+    settings: prodSettings,
+    collections: makeSliceCollections(baseSlice),
+    note: 'Rejected due to ceiling threshold review',
+  });
+  assert.equal(rejectedRes.allowed, true);
+  assert.equal(rejectedRes.auditEvent.outcome, 'Rejected');
+  assert.equal(rejectedRes.updatedSpec?.reviewApproval, undefined);
+  assert.equal(rejectedRes.updatedSpec?.approvalHistory?.length, 1);
+  assert.equal(rejectedRes.updatedSpec?.approvalHistory?.[0].decision, 'rejected');
+
+  const blockedPub = performGovernedPublish({
+    type: 'rule',
+    spec: rejectedRes.updatedSpec!,
+    targetEnvironment: 'production',
+    workspaceRole: 'Workspace Owner',
+    settings: prodSettings,
+    collections: makeSliceCollections(baseSlice),
+  });
+  assert.equal(blockedPub.allowed, false);
+  assert.ok(blockedPub.reasons.some((r) => r.includes('rejected')));
+
+  // Re-approve -> both records preserved in immutable approvalHistory and publish succeeds
+  const reapprovedRes = performGovernedApprove({
+    type: 'rule',
+    spec: rejectedRes.updatedSpec!,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    decision: 'approved',
+    workspaceRole: 'Workspace Owner',
+    settings: prodSettings,
+    collections: makeSliceCollections(baseSlice),
+    note: 'Re-approved after ceiling review clarification',
+  });
+  assert.equal(reapprovedRes.allowed, true);
+  assert.equal(reapprovedRes.updatedSpec?.approvalHistory?.length, 2);
+  assert.equal(reapprovedRes.updatedSpec?.approvalHistory?.[0].decision, 'approved');
+  assert.equal(reapprovedRes.updatedSpec?.approvalHistory?.[1].decision, 'rejected');
+
+  const allowedPub = performGovernedPublish({
+    type: 'rule',
+    spec: reapprovedRes.updatedSpec!,
+    targetEnvironment: 'production',
+    workspaceRole: 'Workspace Owner',
+    settings: prodSettings,
+    collections: makeSliceCollections(baseSlice),
+  });
+  assert.equal(allowedPub.allowed, true);
+});
+
+test('P7-14. Rollback requires publish permission + bound rollback approval, restores snapshot logic, and clears active approval', () => {
+  const baseSlice = makeFreshSlice();
+  const prodSettings: DecisionSettings = {
+    ...baseSlice.settings,
+    requireControlApprovalForProd: true,
+    allowedPublishersRole: 'Owner & Admin Only',
+  };
+
+  const baseTable = refreshArtifactTests(baseSlice, 'table', baseSlice.tables[0]) as DecisionTableSpec;
+  const v1 = buildPublishedTableVersion(baseTable, 'production', 'v1 baseline', 'Workspace Owner');
+  const modifiedForV2: DecisionTableSpec = {
+    ...v1,
+    hitPolicy: v1.hitPolicy === 'priority' ? 'first-match' : 'priority',
+  };
+  const v2 = buildPublishedTableVersion(modifiedForV2, 'production', 'v2 policy change', 'Workspace Owner');
+  const historyLen = v2.versionHistory.length;
+
+  // Non-publisher blocked
+  const nonPublisher = performGovernedRollback({
+    type: 'table',
+    spec: v2,
+    targetVersion: v1.version,
+    workspaceRole: 'Builder',
+    settings: prodSettings,
+  });
+  assert.equal(nonPublisher.allowed, false);
+
+  // Wrong purpose (publication approval) blocked for rollback
+  const pubApproval = createApprovalRecord({
+    type: 'table',
+    spec: v2,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const wrongPurposeRb = performGovernedRollback({
+    type: 'table',
+    spec: v2,
+    targetVersion: v1.version,
+    workspaceRole: 'Workspace Owner',
+    settings: prodSettings,
+    approvalRecord: pubApproval,
+  });
+  assert.equal(wrongPurposeRb.allowed, false);
+
+  // Valid bound rollback approval succeeds, restores v1 logic, preserves versionHistory & approvalHistory, and clears active reviewApproval
+  const rbApproval = createApprovalRecord({
+    type: 'table',
+    spec: v2,
+    targetEnvironment: 'production',
+    purpose: 'rollback',
+    workspaceRole: 'Workspace Owner',
+    rollbackTargetVersion: v1.version,
+  });
+  const okRb = performGovernedRollback({
+    type: 'table',
+    spec: v2,
+    targetVersion: v1.version,
+    workspaceRole: 'Workspace Owner',
+    settings: prodSettings,
+    approvalRecord: rbApproval,
+  });
+  assert.equal(okRb.allowed, true);
+  assert.equal(okRb.updatedSpec?.hitPolicy, baseTable.hitPolicy);
+  assert.equal(okRb.updatedSpec?.versionHistory.length, historyLen);
+  assert.equal(okRb.updatedSpec?.reviewApproval, undefined);
+  assert.ok((okRb.updatedSpec?.approvalHistory ?? []).some((a) => a.id === rbApproval.id));
+});
+
+test('P7-15. Immutable versionHistory and approvalHistory cannot be erased via governed save', () => {
+  const baseSlice = makeFreshSlice();
+  const originalRule = baseSlice.rules[0];
+  const apr = createApprovalRecord({
+    type: 'rule',
+    spec: originalRule,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    workspaceRole: 'Workspace Owner',
+  });
+  const sliceWithHistory: DecisionsWorkspaceSlice = {
+    ...baseSlice,
+    rules: [{ ...originalRule, approvalHistory: [apr] }, ...baseSlice.rules.slice(1)],
+  };
+
+  // Attempt to save while passing empty versionHistory & approvalHistory
+  const tamperedDraft: RuleSpec = {
+    ...originalRule,
+    description: 'Updated description in draft',
+    versionHistory: [],
+    approvalHistory: undefined,
+  };
+  const saveRes = applyGovernedDecisionOperationToSlice(sliceWithHistory, 'Workspace Owner', {
+    operation: 'save',
+    artifactType: 'rule',
+    spec: tamperedDraft,
+  });
+  assert.equal(saveRes.allowed, true);
+  assert.equal(saveRes.updatedSpec?.versionHistory.length, originalRule.versionHistory.length);
+  assert.equal(saveRes.updatedSpec?.approvalHistory?.length, 1);
+  assert.equal(saveRes.updatedSpec?.approvalHistory?.[0].id, apr.id);
+});
+
+test('P7-16. Published snapshot test evidence remains independently verifiable after subsequent draft edits', () => {
+  const baseSlice = makeFreshSlice();
+  const rule = refreshArtifactTests(baseSlice, 'rule', structuredClone(baseSlice.rules[0])) as RuleSpec;
+  const pubRule = buildPublishedRuleVersion(rule, 'production', 'Immutable release', 'Workspace Owner');
+  const publishedVersion = pubRule.version;
+
+  // Later draft edit changes condition and top-level test status fails against the new draft
+  const draftAfterPublish: RuleSpec = {
+    ...pubRule,
+    version: `${publishedVersion}-draft`,
+    status: 'Draft',
+    conditionRoot: {
+      ...pubRule.conditionRoot,
+      children: [{ kind: 'predicate', id: 'p-amt', field: 'invoiceAmount', operator: '<', value: '100' }],
+    },
+    testCases: pubRule.testCases.map((tc) => ({
+      ...tc,
+      lastPassed: false,
+      testedVersion: `${publishedVersion}-draft`,
+      testedSpecHash: 'sha256:draft-changed-failed',
+    })),
+  };
+
+  // Draft test evidence is NOT valid
+  assert.equal(checkTestEvidenceFreshness('rule', draftAfterPublish).allPassed, false);
+
+  // Published immutable snapshot remains independently verified via runHistory!
+  const snapEvidence = checkPublishedSnapshotTestEvidence('rule', draftAfterPublish, publishedVersion);
+  assert.equal(snapEvidence.verified, true);
+  assert.ok(snapEvidence.passedCount >= 1);
+  assert.equal(snapEvidence.snapshotHash, pubRule.versionHistory[0].snapshotHash);
+});
+
+test('P7-17. Blocked operations across all 6 lifecycle operations leave DecisionsWorkspaceSlice strictly unmutated', () => {
+  const baseSlice = makeFreshSlice();
+  const strictSlice: DecisionsWorkspaceSlice = {
+    ...baseSlice,
+    settings: {
+      ...baseSlice.settings,
+      allowedEditorsRole: 'Owner & Admin',
+      allowedPublishersRole: 'Owner & Admin Only',
+      requireControlApprovalForProd: true,
+      requireTestPassBeforePublish: true,
+    },
+  };
+  const rule = strictSlice.rules[0];
+  const snapshotBefore = JSON.stringify(strictSlice);
+
+  const ops = [
+    applyGovernedDecisionOperationToSlice(strictSlice, 'Viewer', {
+      operation: 'save',
+      artifactType: 'rule',
+      spec: { ...rule, name: 'Mutated Name' },
+    }),
+    applyGovernedDecisionOperationToSlice(strictSlice, 'Viewer', {
+      operation: 'submit-review',
+      artifactType: 'rule',
+      spec: rule,
+    }),
+    applyGovernedDecisionOperationToSlice(strictSlice, 'Builder', {
+      operation: 'approve',
+      artifactType: 'rule',
+      artifactId: rule.id,
+      targetEnvironment: 'production',
+      purpose: 'publication',
+    }),
+    applyGovernedDecisionOperationToSlice(strictSlice, 'Workspace Owner', {
+      operation: 'publish',
+      artifactType: 'rule',
+      spec: { ...rule, testCases: [] },
+      targetEnvironment: 'production',
+    }),
+    applyGovernedDecisionOperationToSlice(strictSlice, 'Workspace Owner', {
+      operation: 'promote',
+      artifactType: 'rule',
+      artifactId: rule.id,
+      targetEnvironment: 'production',
+    }),
+    applyGovernedDecisionOperationToSlice(strictSlice, 'Builder', {
+      operation: 'rollback',
+      artifactType: 'rule',
+      artifactId: rule.id,
+      targetVersion: rule.versionHistory[0].version,
+    }),
+  ];
+
+  for (const res of ops) {
+    assert.equal(res.allowed, false);
+    assert.equal(res.slice, strictSlice);
+    assert.equal(res.auditEvent.outcome, 'Blocked');
+  }
+  assert.equal(JSON.stringify(strictSlice), snapshotBefore);
+});
+
+test('P7-18. Structured DecisionAuditRecord entries are emitted on both allowed and blocked operations with full metadata', () => {
+  const baseSlice = makeFreshSlice();
+  const rule = refreshArtifactTests(baseSlice, 'rule', {
+    ...baseSlice.rules[0],
+    environment: 'staging',
+    status: 'Review',
+  }) as RuleSpec;
+  const workingSlice: DecisionsWorkspaceSlice = {
+    ...baseSlice,
+    settings: {
+      ...baseSlice.settings,
+      requireControlApprovalForProd: true,
+      requireTestPassBeforePublish: true,
+      allowedPublishersRole: 'Owner & Admin Only',
+    },
+    rules: [rule, ...baseSlice.rules.slice(1)],
+  };
+
+  const blocked = applyGovernedDecisionOperationToSlice(workingSlice, 'Builder', {
+    operation: 'publish',
+    artifactType: 'rule',
+    spec: rule,
+    targetEnvironment: 'production',
+  });
+  assert.equal(blocked.allowed, false);
+  assert.equal(blocked.auditEvent.outcome, 'Blocked');
+  assert.equal(blocked.auditEvent.isSimulatedActor, true);
+  assert.equal(blocked.auditEvent.actorRole, 'Builder');
+  assert.equal(blocked.auditEvent.artifactType, 'rule');
+  assert.equal(blocked.auditEvent.artifactId, rule.id);
+  assert.equal(blocked.auditEvent.previousVersion, rule.version);
+  assert.equal(blocked.auditEvent.targetEnvironment, 'production');
+  assert.ok(blocked.auditEvent.specHash.startsWith('sha256:'));
+  assert.ok(blocked.auditEvent.reason.length > 0);
+
+  const apr = applyGovernedDecisionOperationToSlice(workingSlice, 'Workspace Owner', {
+    operation: 'approve',
+    artifactType: 'rule',
+    artifactId: rule.id,
+    targetEnvironment: 'production',
+    purpose: 'publication',
+    reviewerLabel: 'Governance Lead',
+  });
+  assert.equal(apr.allowed, true);
+  assert.equal(apr.auditEvent.outcome, 'Approved');
+  assert.equal(apr.auditEvent.approvalId, apr.approvalRecord?.id);
+
+  const pub = applyGovernedDecisionOperationToSlice(apr.slice, 'Workspace Owner', {
+    operation: 'publish',
+    artifactType: 'rule',
+    spec: apr.updatedSpec!,
+    targetEnvironment: 'production',
+  });
+  assert.equal(pub.allowed, true);
+  assert.equal(pub.auditEvent.outcome, 'Allowed');
+  assert.equal(pub.auditEvent.isSimulatedActor, true);
+  assert.equal(pub.auditEvent.actorRole, 'Workspace Owner');
+  assert.equal(pub.auditEvent.artifactType, 'rule');
+  assert.equal(pub.auditEvent.artifactId, rule.id);
+  assert.equal(pub.auditEvent.previousVersion, rule.version);
+  assert.ok(pub.auditEvent.resultingVersion);
+  assert.equal(pub.auditEvent.targetEnvironment, 'production');
+  assert.equal(pub.auditEvent.approvalId, apr.approvalRecord?.id);
+  assert.ok(pub.auditEvent.specHash.startsWith('sha256:'));
+});
+

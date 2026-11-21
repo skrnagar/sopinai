@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import {
+  DecisionApprovalPurpose,
   DecisionEnvironment,
   DecisionExecutionSpec,
   DecisionSettings,
@@ -18,16 +19,20 @@ import {
   HitPolicy,
 } from '../types';
 import {
-  buildPublishedTableVersion,
+  applyGovernedDecisionOperationToSlice,
   canonicalSerialize,
   checkEditPermission,
   checkTestEvidenceFreshness,
   evaluateDecisionTableSpec,
-  evaluatePublishGovernancePolicy,
   extractVersionableSpecBody,
+  GovernedDecisionRequest,
+  performGovernedApprove,
+  performGovernedPublish,
+  performGovernedSave,
+  performGovernedSubmitReview,
   validateDecisionTableArtifact,
-  validateDecisionTableSpec,
 } from '../evaluator';
+import { DecisionGovernanceStatusCard, GovernedPublishSheet } from './DecisionGovernancePanel';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
 import { HighlightedCode } from '../../components/ui/HighlightedCode';
@@ -39,6 +44,9 @@ interface DecisionTableEditorProps {
   selectedTableId?: string;
   settings?: DecisionSettings;
   onSaveTable: (table: DecisionTableSpec, note?: string) => void;
+  onGovernedAction?: (
+    req: GovernedDecisionRequest
+  ) => ReturnType<typeof applyGovernedDecisionOperationToSlice>;
   onRecordExecution: (exec: DecisionExecutionSpec) => void;
 }
 
@@ -93,6 +101,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
   selectedTableId,
   settings,
   onSaveTable,
+  onGovernedAction,
   onRecordExecution,
 }) => {
   const effectiveSettings: DecisionSettings = settings ?? {
@@ -129,7 +138,6 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishEnv, setPublishEnv] = useState<DecisionEnvironment>('production');
   const [publishSummary, setPublishSummary] = useState('Verified decision table hit policy, thresholds, and fallback defaults.');
-  const [controlApprovalChecked, setControlApprovalChecked] = useState(false);
 
   const editPermission = useMemo(
     () => checkEditPermission(workspaceRole, effectiveSettings),
@@ -144,20 +152,6 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
   const testEvidence = useMemo(
     () => checkTestEvidenceFreshness('table', table),
     [table]
-  );
-
-  const publishPolicy = useMemo(
-    () =>
-      evaluatePublishGovernancePolicy(
-        'table',
-        table,
-        publishEnv,
-        workspaceRole,
-        effectiveSettings,
-        {},
-        controlApprovalChecked
-      ),
-    [table, publishEnv, workspaceRole, effectiveSettings, controlApprovalChecked]
   );
 
   const isDirty = useMemo(() => {
@@ -247,57 +241,140 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
     }
   };
 
+  const handleRecordApproval = (params: {
+    targetEnvironment: DecisionEnvironment;
+    purpose: DecisionApprovalPurpose;
+    decision: 'approved' | 'rejected';
+    note: string;
+  }) => {
+    if (onGovernedAction) {
+      const res = onGovernedAction({
+        operation: 'approve',
+        artifactType: 'table',
+        artifactId: table.id,
+        targetEnvironment: params.targetEnvironment,
+        purpose: params.purpose,
+        decision: params.decision,
+        note: params.note,
+        specOverride: table,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setNotice(`Approval blocked: ${res.reasons.join(' ')}`);
+        return;
+      }
+      const next = res.updatedSpec as DecisionTableSpec;
+      setTable(next);
+      setNotice(
+        `Recorded bound ${params.purpose} (${params.decision}) for ${next.version} (${params.targetEnvironment}).`
+      );
+      return;
+    }
+
+    const res = performGovernedApprove({
+      type: 'table',
+      spec: table,
+      targetEnvironment: params.targetEnvironment,
+      purpose: params.purpose,
+      decision: params.decision,
+      workspaceRole,
+      settings: effectiveSettings,
+      note: params.note,
+    });
+    if (!res.allowed || !res.updatedSpec) {
+      setNotice(`Approval blocked: ${res.reasons.join(' ')}`);
+      return;
+    }
+    setTable(res.updatedSpec);
+    onSaveTable(res.updatedSpec, res.auditEvent.action);
+    setNotice(res.auditEvent.action);
+  };
+
   const handleSaveDraft = (targetStatus: 'Draft' | 'Review' = 'Draft') => {
-    if (!editPermission.allowed) {
-      setNotice(editPermission.reasons[0] || 'Role cannot edit decision tables under governance policy.');
+    if (onGovernedAction) {
+      const res =
+        targetStatus === 'Review'
+          ? onGovernedAction({
+              operation: 'submit-review',
+              artifactType: 'table',
+              spec: table,
+            })
+          : onGovernedAction({
+              operation: 'save',
+              artifactType: 'table',
+              spec: table,
+              targetStatus: 'Draft',
+            });
+      if (!res.allowed || !res.updatedSpec) {
+        setNotice(`${targetStatus === 'Review' ? 'Submit review' : 'Save'} blocked: ${res.reasons.join(' ')}`);
+        return;
+      }
+      const next = res.updatedSpec as DecisionTableSpec;
+      setTable(next);
+      setNotice(`Saved Decision Table ${next.status} (${next.version}) locally; published snapshots remain immutable.`);
       return;
     }
-    const check = validateDecisionTableSpec(table);
-    if (!check.valid) {
-      setNotice(`Cannot save ambiguous table: ${check.errors.join(' ')}`);
+
+    const res =
+      targetStatus === 'Review'
+        ? performGovernedSubmitReview({
+            type: 'table',
+            spec: table,
+            workspaceRole,
+            settings: effectiveSettings,
+          })
+        : performGovernedSave({
+            type: 'table',
+            spec: table,
+            workspaceRole,
+            settings: effectiveSettings,
+            targetStatus: 'Draft',
+          });
+    if (!res.allowed || !res.updatedSpec) {
+      setNotice(`Save blocked: ${res.reasons.join(' ')}`);
       return;
     }
-    const nextVersion =
-      (table.status === 'Published' || table.status === 'Promoted') && !table.version.includes('-draft')
-        ? `${table.version}-draft`
-        : table.version;
-    const next: DecisionTableSpec = {
-      ...table,
-      version: nextVersion,
-      status: targetStatus,
-      updatedAt: 'Just now',
-    };
-    setTable(next);
-    onSaveTable(next, `Saved Table ${targetStatus} (${next.version})`);
-    setNotice(`Saved Decision Table ${targetStatus} (${next.version}) locally; published snapshots remain immutable.`);
+    setTable(res.updatedSpec);
+    onSaveTable(res.updatedSpec, res.auditEvent.action);
+    setNotice(`Saved Decision Table ${res.updatedSpec.status} (${res.updatedSpec.version}) locally; published snapshots remain immutable.`);
   };
 
   const handlePublishConfirm = () => {
-    if (!publishPolicy.allowed) {
-      setNotice(`Publish blocked: ${publishPolicy.reasons.join(' ')}`);
+    const summary = publishSummary.trim() || 'Published Decision Table snapshot';
+    if (onGovernedAction) {
+      const res = onGovernedAction({
+        operation: 'publish',
+        artifactType: 'table',
+        spec: table,
+        targetEnvironment: publishEnv,
+        summary,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setNotice(`Publish blocked: ${res.reasons.join(' ')}`);
+        return;
+      }
+      const next = res.updatedSpec as DecisionTableSpec;
+      setTable(next);
+      setPublishOpen(false);
+      setNotice(`Published immutable Decision Table ${next.version} (${publishEnv}).`);
       return;
     }
-    const next = buildPublishedTableVersion(
-      table,
-      publishEnv,
-      publishSummary.trim() || 'Published Decision Table snapshot',
-      `${workspaceRole} (Local Prototype)`,
-      undefined,
-      publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd
-        ? {
-            approved: controlApprovalChecked,
-            reviewerLabel: `${workspaceRole} (Local Gate)`,
-            approvedAt: 'Just now',
-            note: publishSummary.trim(),
-            controlRequired: true,
-          }
-        : undefined
-    );
-    setTable(next);
-    onSaveTable(next, `Published Table ${next.version} to ${publishEnv}`);
+
+    const res = performGovernedPublish({
+      type: 'table',
+      spec: table,
+      targetEnvironment: publishEnv,
+      workspaceRole,
+      settings: effectiveSettings,
+      summary,
+    });
+    if (!res.allowed || !res.updatedSpec) {
+      setNotice(`Publish blocked: ${res.reasons.join(' ')}`);
+      return;
+    }
+    setTable(res.updatedSpec);
+    onSaveTable(res.updatedSpec, res.auditEvent.action);
     setPublishOpen(false);
-    setControlApprovalChecked(false);
-    setNotice(`Published immutable Decision Table ${next.version} (${publishEnv}).`);
+    setNotice(`Published immutable Decision Table ${res.updatedSpec.version} (${publishEnv}).`);
   };
 
   return (
@@ -314,11 +391,11 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                 onClick={() => handleSelectTable(t)}
                 className={`min-h-[44px] px-3.5 py-2 rounded-xl border text-left shrink-0 transition-colors ${
                   active
-                    ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/25'
-                    : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                    ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/25'
+                    : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]'
                 }`}
               >
-                <div className="text-xs font-semibold text-[#101014] dark:text-white truncate max-w-[180px]">
+                <div className="text-xs font-semibold text-[#05070E] dark:text-white truncate max-w-[180px]">
                   {t.name}
                 </div>
                 <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -332,7 +409,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
         <button
           type="button"
           onClick={() => handleSelectTable(createEmptyTable(workspaceId))}
-          className="min-h-[44px] px-3.5 rounded-xl bg-[#101014] dark:bg-white text-white dark:text-[#101014] text-xs font-semibold inline-flex items-center gap-1.5 shrink-0"
+          className="min-h-[44px] px-3.5 rounded-xl bg-[#05070E] dark:bg-white text-white dark:text-[#05070E] text-xs font-semibold inline-flex items-center gap-1.5 shrink-0"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
           <span>New Decision Table</span>
@@ -342,13 +419,13 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
       {notice && (
         <div
           role="status"
-          className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs font-medium"
+          className="rounded-xl border border-[#2563EB]/35 bg-[#2563EB]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs font-medium"
         >
           <span className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+            <CheckCircle2 className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
             <span>{notice}</span>
           </span>
-          <button type="button" onClick={() => setNotice('')} className="text-xs font-semibold text-[#6252E8]">
+          <button type="button" onClick={() => setNotice('')} className="text-xs font-semibold text-[#2563EB]">
             Dismiss
           </button>
         </div>
@@ -402,7 +479,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
       )}
 
       {/* Header & Hit Policy Configuration */}
-      <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+      <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <StatusText
             items={[
@@ -420,21 +497,21 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
             <button
               type="button"
               onClick={() => handleAddColumn('input')}
-              className="min-h-[38px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+              className="min-h-[38px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
             >
               + Input Col
             </button>
             <button
               type="button"
               onClick={() => handleAddColumn('output')}
-              className="min-h-[38px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
+              className="min-h-[38px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold"
             >
               + Output Col
             </button>
             <button
               type="button"
               onClick={handleAddRow}
-              className="min-h-[38px] px-3 rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
+              className="min-h-[38px] px-3 rounded-lg bg-[#2563EB] text-white text-xs font-semibold"
             >
               + Add Row
             </button>
@@ -451,7 +528,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
               type="text"
               value={table.name}
               onChange={(e) => setTable({ ...table, name: e.target.value })}
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+              className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
             />
           </div>
           <div className="sm:col-span-6">
@@ -462,7 +539,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
               id="dt-hit-policy"
               value={table.hitPolicy}
               onChange={(e) => setTable({ ...table, hitPolicy: e.target.value as HitPolicy })}
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+              className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
             >
               <option value="first-match">first-match (Row declaration order)</option>
               <option value="priority">priority (Explicit priority column asc)</option>
@@ -475,18 +552,18 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
       </div>
 
       {/* Spreadsheet Grid (Horizontal Scroll Safe on Mobile + Row Sheet Button) */}
-      <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] overflow-hidden">
+      <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014]">
+              <tr className="border-b border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E]">
                 <th className="px-3 py-3 font-mono font-semibold text-[#5E5E6E] dark:text-[#A4A4B5]">
                   Prio
                 </th>
                 {table.inputColumns.map((col) => (
                   <th
                     key={col.id}
-                    className="px-3 py-3 font-mono font-semibold text-[#6252E8] dark:text-[#B894FF] whitespace-nowrap"
+                    className="px-3 py-3 font-mono font-semibold text-[#2563EB] dark:text-[#7EC8FF] whitespace-nowrap"
                   >
                     IF {col.label} ({col.field})
                   </th>
@@ -494,7 +571,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                 {table.outputColumns.map((col) => (
                   <th
                     key={col.id}
-                    className="px-3 py-3 font-mono font-semibold text-[#101014] dark:text-white whitespace-nowrap border-l border-[#101014]/10 dark:border-white/10"
+                    className="px-3 py-3 font-mono font-semibold text-[#05070E] dark:text-white whitespace-nowrap border-l border-[#05070E]/10 dark:border-white/10"
                   >
                     THEN {col.label}
                   </th>
@@ -502,7 +579,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                 <th className="px-3 py-3 text-right font-semibold whitespace-nowrap">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#101014]/[0.08] dark:divide-white/10">
+            <tbody className="divide-y divide-[#05070E]/[0.08] dark:divide-white/10">
               {table.rows.map((row) => {
                 const isMatched = execResult?.matchedTableRows.some((m) =>
                   m.startsWith(`Row #${row.priority}`)
@@ -515,7 +592,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                       rowErrors.length > 0
                         ? 'bg-red-500/[0.07] dark:bg-red-500/15'
                         : isMatched
-                        ? 'bg-[#6252E8]/12 dark:bg-[#6252E8]/25'
+                        ? 'bg-[#2563EB]/12 dark:bg-[#2563EB]/25'
                         : !row.enabled
                         ? 'opacity-50'
                         : 'hover:bg-[#F7F7FA]/60 dark:hover:bg-white/[0.03]'
@@ -534,7 +611,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                             ),
                           })
                         }
-                        className="w-14 min-h-[38px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-transparent font-mono text-xs"
+                        className="w-14 min-h-[38px] px-2 rounded border border-[#05070E]/15 dark:border-white/15 bg-transparent font-mono text-xs"
                       />
                     </td>
                     {table.inputColumns.map((col) => {
@@ -558,7 +635,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                             className={`w-full min-h-[38px] px-2.5 rounded border font-mono text-xs ${
                               cellErr
                                 ? 'border-red-500 bg-red-500/10'
-                                : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014]'
+                                : 'border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E]'
                             }`}
                           />
                         </td>
@@ -569,7 +646,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                       return (
                         <td
                           key={`${row.id}-${col.id}`}
-                          className="px-2 py-2 min-w-[130px] border-l border-[#101014]/10 dark:border-white/10"
+                          className="px-2 py-2 min-w-[130px] border-l border-[#05070E]/10 dark:border-white/10"
                         >
                           <input
                             type="text"
@@ -588,7 +665,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                             className={`w-full min-h-[38px] px-2.5 rounded border font-mono text-xs ${
                               outErr
                                 ? 'border-red-500 bg-red-500/10'
-                                : 'border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126]'
+                                : 'border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226]'
                             }`}
                           />
                         </td>
@@ -599,7 +676,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                         <button
                           type="button"
                           onClick={() => setEditingRow(row)}
-                          className="min-h-[38px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold"
+                          className="min-h-[38px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-[11px] font-semibold"
                         >
                           Details
                         </button>
@@ -628,7 +705,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
 
       {/* Default Fallback & Live Simulator */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-6 rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+        <div className="lg:col-span-6 rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold">Default / Fallback Output</span>
             <span className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -653,12 +730,12 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                       },
                     })
                   }
-                  className="w-full min-h-[38px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                  className="w-full min-h-[38px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-xs"
                 />
               </div>
             ))}
           </div>
-          <pre className="p-3 rounded-xl bg-[#F7F7FA] dark:bg-[#0D1021] border border-[#101014]/10 dark:border-white/10 font-mono text-xs overflow-x-auto">
+          <pre className="p-3 rounded-xl bg-[#F7F7FA] dark:bg-[#060B18] border border-[#05070E]/10 dark:border-white/10 font-mono text-xs overflow-x-auto">
             <HighlightedCode
               code={JSON.stringify(table.defaultOutput, null, 2)}
               language="json"
@@ -666,21 +743,32 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
             />
           </pre>
 
+          <DecisionGovernanceStatusCard
+            artifactType="table"
+            spec={table}
+            workspaceRole={workspaceRole}
+            settings={effectiveSettings}
+            targetEnvironment={publishEnv}
+            onRecordApproval={handleRecordApproval}
+          />
+
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <button
               type="button"
-              disabled={!editPermission.allowed}
               onClick={() => handleSaveDraft('Draft')}
-              className="min-h-[44px] px-4 rounded-xl border border-[#101014]/15 dark:border-white/15 disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+              className={`min-h-[44px] px-4 rounded-xl border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap ${
+                !editPermission.allowed ? 'opacity-60' : ''
+              }`}
             >
               <Save className="w-4 h-4" aria-hidden="true" />
               <span>Save Draft</span>
             </button>
             <button
               type="button"
-              disabled={!editPermission.allowed || !liveValidation.isValid}
               onClick={() => handleSaveDraft('Review')}
-              className="min-h-[44px] px-4 rounded-xl border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+              className={`min-h-[44px] px-4 rounded-xl border border-[#2563EB]/40 text-[#2563EB] dark:text-[#7EC8FF] text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap ${
+                !editPermission.allowed || !liveValidation.isValid ? 'opacity-60' : ''
+              }`}
             >
               <ShieldCheck className="w-4 h-4" aria-hidden="true" />
               <span>Submit Review</span>
@@ -688,7 +776,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
             <button
               type="button"
               onClick={() => setPublishOpen(true)}
-              className="min-h-[44px] px-4 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+              className="min-h-[44px] px-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
             >
               <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
               <span>Publish Table</span>
@@ -696,23 +784,23 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
           </div>
         </div>
 
-        <div className="lg:col-span-6 rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-3">
+        <div className="lg:col-span-6 rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-display text-sm font-semibold">Test Decision Table Input</span>
-            <span className="font-mono text-[11px] text-[#B894FF]">{table.hitPolicy}</span>
+            <span className="font-mono text-[11px] text-[#7EC8FF]">{table.hitPolicy}</span>
           </div>
           <textarea
             rows={4}
             value={sampleInput}
             onChange={(e) => setSampleInput(e.target.value)}
             aria-label="Sample JSON input for decision table"
-            className="w-full p-2.5 rounded-xl border border-white/15 bg-[#101014] font-mono text-xs text-white"
+            className="w-full p-2.5 rounded-xl border border-white/15 bg-[#05070E] font-mono text-xs text-white"
           />
           {parseErr && <p className="text-xs text-red-400">{parseErr}</p>}
           <button
             type="button"
             onClick={handleRunSample}
-            className="w-full min-h-[44px] rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+            className="w-full min-h-[44px] rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
           >
             <Play className="w-4 h-4" aria-hidden="true" />
             <span>Evaluate Table Rows</span>
@@ -722,7 +810,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
             <div className="pt-2 border-t border-white/10 space-y-2 text-xs">
               <div
                 className={`font-mono ${
-                  execResult.status === 'Error' ? 'text-red-400' : 'text-[#B894FF]'
+                  execResult.status === 'Error' ? 'text-red-400' : 'text-[#7EC8FF]'
                 }`}
               >
                 {execResult.status} · Matched: {execResult.matchedTableRows.join(', ') || 'Default Fallback'}
@@ -732,7 +820,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                   {execResult.validationErrors.join(' ')}
                 </div>
               )}
-              <pre className="p-2.5 rounded-lg bg-[#0D1021] border border-white/10 font-mono text-[11px] overflow-x-auto">
+              <pre className="p-2.5 rounded-lg bg-[#060B18] border border-white/10 font-mono text-[11px] overflow-x-auto">
                 <HighlightedCode
                   code={JSON.stringify(execResult.finalOutput, null, 2)}
                   language="json"
@@ -762,7 +850,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                 type="text"
                 value={editingRow.note ?? ''}
                 onChange={(e) => setEditingRow({ ...editingRow, note: e.target.value })}
-                className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+                className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
               />
             </div>
 
@@ -780,7 +868,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                       cells: { ...editingRow.cells, [col.field]: e.target.value },
                     })
                   }
-                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-sm"
+                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-sm"
                 />
               </div>
             ))}
@@ -799,7 +887,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                       outputs: { ...editingRow.outputs, [col.field]: e.target.value },
                     })
                   }
-                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-sm"
+                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-sm"
                 />
               </div>
             ))}
@@ -813,7 +901,7 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
                 });
                 setEditingRow(null);
               }}
-              className="w-full min-h-[44px] rounded-xl bg-[#6252E8] text-white text-xs font-semibold"
+              className="w-full min-h-[44px] rounded-xl bg-[#2563EB] text-white text-xs font-semibold"
             >
               Apply Row Changes
             </button>
@@ -821,91 +909,21 @@ export const DecisionTableEditor: React.FC<DecisionTableEditorProps> = ({
         )}
       </BottomSheet>
 
-      {/* Explicit Governed Table Publishing Confirmation Sheet */}
-      <BottomSheet
+      <GovernedPublishSheet
         open={publishOpen}
         onClose={() => setPublishOpen(false)}
-        title="Publish Immutable Decision Table?"
-        subtitle="Publishes a verified canonical SHA-256 snapshot for SOPIN Flow & Gateway."
-      >
-        <div className="space-y-4">
-          {!publishPolicy.allowed && (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-xs text-red-700 dark:text-red-200 space-y-1"
-            >
-              <div className="font-semibold">Publish Blocked by Governance &amp; Table Validation</div>
-              {publishPolicy.reasons.map((r, i) => (
-                <div key={i} className="font-mono text-[11px]">
-                  • {r}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div>
-            <label htmlFor="dt-pub-env" className="block text-xs font-semibold mb-1.5">
-              Target Environment
-            </label>
-            <select
-              id="dt-pub-env"
-              value={publishEnv}
-              onChange={(e) => setPublishEnv(e.target.value as DecisionEnvironment)}
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
-            >
-              <option value="development">development</option>
-              <option value="staging">staging</option>
-              <option value="production">production</option>
-            </select>
-          </div>
-
-          {publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd && (
-            <label className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/[0.06] p-3 flex items-start gap-2.5 text-xs cursor-pointer">
-              <input
-                type="checkbox"
-                checked={controlApprovalChecked}
-                onChange={(e) => setControlApprovalChecked(e.target.checked)}
-                className="mt-0.5"
-              />
-              <span>
-                <strong>SOPIN Control Review Approval (Local Prototype Gate):</strong> Confirm peer review sign-off for production deployment as{' '}
-                <span className="font-mono">{workspaceRole}</span>.
-              </span>
-            </label>
-          )}
-
-          <div>
-            <label htmlFor="dt-pub-note" className="block text-xs font-semibold mb-1.5">
-              Release Notes / Change Summary
-            </label>
-            <input
-              id="dt-pub-note"
-              type="text"
-              value={publishSummary}
-              onChange={(e) => setPublishSummary(e.target.value)}
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => setPublishOpen(false)}
-              className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={!publishPolicy.allowed}
-              onClick={handlePublishConfirm}
-              className="min-h-[44px] rounded-xl bg-[#6252E8] disabled:opacity-40 text-white text-xs font-semibold"
-            >
-              Confirm Publish
-            </button>
-          </div>
-        </div>
-      </BottomSheet>
+        artifactType="table"
+        titleLabel="Decision Table"
+        spec={table}
+        workspaceRole={workspaceRole}
+        settings={effectiveSettings}
+        publishEnv={publishEnv}
+        onChangePublishEnv={setPublishEnv}
+        publishSummary={publishSummary}
+        onChangePublishSummary={setPublishSummary}
+        onRecordApproval={handleRecordApproval}
+        onConfirmPublish={handlePublishConfirm}
+      />
     </div>
   );
 };

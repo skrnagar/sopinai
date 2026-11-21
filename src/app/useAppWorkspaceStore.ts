@@ -13,6 +13,9 @@ import {
   Workspace,
 } from './types';
 import {
+  DecisionArtifactSpec,
+  DecisionArtifactType,
+  DecisionAuditRecord,
   DecisionExecutionSpec,
   DecisionSettings,
   DecisionsWorkspaceSlice,
@@ -24,12 +27,39 @@ import {
 } from '../decisions/types';
 import { INITIAL_DECISIONS_SLICE } from '../decisions/seedData';
 import {
+  applyGovernedDecisionOperationToSlice,
+  checkEditPermission,
+  computeArtifactSpecHash,
   executeMultiAgentGraph,
   executeWorkflowWithDecisions,
+  GovernedDecisionRequest,
   invokeAgentDecision,
   validateDecisionsSlice,
   validateWorkflowPublishReadiness,
 } from '../decisions/evaluator';
+
+function mapDecisionAuditToEvent(rec: DecisionAuditRecord): AuditEvent {
+  return {
+    id: rec.id,
+    workspaceId: rec.workspaceId,
+    timestamp: rec.timestamp,
+    actor: rec.actor,
+    actorRole: rec.actorRole,
+    isSimulatedActor: rec.isSimulatedActor,
+    action: rec.action,
+    operation: rec.operation,
+    target: `${rec.artifactName} (${rec.artifactId})`,
+    artifactType: rec.artifactType,
+    artifactId: rec.artifactId,
+    previousVersion: rec.previousVersion,
+    resultingVersion: rec.resultingVersion,
+    specHash: rec.specHash,
+    targetEnvironment: rec.targetEnvironment,
+    approvalId: rec.approvalId,
+    outcome: rec.outcome,
+    reason: rec.reason,
+  };
+}
 
 export interface AppWorkspaceState {
   workspaces: Workspace[];
@@ -1389,6 +1419,36 @@ export function useAppWorkspaceStore() {
     });
   }, []);
 
+  const updateActiveWorkspaceRole = useCallback((nextRole: string) => {
+    const cleaned = nextRole.trim();
+    if (!cleaned) return;
+    setState((prev) => {
+      const currentWs = prev.workspaces.find((w) => w.id === prev.activeWorkspaceId);
+      if (!currentWs || currentWs.role === cleaned) return prev;
+      return {
+        ...prev,
+        workspaces: prev.workspaces.map((w) =>
+          w.id === prev.activeWorkspaceId ? { ...w, role: cleaned } : w
+        ),
+        auditLog: [
+          {
+            id: `aud-${Date.now()}`,
+            workspaceId: prev.activeWorkspaceId,
+            timestamp: `${new Date().toISOString()} (Simulated Local)`,
+            actor: 'Local Prototype Operator (Simulated Local Actor)',
+            actorRole: cleaned,
+            isSimulatedActor: true,
+            action: `Switched simulated workspace role (${currentWs.role} -> ${cleaned})`,
+            target: currentWs.name,
+            outcome: 'Updated',
+            reason: 'Local prototype role simulation switched for testing governance enforcement.',
+          },
+          ...prev.auditLog,
+        ],
+      };
+    });
+  }, []);
+
   const createWorkspace = useCallback((name: string, role = 'Workspace Maintainer') => {
     const cleanName = name.trim();
     if (!cleanName) return null;
@@ -2187,186 +2247,176 @@ export function useAppWorkspaceStore() {
     }));
   }, []);
 
-  const saveDecisionRule = useCallback((rule: RuleSpec, note?: string) => {
-    setState((prev) => {
-      const existing = prev.decisions.rules.find((r) => r.id === rule.id);
-      // Enforce immutable historical snapshots: never mutate prior published version entries
-      const preservedHistory = existing
-        ? [
-            ...rule.versionHistory.filter(
-              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
-            ),
-            ...existing.versionHistory,
-          ]
-        : rule.versionHistory;
-
-      const safeRule: RuleSpec = {
-        ...rule,
-        versionHistory: preservedHistory,
-      };
-
-      const nextRules = existing
-        ? prev.decisions.rules.map((r) => (r.id === rule.id ? safeRule : r))
-        : [safeRule, ...prev.decisions.rules];
-      return {
-        ...prev,
-        decisions: { ...prev.decisions, rules: nextRules },
-        auditLog: [
-          {
+  const saveGovernedArtifactDirect = useCallback(
+    <T extends DecisionArtifactSpec>(
+      type: DecisionArtifactType,
+      spec: T,
+      note?: string
+    ) => {
+      setState((prev) => {
+        const activeRole =
+          prev.workspaces.find((w) => w.id === prev.activeWorkspaceId)?.role ?? 'Viewer';
+        const perm = checkEditPermission(activeRole, prev.decisions.settings);
+        const specHash = computeArtifactSpecHash(type, spec);
+        if (!perm.allowed) {
+          const blockedEvent: AuditEvent = {
             id: `aud-${Date.now()}`,
-            workspaceId: safeRule.workspaceId,
-            timestamp: 'Just now',
-            actor: 'Decision Author',
-            action: note || `${existing ? 'Updated' : 'Created'} rule ${safeRule.version} (${safeRule.status})`,
-            target: safeRule.name,
-            outcome: 'Updated',
+            workspaceId: spec.workspaceId,
+            timestamp: `${new Date().toISOString()} (Simulated Local)`,
+            actor: `${activeRole} (Simulated Local Actor)`,
+            actorRole: activeRole,
+            isSimulatedActor: true,
+            action: `Blocked direct save on ${type} "${spec.name}"`,
+            operation: 'save',
+            target: `${spec.name} (${spec.id})`,
+            artifactType: type,
+            artifactId: spec.id,
+            previousVersion: spec.version,
+            specHash,
+            targetEnvironment: spec.environment,
+            outcome: 'Blocked',
+            reason: perm.reasons.join(' '),
+          };
+          return {
+            ...prev,
+            auditLog: [blockedEvent, ...prev.auditLog],
+          };
+        }
+
+        const listKey =
+          type === 'rule'
+            ? 'rules'
+            : type === 'table'
+            ? 'tables'
+            : type === 'ruleset'
+            ? 'rulesets'
+            : type === 'chain'
+            ? 'chains'
+            : 'scorecards';
+
+        const existingList = prev.decisions[listKey] as T[];
+        const existing = existingList.find((item) => item.id === spec.id);
+        const preservedHistory = existing
+          ? [
+              ...spec.versionHistory.filter(
+                (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
+              ),
+              ...existing.versionHistory,
+            ]
+          : spec.versionHistory;
+
+        // Preserve immutable approvalHistory and reject any stale working reviewApproval
+        const preservedApprovals =
+          spec.approvalHistory && spec.approvalHistory.length >= (existing?.approvalHistory?.length ?? 0)
+            ? spec.approvalHistory
+            : existing?.approvalHistory ?? [];
+
+        const workingApprovalValid = Boolean(
+          spec.reviewApproval &&
+            spec.reviewApproval.approved &&
+            spec.reviewApproval.decision !== 'rejected' &&
+            spec.reviewApproval.specHash === specHash &&
+            spec.reviewApproval.artifactVersion === spec.version &&
+            spec.reviewApproval.artifactId === spec.id &&
+            spec.reviewApproval.artifactType === type
+        );
+
+        const safeSpec: T = {
+          ...spec,
+          reviewApproval: workingApprovalValid ? spec.reviewApproval : undefined,
+          approvalHistory: preservedApprovals,
+          versionHistory: preservedHistory,
+        };
+
+        const nextList = existing
+          ? existingList.map((item) => (item.id === spec.id ? safeSpec : item))
+          : [safeSpec, ...existingList];
+
+        const allowedEvent: AuditEvent = {
+          id: `aud-${Date.now()}`,
+          workspaceId: safeSpec.workspaceId,
+          timestamp: `${new Date().toISOString()} (Simulated Local)`,
+          actor: `${activeRole} (Simulated Local Actor)`,
+          actorRole: activeRole,
+          isSimulatedActor: true,
+          action:
+            note ||
+            `${existing ? 'Updated' : 'Created'} ${type} ${safeSpec.version} (${safeSpec.status})`,
+          operation: 'save',
+          target: `${safeSpec.name} (${safeSpec.id})`,
+          artifactType: type,
+          artifactId: safeSpec.id,
+          previousVersion: existing?.version ?? safeSpec.version,
+          resultingVersion: safeSpec.version,
+          specHash,
+          targetEnvironment: safeSpec.environment,
+          outcome: 'Updated',
+          reason: note || `Saved ${type} state cleanly.`,
+        };
+
+        return {
+          ...prev,
+          decisions: {
+            ...prev.decisions,
+            [listKey]: nextList,
           },
-          ...prev.auditLog,
-        ],
-      };
-    });
-  }, []);
+          auditLog: [allowedEvent, ...prev.auditLog],
+        };
+      });
+    },
+    []
+  );
 
-  const saveDecisionTable = useCallback((table: DecisionTableSpec, note?: string) => {
-    setState((prev) => {
-      const existing = prev.decisions.tables.find((t) => t.id === table.id);
-      const preservedHistory = existing
-        ? [
-            ...table.versionHistory.filter(
-              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
-            ),
-            ...existing.versionHistory,
-          ]
-        : table.versionHistory;
+  const saveDecisionRule = useCallback(
+    (rule: RuleSpec, note?: string) => saveGovernedArtifactDirect('rule', rule, note),
+    [saveGovernedArtifactDirect]
+  );
 
-      const safeTable: DecisionTableSpec = {
-        ...table,
-        versionHistory: preservedHistory,
-      };
+  const saveDecisionTable = useCallback(
+    (table: DecisionTableSpec, note?: string) => saveGovernedArtifactDirect('table', table, note),
+    [saveGovernedArtifactDirect]
+  );
 
-      const nextTables = existing
-        ? prev.decisions.tables.map((t) => (t.id === table.id ? safeTable : t))
-        : [safeTable, ...prev.decisions.tables];
-      return {
-        ...prev,
-        decisions: { ...prev.decisions, tables: nextTables },
-        auditLog: [
-          {
-            id: `aud-${Date.now()}`,
-            workspaceId: safeTable.workspaceId,
-            timestamp: 'Just now',
-            actor: 'Decision Author',
-            action: note || `${existing ? 'Updated' : 'Created'} decision table ${safeTable.version} (${safeTable.status})`,
-            target: safeTable.name,
-            outcome: 'Updated',
-          },
-          ...prev.auditLog,
-        ],
-      };
-    });
-  }, []);
+  const saveRuleset = useCallback(
+    (rs: RulesetSpec, note?: string) => saveGovernedArtifactDirect('ruleset', rs, note),
+    [saveGovernedArtifactDirect]
+  );
 
-  const saveRuleset = useCallback((rs: RulesetSpec, note?: string) => {
-    setState((prev) => {
-      const existing = prev.decisions.rulesets.find((r) => r.id === rs.id);
-      const preservedHistory = existing
-        ? [
-            ...rs.versionHistory.filter(
-              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
-            ),
-            ...existing.versionHistory,
-          ]
-        : rs.versionHistory;
-      const safeRs: RulesetSpec = { ...rs, versionHistory: preservedHistory };
-      const nextRulesets = existing
-        ? prev.decisions.rulesets.map((r) => (r.id === rs.id ? safeRs : r))
-        : [safeRs, ...prev.decisions.rulesets];
-      return {
-        ...prev,
-        decisions: { ...prev.decisions, rulesets: nextRulesets },
-        auditLog: [
-          {
-            id: `aud-${Date.now()}`,
-            workspaceId: safeRs.workspaceId,
-            timestamp: 'Just now',
-            actor: 'Decision Author',
-            action: note || `${existing ? 'Updated' : 'Created'} ruleset ${safeRs.version} (${safeRs.status})`,
-            target: safeRs.name,
-            outcome: 'Updated',
-          },
-          ...prev.auditLog,
-        ],
-      };
-    });
-  }, []);
+  const saveRuleChain = useCallback(
+    (chain: RuleChainSpec, note?: string) => saveGovernedArtifactDirect('chain', chain, note),
+    [saveGovernedArtifactDirect]
+  );
 
-  const saveRuleChain = useCallback((chain: RuleChainSpec, note?: string) => {
-    setState((prev) => {
-      const existing = prev.decisions.chains.find((c) => c.id === chain.id);
-      const preservedHistory = existing
-        ? [
-            ...chain.versionHistory.filter(
-              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
-            ),
-            ...existing.versionHistory,
-          ]
-        : chain.versionHistory;
-      const safeChain: RuleChainSpec = { ...chain, versionHistory: preservedHistory };
-      const nextChains = existing
-        ? prev.decisions.chains.map((c) => (c.id === chain.id ? safeChain : c))
-        : [safeChain, ...prev.decisions.chains];
-      return {
-        ...prev,
-        decisions: { ...prev.decisions, chains: nextChains },
-        auditLog: [
-          {
-            id: `aud-${Date.now()}`,
-            workspaceId: safeChain.workspaceId,
-            timestamp: 'Just now',
-            actor: 'Decision Author',
-            action: note || `${existing ? 'Updated' : 'Created'} rule chain ${safeChain.version} (${safeChain.status})`,
-            target: safeChain.name,
-            outcome: 'Updated',
-          },
-          ...prev.auditLog,
-        ],
-      };
-    });
-  }, []);
+  const saveScorecard = useCallback(
+    (sc: ScorecardSpec, note?: string) => saveGovernedArtifactDirect('scorecard', sc, note),
+    [saveGovernedArtifactDirect]
+  );
 
-  const saveScorecard = useCallback((sc: ScorecardSpec, note?: string) => {
-    setState((prev) => {
-      const existing = prev.decisions.scorecards.find((s) => s.id === sc.id);
-      const preservedHistory = existing
-        ? [
-            ...sc.versionHistory.filter(
-              (nv) => !existing.versionHistory.some((ev) => ev.version === nv.version)
-            ),
-            ...existing.versionHistory,
-          ]
-        : sc.versionHistory;
-      const safeSc: ScorecardSpec = { ...sc, versionHistory: preservedHistory };
-      const nextScorecards = existing
-        ? prev.decisions.scorecards.map((s) => (s.id === sc.id ? safeSc : s))
-        : [safeSc, ...prev.decisions.scorecards];
-      return {
-        ...prev,
-        decisions: { ...prev.decisions, scorecards: nextScorecards },
-        auditLog: [
-          {
-            id: `aud-${Date.now()}`,
-            workspaceId: safeSc.workspaceId,
-            timestamp: 'Just now',
-            actor: 'Decision Author',
-            action: note || `${existing ? 'Updated' : 'Created'} scorecard ${safeSc.version} (${safeSc.status})`,
-            target: safeSc.name,
-            outcome: 'Updated',
-          },
-          ...prev.auditLog,
-        ],
-      };
-    });
-  }, []);
+  const executeDecisionGovernance = useCallback(
+    (request: GovernedDecisionRequest) => {
+      const currentRole = activeWorkspace?.role ?? 'Viewer';
+      const syncResult = applyGovernedDecisionOperationToSlice(
+        state.decisions,
+        currentRole,
+        request
+      );
+
+      setState((prev) => {
+        const activeRole =
+          prev.workspaces.find((w) => w.id === prev.activeWorkspaceId)?.role ?? 'Viewer';
+        const res = applyGovernedDecisionOperationToSlice(prev.decisions, activeRole, request);
+        const auditEntry = mapDecisionAuditToEvent(res.auditEvent);
+        return {
+          ...prev,
+          decisions: res.allowed ? res.slice : prev.decisions,
+          auditLog: [auditEntry, ...prev.auditLog],
+        };
+      });
+
+      return syncResult;
+    },
+    [state.decisions, activeWorkspace]
+  );
 
   const recordDecisionExecution = useCallback((exec: DecisionExecutionSpec) => {
     setState((prev) => ({
@@ -2379,25 +2429,32 @@ export function useAppWorkspaceStore() {
   }, []);
 
   const updateDecisionSettings = useCallback((partial: Partial<DecisionSettings>) => {
-    setState((prev) => ({
-      ...prev,
-      decisions: {
-        ...prev.decisions,
-        settings: { ...prev.decisions.settings, ...partial },
-      },
-      auditLog: [
-        {
-          id: `aud-${Date.now()}`,
-          workspaceId: prev.activeWorkspaceId,
-          timestamp: 'Just now',
-          actor: 'Workspace Maintainer',
-          action: 'Updated SOPIN Decisions governance settings',
-          target: 'SOPIN Control · Decisions Policy',
-          outcome: 'Updated',
+    setState((prev) => {
+      const activeRole =
+        prev.workspaces.find((w) => w.id === prev.activeWorkspaceId)?.role ?? 'Workspace Maintainer';
+      return {
+        ...prev,
+        decisions: {
+          ...prev.decisions,
+          settings: { ...prev.decisions.settings, ...partial },
         },
-        ...prev.auditLog,
-      ],
-    }));
+        auditLog: [
+          {
+            id: `aud-${Date.now()}`,
+            workspaceId: prev.activeWorkspaceId,
+            timestamp: `${new Date().toISOString()} (Simulated Local)`,
+            actor: `${activeRole} (Simulated Local Actor)`,
+            actorRole: activeRole,
+            isSimulatedActor: true,
+            action: 'Updated SOPIN Decisions governance settings',
+            target: 'SOPIN Control · Decisions Policy',
+            outcome: 'Updated',
+            reason: `Updated settings: ${Object.keys(partial).join(', ')}`,
+          },
+          ...prev.auditLog,
+        ],
+      };
+    });
   }, []);
 
   const resetWorkspacePrototype = useCallback(() => {
@@ -2413,6 +2470,7 @@ export function useAppWorkspaceStore() {
     state,
     activeWorkspace,
     switchWorkspace,
+    updateActiveWorkspaceRole,
     createWorkspace,
     markAllNotificationsRead,
     saveAgent,
@@ -2433,6 +2491,7 @@ export function useAppWorkspaceStore() {
     saveRuleset,
     saveRuleChain,
     saveScorecard,
+    executeDecisionGovernance,
     recordDecisionExecution,
     updateDecisionSettings,
     resetWorkspacePrototype,

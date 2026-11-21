@@ -13,6 +13,7 @@ import {
 import {
   AiRuleDraftSynthesis,
   ConditionOperator,
+  DecisionApprovalPurpose,
   DecisionConditionNode,
   DecisionEnvironment,
   DecisionExecutionSpec,
@@ -23,18 +24,21 @@ import {
   RuleSpec,
 } from '../types';
 import {
-  buildPublishedRuleVersion,
+  applyGovernedDecisionOperationToSlice,
   canonicalSerialize,
   checkEditPermission,
   checkTestEvidenceFreshness,
-  evaluatePublishGovernancePolicy,
   evaluateRuleSpec,
   extractVersionableSpecBody,
+  GovernedDecisionRequest,
+  performGovernedApprove,
+  performGovernedPublish,
+  performGovernedSave,
+  performGovernedSubmitReview,
   synthesizeRuleDraftFromNL,
   validateRuleArtifact,
-  validateRuleSpec,
 } from '../evaluator';
-import { BottomSheet } from '../../components/ui/BottomSheet';
+import { DecisionGovernanceStatusCard, GovernedPublishSheet } from './DecisionGovernancePanel';
 import { StatusText } from '../../components/ui/EditorialPrimitives';
 import { HighlightedCode } from '../../components/ui/HighlightedCode';
 
@@ -47,6 +51,9 @@ interface RuleBuilderEditorProps {
   settings?: DecisionSettings;
   aiDrawerDefaultOpen?: boolean;
   onSaveRule: (rule: RuleSpec, summaryNote?: string) => void;
+  onGovernedAction?: (
+    req: GovernedDecisionRequest
+  ) => ReturnType<typeof applyGovernedDecisionOperationToSlice>;
   onRecordExecution: (exec: DecisionExecutionSpec) => void;
 }
 
@@ -159,6 +166,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
   settings,
   aiDrawerDefaultOpen = false,
   onSaveRule,
+  onGovernedAction,
   onRecordExecution,
 }) => {
   const effectiveSettings: DecisionSettings = settings ?? {
@@ -207,7 +215,6 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishEnv, setPublishEnv] = useState<DecisionEnvironment>('production');
   const [publishSummary, setPublishSummary] = useState('Verified deterministic policy thresholds and fallback lane.');
-  const [controlApprovalChecked, setControlApprovalChecked] = useState(false);
 
   // SOPIN Studio AI-Assisted Draft Synthesizer
   const [aiOpen, setAiOpen] = useState(aiDrawerDefaultOpen);
@@ -229,20 +236,6 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
   const testEvidence = useMemo(
     () => checkTestEvidenceFreshness('rule', draft),
     [draft]
-  );
-
-  const publishPolicy = useMemo(
-    () =>
-      evaluatePublishGovernancePolicy(
-        'rule',
-        draft,
-        publishEnv,
-        workspaceRole,
-        effectiveSettings,
-        {},
-        controlApprovalChecked
-      ),
-    [draft, publishEnv, workspaceRole, effectiveSettings, controlApprovalChecked]
   );
 
   const isDirty = useMemo(() => {
@@ -353,55 +346,144 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
     }
   };
 
-  const handleSaveDraft = (targetStatus?: 'Draft' | 'Validated' | 'Review') => {
-    if (!editPermission.allowed) {
-      setNotice(editPermission.reasons[0] || 'Role cannot edit rules under current governance policy.');
+  const handleRecordApproval = (params: {
+    targetEnvironment: DecisionEnvironment;
+    purpose: DecisionApprovalPurpose;
+    decision: 'approved' | 'rejected';
+    note: string;
+  }) => {
+    if (onGovernedAction) {
+      const res = onGovernedAction({
+        operation: 'approve',
+        artifactType: 'rule',
+        artifactId: draft.id,
+        targetEnvironment: params.targetEnvironment,
+        purpose: params.purpose,
+        decision: params.decision,
+        note: params.note,
+        specOverride: draft,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setNotice(`Approval blocked: ${res.reasons.join(' ')}`);
+        return;
+      }
+      const next = res.updatedSpec as RuleSpec;
+      setDraft(next);
+      setNotice(
+        `Recorded bound ${params.purpose} (${params.decision}) for ${next.version} (${params.targetEnvironment}).`
+      );
       return;
     }
-    const check = validateRuleSpec(draft);
-    if (!check.valid) {
-      setNotice(`Cannot save invalid rule: ${check.errors.join(' ')}`);
+
+    const res = performGovernedApprove({
+      type: 'rule',
+      spec: draft,
+      targetEnvironment: params.targetEnvironment,
+      purpose: params.purpose,
+      decision: params.decision,
+      workspaceRole,
+      settings: effectiveSettings,
+      note: params.note,
+    });
+    if (!res.allowed || !res.updatedSpec) {
+      setNotice(`Approval blocked: ${res.reasons.join(' ')}`);
       return;
     }
-    const nextVersion =
-      (draft.status === 'Published' || draft.status === 'Promoted') && !draft.version.includes('-draft')
-        ? `${draft.version}-draft`
-        : draft.version;
-    const resolvedStatus = targetStatus ?? (check.valid ? 'Validated' : 'Draft');
-    const next: RuleSpec = { ...draft, version: nextVersion, status: resolvedStatus, updatedAt: 'Just now' };
-    setDraft(next);
-    onSaveRule(next, `Saved ${resolvedStatus} rule specification (${nextVersion})`);
+    setDraft(res.updatedSpec);
+    onSaveRule(res.updatedSpec, res.auditEvent.action);
+    setNotice(res.auditEvent.action);
+  };
+
+  const handleSaveDraft = (targetStatus: 'Draft' | 'Validated' | 'Review' = 'Draft') => {
+    if (onGovernedAction) {
+      const res =
+        targetStatus === 'Review'
+          ? onGovernedAction({
+              operation: 'submit-review',
+              artifactType: 'rule',
+              spec: draft,
+            })
+          : onGovernedAction({
+              operation: 'save',
+              artifactType: 'rule',
+              spec: draft,
+              targetStatus: targetStatus === 'Validated' ? 'Validated' : 'Draft',
+            });
+      if (!res.allowed || !res.updatedSpec) {
+        setNotice(`${targetStatus === 'Review' ? 'Submit review' : 'Save'} blocked: ${res.reasons.join(' ')}`);
+        return;
+      }
+      const next = res.updatedSpec as RuleSpec;
+      setDraft(next);
+      setNotice(
+        `Rule saved as ${next.status} (${next.version}) locally; published snapshots remain immutable.`
+      );
+      return;
+    }
+
+    const res =
+      targetStatus === 'Review'
+        ? performGovernedSubmitReview({
+            type: 'rule',
+            spec: draft,
+            workspaceRole,
+            settings: effectiveSettings,
+          })
+        : performGovernedSave({
+            type: 'rule',
+            spec: draft,
+            workspaceRole,
+            settings: effectiveSettings,
+            targetStatus: targetStatus === 'Validated' ? 'Validated' : 'Draft',
+          });
+    if (!res.allowed || !res.updatedSpec) {
+      setNotice(`Save blocked: ${res.reasons.join(' ')}`);
+      return;
+    }
+    setDraft(res.updatedSpec);
+    onSaveRule(res.updatedSpec, res.auditEvent.action);
     setNotice(
-      `Rule saved as ${resolvedStatus} (${nextVersion}) in local browser storage; published snapshots remain immutable.`
+      `Rule saved as ${res.updatedSpec.status} (${res.updatedSpec.version}) locally; published snapshots remain immutable.`
     );
   };
 
   const handlePublishConfirm = () => {
-    if (!publishPolicy.allowed) {
-      setNotice(`Publish blocked: ${publishPolicy.reasons.join(' ')}`);
+    const summary = publishSummary.trim() || 'Published from SOPIN Rule Builder.';
+    if (onGovernedAction) {
+      const res = onGovernedAction({
+        operation: 'publish',
+        artifactType: 'rule',
+        spec: draft,
+        targetEnvironment: publishEnv,
+        summary,
+      });
+      if (!res.allowed || !res.updatedSpec) {
+        setNotice(`Publish blocked: ${res.reasons.join(' ')}`);
+        return;
+      }
+      const next = res.updatedSpec as RuleSpec;
+      setDraft(next);
+      setPublishOpen(false);
+      setNotice(`Published immutable version ${next.version} (${publishEnv}) cleanly.`);
       return;
     }
-    const next = buildPublishedRuleVersion(
-      draft,
-      publishEnv,
-      publishSummary.trim() || 'Published from SOPIN Rule Builder.',
-      `${workspaceRole} (Local Prototype)`,
-      undefined,
-      publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd
-        ? {
-            approved: controlApprovalChecked,
-            reviewerLabel: `${workspaceRole} (Local Gate)`,
-            approvedAt: 'Just now',
-            note: publishSummary.trim(),
-            controlRequired: true,
-          }
-        : undefined
-    );
-    setDraft(next);
-    onSaveRule(next, `Published ${next.version} (${next.status}) to ${publishEnv}`);
+
+    const res = performGovernedPublish({
+      type: 'rule',
+      spec: draft,
+      targetEnvironment: publishEnv,
+      workspaceRole,
+      settings: effectiveSettings,
+      summary,
+    });
+    if (!res.allowed || !res.updatedSpec) {
+      setNotice(`Publish blocked: ${res.reasons.join(' ')}`);
+      return;
+    }
+    setDraft(res.updatedSpec);
+    onSaveRule(res.updatedSpec, res.auditEvent.action);
     setPublishOpen(false);
-    setControlApprovalChecked(false);
-    setNotice(`Published immutable version ${next.version} (${publishEnv}) cleanly.`);
+    setNotice(`Published immutable version ${res.updatedSpec.version} (${publishEnv}) cleanly.`);
   };
 
   const renderConditionGroup = (group: DecisionGroupNode, depth = 0, parentId?: string) => {
@@ -414,16 +496,16 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           groupError
             ? 'border-red-500/60 bg-red-500/[0.04]'
             : depth === 0
-            ? 'border-[#6252E8]/35 bg-[#F7F7FA] dark:bg-[#101014]'
-            : 'border-[#965BFF]/40 bg-white dark:bg-[#101126]'
+            ? 'border-[#2563EB]/35 bg-[#F7F7FA] dark:bg-[#05070E]'
+            : 'border-[#60A5FA]/40 bg-white dark:bg-[#0A1226]'
         }`}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF]">
+            <span className="font-mono text-[11px] font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
               {depth === 0 ? 'IF ALL / ANY' : 'NESTED GROUP'}
             </span>
-            <div className="inline-flex rounded-lg border border-[#101014]/15 dark:border-white/15 overflow-hidden">
+            <div className="inline-flex rounded-lg border border-[#05070E]/15 dark:border-white/15 overflow-hidden">
               {(['AND', 'OR'] as const).map((logic) => (
                 <button
                   key={logic}
@@ -439,8 +521,8 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                   }
                   className={`min-h-[34px] px-3 text-[11px] font-mono font-semibold ${
                     group.logic === logic
-                      ? 'bg-[#6252E8] text-white'
-                      : 'bg-white dark:bg-[#101126] text-[#5E5E6E] dark:text-[#A4A4B5]'
+                      ? 'bg-[#2563EB] text-white'
+                      : 'bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#A4A4B5]'
                   }`}
                 >
                   {logic}
@@ -453,18 +535,18 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             <button
               type="button"
               onClick={() => handleAddPredicate(group.id)}
-              className="min-h-[36px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[11px] font-semibold inline-flex items-center gap-1"
+              className="min-h-[36px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-[11px] font-semibold inline-flex items-center gap-1"
             >
-              <Plus className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+              <Plus className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
               <span>Condition</span>
             </button>
             {depth < 2 && (
               <button
                 type="button"
                 onClick={() => handleAddNestedGroup(group.id)}
-                className="min-h-[36px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[11px] font-semibold inline-flex items-center gap-1"
+                className="min-h-[36px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-[11px] font-semibold inline-flex items-center gap-1"
               >
-                <Plus className="w-3.5 h-3.5 text-[#965BFF]" aria-hidden="true" />
+                <Plus className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
                 <span>Group</span>
               </button>
             )}
@@ -499,7 +581,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                 className={`rounded-xl border p-2.5 space-y-1.5 ${
                   nodeError
                     ? 'border-red-500/60 bg-red-500/[0.04]'
-                    : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                    : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]'
                 }`}
               >
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
@@ -510,7 +592,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                     onChange={(e) =>
                       handleUpdateChild(group.id, child.id, { ...child, field: e.target.value })
                     }
-                    className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs font-mono text-[#101014] dark:text-white"
+                    className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs font-mono text-[#05070E] dark:text-white"
                   >
                     {fieldNames.map((fn) => (
                       <option key={fn} value={fn}>
@@ -533,7 +615,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                         operator: e.target.value as ConditionOperator,
                       })
                     }
-                    className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs text-[#101014] dark:text-white"
+                    className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs text-[#05070E] dark:text-white"
                   >
                     {OPERATORS.map((op) => (
                       <option key={op.value} value={op.value}>
@@ -568,7 +650,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                       )
                     }
                     placeholder={child.operator === 'matches_formula' ? 'amount < 50000' : 'Value'}
-                    className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs font-mono text-[#101014] dark:text-white disabled:opacity-40"
+                    className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs font-mono text-[#05070E] dark:text-white disabled:opacity-40"
                   />
                 </div>
 
@@ -585,7 +667,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                         })
                       }
                       placeholder="Upper"
-                      className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs font-mono text-[#101014] dark:text-white"
+                      className="w-full min-h-[42px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs font-mono text-[#05070E] dark:text-white"
                     />
                   </div>
                 )}
@@ -595,7 +677,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                     type="button"
                     onClick={() => handleRemoveChild(group.id, child.id)}
                     aria-label={`Remove condition on ${child.field}`}
-                    className="w-10 h-10 rounded-lg border border-[#101014]/10 dark:border-white/15 text-[#5E5E6E] hover:text-red-500 inline-flex items-center justify-center"
+                    className="w-10 h-10 rounded-lg border border-[#05070E]/10 dark:border-white/15 text-[#5E5E6E] hover:text-red-500 inline-flex items-center justify-center"
                   >
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -628,11 +710,11 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                 onClick={() => selectExistingRule(r)}
                 className={`min-h-[44px] px-3.5 py-2 rounded-xl border text-left shrink-0 transition-colors ${
                   active
-                    ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/25'
-                    : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                    ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/25'
+                    : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]'
                 }`}
               >
-                <div className="text-xs font-semibold text-[#101014] dark:text-white truncate max-w-[180px]">
+                <div className="text-xs font-semibold text-[#05070E] dark:text-white truncate max-w-[180px]">
                   {r.name}
                 </div>
                 <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -647,7 +729,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           <button
             type="button"
             onClick={() => setAiOpen((prev) => !prev)}
-            className="min-h-[44px] px-3.5 rounded-xl border border-[#965BFF]/40 bg-[#965BFF]/10 text-[#6252E8] dark:text-[#B894FF] text-xs font-semibold inline-flex items-center gap-1.5"
+            className="min-h-[44px] px-3.5 rounded-xl border border-[#60A5FA]/40 bg-[#60A5FA]/10 text-[#2563EB] dark:text-[#7EC8FF] text-xs font-semibold inline-flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4" aria-hidden="true" />
             <span>AI Draft</span>
@@ -655,7 +737,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           <button
             type="button"
             onClick={() => selectExistingRule(createEmptyRule(workspaceId))}
-            className="min-h-[44px] px-3.5 rounded-xl bg-[#101014] dark:bg-white text-white dark:text-[#101014] text-xs font-semibold inline-flex items-center gap-1.5"
+            className="min-h-[44px] px-3.5 rounded-xl bg-[#05070E] dark:bg-white text-white dark:text-[#05070E] text-xs font-semibold inline-flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />
             <span>New Rule</span>
@@ -666,13 +748,13 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
       {notice && (
         <div
           role="status"
-          className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs font-medium text-[#101014] dark:text-white"
+          className="rounded-xl border border-[#2563EB]/35 bg-[#2563EB]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs font-medium text-[#05070E] dark:text-white"
         >
           <span className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#6252E8] shrink-0" aria-hidden="true" />
+            <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
             <span>{notice}</span>
           </span>
-          <button type="button" onClick={() => setNotice('')} className="text-xs font-semibold text-[#6252E8]">
+          <button type="button" onClick={() => setNotice('')} className="text-xs font-semibold text-[#2563EB]">
             Dismiss
           </button>
         </div>
@@ -680,9 +762,9 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
 
       {/* SOPIN Studio AI-Assisted Decision Creation Panel */}
       {aiOpen && (
-        <div className="rounded-2xl border border-[#965BFF]/40 bg-[#101126] text-white p-4 sm:p-5 space-y-3">
+        <div className="rounded-2xl border border-[#60A5FA]/40 bg-[#0A1226] text-white p-4 sm:p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#B894FF]">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#7EC8FF]">
               <Sparkles className="w-4 h-4" aria-hidden="true" />
               <span>SOPIN Studio · AI-Assisted Rule Draft Synthesizer</span>
             </div>
@@ -696,7 +778,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
             aria-label="Describe business rule in plain language"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#101014] text-sm text-white"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#05070E] text-sm text-white"
           />
 
           <div className="flex flex-wrap items-center gap-2">
@@ -704,7 +786,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
               type="button"
               onClick={() => setAiSynthesis(synthesizeRuleDraftFromNL(aiPrompt, workspaceId))}
               disabled={!aiPrompt.trim()}
-              className="min-h-[44px] px-4 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] disabled:opacity-40 text-white text-xs font-semibold inline-flex items-center gap-1.5"
+              className="min-h-[44px] px-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-40 text-white text-xs font-semibold inline-flex items-center gap-1.5"
             >
               <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Generate Structured Rule Draft</span>
@@ -726,7 +808,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
               <ul className="space-y-1 text-[#D8D8E6]">
                 {aiSynthesis.explanation.map((line) => (
                   <li key={line} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#965BFF] mt-0.5 shrink-0" aria-hidden="true" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#60A5FA] mt-0.5 shrink-0" aria-hidden="true" />
                     <span>{line}</span>
                   </li>
                 ))}
@@ -749,7 +831,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                   setAiOpen(false);
                   setNotice('Loaded Studio AI draft into Rule Builder. Review conditions & test before publishing.');
                 }}
-                className="min-h-[44px] px-4 rounded-xl bg-white text-[#101014] text-xs font-semibold"
+                className="min-h-[44px] px-4 rounded-xl bg-white text-[#05070E] text-xs font-semibold"
               >
                 Accept Draft Into Rule Builder ({aiSynthesis.generatedTestCases.length} Test Cases Included)
               </button>
@@ -810,7 +892,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           )}
 
           {/* Identity & Input Schema */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3.5">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <StatusText
                 items={[
@@ -841,7 +923,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                   type="text"
                   value={draft.name}
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
+                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm"
                 />
               </div>
               <div className="sm:col-span-4">
@@ -855,7 +937,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                   max={999}
                   value={draft.priority}
                   onChange={(e) => setDraft({ ...draft, priority: Number(e.target.value) || 1 })}
-                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm font-mono"
+                  className="w-full min-h-[44px] px-3 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-sm font-mono"
                 />
               </div>
             </div>
@@ -869,12 +951,12 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                 rows={2}
                 value={draft.description}
                 onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs sm:text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs sm:text-sm"
               />
             </div>
 
             {/* Input Schema Fields */}
-            <div className="pt-2 border-t border-[#101014]/10 dark:border-white/10 space-y-2">
+            <div className="pt-2 border-t border-[#05070E]/10 dark:border-white/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold">Input Schema Contract</span>
                 <button
@@ -889,9 +971,9 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                     };
                     setDraft({ ...draft, inputSchema: [...draft.inputSchema, newField] });
                   }}
-                  className="min-h-[36px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1"
+                  className="min-h-[36px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold inline-flex items-center gap-1"
                 >
-                  <Plus className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                  <Plus className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                   <span>Add Input Field</span>
                 </button>
               </div>
@@ -899,7 +981,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                 {draft.inputSchema.map((field, idx) => (
                   <div
                     key={`${field.name}-${idx}`}
-                    className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-2.5 flex items-center gap-2"
+                    className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-2.5 flex items-center gap-2"
                   >
                     <input
                       type="text"
@@ -910,7 +992,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                         updated[idx] = { ...field, name: e.target.value };
                         setDraft({ ...draft, inputSchema: updated });
                       }}
-                      className="min-w-0 flex-1 min-h-[38px] px-2 rounded border border-[#101014]/10 dark:border-white/15 bg-white dark:bg-[#101126] font-mono text-xs"
+                      className="min-w-0 flex-1 min-h-[38px] px-2 rounded border border-[#05070E]/10 dark:border-white/15 bg-white dark:bg-[#0A1226] font-mono text-xs"
                     />
                     <select
                       aria-label={`Input field ${field.name} type`}
@@ -920,7 +1002,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                         updated[idx] = { ...field, type: e.target.value as DecisionFieldType };
                         setDraft({ ...draft, inputSchema: updated });
                       }}
-                      className="min-h-[38px] px-2 rounded border border-[#101014]/10 dark:border-white/15 bg-white dark:bg-[#101126] text-xs"
+                      className="min-h-[38px] px-2 rounded border border-[#05070E]/10 dark:border-white/15 bg-white dark:bg-[#0A1226] text-xs"
                     >
                       {(['number', 'string', 'boolean', 'date', 'null', 'array', 'object'] as const).map((t) => (
                         <option key={t} value={t}>
@@ -948,7 +1030,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           </section>
 
           {/* Visual Condition Group Tree */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-display text-sm font-semibold">Condition Builder</h3>
               <span className="font-mono text-[11px] text-[#5E5E6E] dark:text-[#9A9AB0]">
@@ -958,11 +1040,11 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             {renderConditionGroup(draft.conditionRoot, 0)}
 
             {/* Live Rule Summary */}
-            <div className="rounded-xl border border-[#6252E8]/25 bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15 p-3 text-xs">
-              <span className="font-mono font-semibold text-[#6252E8] dark:text-[#B894FF]">
+            <div className="rounded-xl border border-[#2563EB]/25 bg-[#2563EB]/[0.06] dark:bg-[#2563EB]/15 p-3 text-xs">
+              <span className="font-mono font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                 LIVE RULE SUMMARY:{' '}
               </span>
-              <span className="font-mono text-[#101014] dark:text-white">
+              <span className="font-mono text-[#05070E] dark:text-white">
                 IF ({summarizeGroup(draft.conditionRoot)}) THEN{' '}
                 {draft.thenOutputs.map((o) => `${o.key}=${o.valueExpression}`).join(', ')} ELSE{' '}
                 {draft.elseOutputs.map((o) => `${o.key}=${o.valueExpression}`).join(', ')}
@@ -971,7 +1053,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           </section>
 
           {/* THEN / ELSE Action Outputs */}
-          <section className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <section className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {(
               [
                 { title: 'THEN Outputs (Condition Matched)', field: 'thenOutputs' as const },
@@ -992,7 +1074,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                         ],
                       })
                     }
-                    className="min-h-[34px] px-2.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-[11px] font-semibold"
+                    className="min-h-[34px] px-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-[11px] font-semibold"
                   >
                     + Output
                   </button>
@@ -1009,7 +1091,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                           list[idx] = { ...out, key: e.target.value };
                           setDraft({ ...draft, [panel.field]: list });
                         }}
-                        className="w-28 min-h-[40px] px-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                        className="w-28 min-h-[40px] px-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-xs"
                       />
                       <select
                         aria-label="Output type"
@@ -1022,7 +1104,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                           };
                           setDraft({ ...draft, [panel.field]: list });
                         }}
-                        className="min-h-[40px] px-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+                        className="min-h-[40px] px-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
                       >
                         <option value="string">str</option>
                         <option value="number">num</option>
@@ -1038,7 +1120,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
                           list[idx] = { ...out, valueExpression: e.target.value };
                           setDraft({ ...draft, [panel.field]: list });
                         }}
-                        className="flex-1 min-w-0 min-h-[40px] px-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] font-mono text-xs"
+                        className="flex-1 min-w-0 min-h-[40px] px-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] font-mono text-xs"
                       />
                       <button
                         type="button"
@@ -1059,6 +1141,15 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
               </div>
             ))}
           </section>
+
+          <DecisionGovernanceStatusCard
+            artifactType="rule"
+            spec={draft}
+            workspaceRole={workspaceRole}
+            settings={effectiveSettings}
+            targetEnvironment={publishEnv}
+            onRecordApproval={handleRecordApproval}
+          />
 
           {/* Draft, Review & Publish Action Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2.5">
@@ -1082,18 +1173,20 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                disabled={!editPermission.allowed}
                 onClick={() => handleSaveDraft('Draft')}
-                className="min-h-[44px] px-4 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+                className={`min-h-[44px] px-4 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap ${
+                  !editPermission.allowed ? 'opacity-60' : ''
+                }`}
               >
                 <Save className="w-4 h-4" aria-hidden="true" />
                 <span>Save Draft</span>
               </button>
               <button
                 type="button"
-                disabled={!editPermission.allowed || !liveValidation.isValid}
                 onClick={() => handleSaveDraft('Review')}
-                className="min-h-[44px] px-4 rounded-xl border border-[#6252E8]/40 text-[#6252E8] dark:text-[#B894FF] disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+                className={`min-h-[44px] px-4 rounded-xl border border-[#2563EB]/40 text-[#2563EB] dark:text-[#7EC8FF] text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap ${
+                  !editPermission.allowed || !liveValidation.isValid ? 'opacity-60' : ''
+                }`}
               >
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" />
                 <span>Submit Review</span>
@@ -1101,7 +1194,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
               <button
                 type="button"
                 onClick={() => setPublishOpen(true)}
-                className="min-h-[44px] px-5 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
+                className="min-h-[44px] px-5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap"
               >
                 <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                 <span>Publish Version</span>
@@ -1111,10 +1204,10 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
         </div>
 
         {/* Right: Deterministic Test & Explanation Panel */}
-        <div className="lg:col-span-4 rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-3.5">
+        <div className="lg:col-span-4 rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white p-4 space-y-3.5">
           <div className="flex items-center justify-between gap-2">
             <span className="font-display text-sm font-semibold">Live Deterministic Test</span>
-            <span className="font-mono text-[11px] text-[#B894FF]">{draft.version}</span>
+            <span className="font-mono text-[11px] text-[#7EC8FF]">{draft.version}</span>
           </div>
 
           <div>
@@ -1126,7 +1219,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
               rows={7}
               value={sampleInputText}
               onChange={(e) => setSampleInputText(e.target.value)}
-              className="w-full p-3 rounded-xl border border-white/15 bg-[#101014] font-mono text-xs text-white"
+              className="w-full p-3 rounded-xl border border-white/15 bg-[#05070E] font-mono text-xs text-white"
             />
           </div>
 
@@ -1135,7 +1228,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
           <button
             type="button"
             onClick={handleRunTest}
-            className="w-full min-h-[44px] rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold inline-flex items-center justify-center gap-2"
+            className="w-full min-h-[44px] rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold inline-flex items-center justify-center gap-2"
           >
             <Play className="w-4 h-4" aria-hidden="true" />
             <span>Execute Rule</span>
@@ -1146,7 +1239,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
               <div className="flex items-center justify-between">
                 <span
                   className={`font-mono font-semibold ${
-                    testResult.status === 'Error' ? 'text-red-400' : 'text-[#B894FF]'
+                    testResult.status === 'Error' ? 'text-red-400' : 'text-[#7EC8FF]'
                   }`}
                 >
                   Status: {testResult.status}
@@ -1187,7 +1280,7 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
 
               <div>
                 <div className="font-mono text-[11px] text-[#A4A4B5] mb-1">Final Output</div>
-                <pre className="p-2.5 rounded-lg bg-[#0D1021] border border-white/10 font-mono text-[11px] overflow-x-auto">
+                <pre className="p-2.5 rounded-lg bg-[#060B18] border border-white/10 font-mono text-[11px] overflow-x-auto">
                   <HighlightedCode
                     code={JSON.stringify(testResult.finalOutput, null, 2)}
                     language="json"
@@ -1201,91 +1294,21 @@ export const RuleBuilderEditor: React.FC<RuleBuilderEditorProps> = ({
         </div>
       </div>
 
-      {/* Explicit Publishing Confirmation Sheet */}
-      <BottomSheet
+      <GovernedPublishSheet
         open={publishOpen}
         onClose={() => setPublishOpen(false)}
-        title="Publish Immutable Rule Version?"
-        subtitle="Published decisions emit canonical SHA-256 snapshots referenced by SOPIN Flow & Gateway."
-      >
-        <div className="space-y-4">
-          {!publishPolicy.allowed && (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-500/45 bg-red-500/10 p-3 text-xs text-red-700 dark:text-red-200 space-y-1"
-            >
-              <div className="font-semibold">Publish Blocked by Governance &amp; Engine Validation</div>
-              {publishPolicy.reasons.map((r, i) => (
-                <div key={i} className="font-mono text-[11px]">
-                  • {r}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div>
-            <label htmlFor="pub-env-select" className="block text-xs font-semibold mb-1.5">
-              Target Environment
-            </label>
-            <select
-              id="pub-env-select"
-              value={publishEnv}
-              onChange={(e) => setPublishEnv(e.target.value as DecisionEnvironment)}
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
-            >
-              <option value="development">development</option>
-              <option value="staging">staging</option>
-              <option value="production">production</option>
-            </select>
-          </div>
-
-          {publishEnv === 'production' && effectiveSettings.requireControlApprovalForProd && (
-            <label className="rounded-xl border border-[#6252E8]/35 bg-[#6252E8]/[0.06] p-3 flex items-start gap-2.5 text-xs cursor-pointer">
-              <input
-                type="checkbox"
-                checked={controlApprovalChecked}
-                onChange={(e) => setControlApprovalChecked(e.target.checked)}
-                className="mt-0.5"
-              />
-              <span>
-                <strong>SOPIN Control Review Approval (Local Prototype Gate):</strong> Confirm peer review sign-off for production deployment as{' '}
-                <span className="font-mono">{workspaceRole}</span>.
-              </span>
-            </label>
-          )}
-
-          <div>
-            <label htmlFor="pub-note-input" className="block text-xs font-semibold mb-1.5">
-              Release Notes / Change Summary
-            </label>
-            <input
-              id="pub-note-input"
-              type="text"
-              value={publishSummary}
-              onChange={(e) => setPublishSummary(e.target.value)}
-              className="w-full min-h-[44px] px-3 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => setPublishOpen(false)}
-              className="min-h-[44px] rounded-xl border border-[#101014]/15 dark:border-white/15 text-xs font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={!publishPolicy.allowed}
-              onClick={handlePublishConfirm}
-              className="min-h-[44px] rounded-xl bg-[#6252E8] disabled:opacity-40 text-white text-xs font-semibold"
-            >
-              Confirm Publish
-            </button>
-          </div>
-        </div>
-      </BottomSheet>
+        artifactType="rule"
+        titleLabel="Rule Version"
+        spec={draft}
+        workspaceRole={workspaceRole}
+        settings={effectiveSettings}
+        publishEnv={publishEnv}
+        onChangePublishEnv={setPublishEnv}
+        publishSummary={publishSummary}
+        onChangePublishSummary={setPublishSummary}
+        onRecordApproval={handleRecordApproval}
+        onConfirmPublish={handlePublishConfirm}
+      />
     </div>
   );
 };

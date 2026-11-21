@@ -148,8 +148,15 @@ export function runSingleTestCase(
   options?: EvaluateTargetOptions
 ): { updatedCase: DecisionTestCase; execution: DecisionExecutionSpec | null } {
   const target = findTargetSpec(artifactType, targetId, collections);
-  const testedVersion = options?.targetVersion ?? target?.version ?? 'unknown';
-  const testedSpecHash = target ? computeArtifactSpecHash(artifactType, target) : '';
+  let resolvedForHash: DecisionArtifactSpec | undefined = target;
+  if (target && (options?.requirePublished || options?.targetVersion)) {
+    const res = resolvePublishedArtifact(artifactType, target, options?.targetVersion);
+    if (res.resolved) resolvedForHash = res.resolved;
+  }
+  const testedVersion = options?.targetVersion ?? resolvedForHash?.version ?? target?.version ?? 'unknown';
+  const testedSpecHash = resolvedForHash ? computeArtifactSpecHash(artifactType, resolvedForHash) : '';
+  const testedArtifactId = target?.id ?? targetId;
+  const testedArtifactType = artifactType;
 
   const exec = evaluateDecisionTarget(
     artifactType,
@@ -203,6 +210,8 @@ export function runSingleTestCase(
     actualOutput: actual,
     testedVersion: exec?.versionUsed ?? testedVersion,
     testedSpecHash,
+    testedArtifactId,
+    testedArtifactType,
     diffNotes,
   };
 
@@ -218,6 +227,8 @@ export function runSingleTestCase(
       lastRunAt: runAt,
       testedVersion: exec?.versionUsed ?? testedVersion,
       testedSpecHash,
+      testedArtifactId,
+      testedArtifactType,
       runHistory: [runRecord, ...(testCase.runHistory ?? [])].slice(0, 15),
     },
   };

@@ -203,6 +203,65 @@ const BASE_SC_VENDOR_SPEC = {
   ],
 };
 
+const BASE_CHAIN_AP_SPEC = {
+  terminalOutcomes: ['rejected'],
+  stages: [
+    {
+      id: 'cs-1',
+      stepOrder: 1,
+      label: 'Stage 01 · Base Threshold Evaluation',
+      targetType: 'rule',
+      targetId: 'rule-invoice-auto-approve',
+      passOutputKeys: ['decision', 'requiresHumanGate', 'approvalLane'],
+      onOutcome: 'continue',
+    },
+    {
+      id: 'cs-2',
+      stepOrder: 2,
+      label: 'Stage 02 · Regional & Role Routing Matrix',
+      targetType: 'table',
+      targetId: 'tbl-invoice-routing',
+      conditionField: 'decision',
+      conditionOperator: '!=',
+      conditionValue: 'rejected',
+      onOutcome: 'stop-on-match',
+    },
+  ],
+};
+
+const BASE_SC_CUSTOMER_SPEC = {
+  baseScore: 40,
+  criteria: [
+    {
+      id: 'sc-ob-1',
+      label: 'KYC Identity Verified',
+      field: 'kycVerified',
+      operator: '==',
+      value: 'true',
+      weight: 1,
+      pointsIfMatched: 30,
+      pointsIfMissed: -15,
+      rationale: 'Government ID and liveness check verified',
+    },
+    {
+      id: 'sc-ob-2',
+      label: 'Strong Credit Bureau Score',
+      field: 'creditScore',
+      operator: '>=',
+      value: '720',
+      weight: 1,
+      pointsIfMatched: 25,
+      pointsIfMissed: -10,
+      rationale: 'Bureau score meets low-default benchmark',
+    },
+  ],
+  thresholds: [
+    { id: 'ob-th-1', minScore: 80, maxScore: 150, classification: 'LOW_RISK', decisionOutcome: 'approved' },
+    { id: 'ob-th-2', minScore: 45, maxScore: 79, classification: 'MEDIUM_RISK', decisionOutcome: 'manual_review' },
+    { id: 'ob-th-3', minScore: -100, maxScore: 44, classification: 'HIGH_RISK', decisionOutcome: 'rejected' },
+  ],
+};
+
 export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
   rules: [
     {
@@ -309,6 +368,8 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           lastRunAt: 'Today, 09:15',
           testedVersion: 'v1.2',
           testedSpecHash: computeCanonicalSpecHash(BASE_INV_SPEC),
+          testedArtifactId: 'rule-invoice-auto-approve',
+          testedArtifactType: 'rule',
         },
         {
           id: 'tc-inv-2',
@@ -324,6 +385,8 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           lastRunAt: 'Today, 09:15',
           testedVersion: 'v1.2',
           testedSpecHash: computeCanonicalSpecHash(BASE_INV_SPEC),
+          testedArtifactId: 'rule-invoice-auto-approve',
+          testedArtifactType: 'rule',
         },
         {
           id: 'tc-inv-3',
@@ -339,6 +402,8 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           lastRunAt: 'Today, 09:15',
           testedVersion: 'v1.2',
           testedSpecHash: computeCanonicalSpecHash(BASE_INV_SPEC),
+          testedArtifactId: 'rule-invoice-auto-approve',
+          testedArtifactType: 'rule',
         },
       ],
       versionHistory: [
@@ -848,6 +913,8 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           lastPassed: true,
           testedVersion: 'v1.1',
           testedSpecHash: computeCanonicalSpecHash(BASE_RS_SPEC),
+          testedArtifactId: 'rs-procurement-controls',
+          testedArtifactType: 'ruleset',
         },
       ],
       versionHistory: [
@@ -909,6 +976,9 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           expectedOutput: { decision: 'approved' },
           lastPassed: true,
           testedVersion: 'v1.0',
+          testedSpecHash: computeCanonicalSpecHash(BASE_CHAIN_AP_SPEC),
+          testedArtifactId: 'chain-ap-exception',
+          testedArtifactType: 'chain',
         },
       ],
       versionHistory: [],
@@ -976,6 +1046,8 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           lastPassed: true,
           testedVersion: 'v1.0',
           testedSpecHash: computeCanonicalSpecHash(BASE_SC_VENDOR_SPEC),
+          testedArtifactId: 'sc-vendor-eligibility',
+          testedArtifactType: 'scorecard',
         },
       ],
       versionHistory: [
@@ -1042,6 +1114,9 @@ export const INITIAL_DECISIONS_SLICE: DecisionsWorkspaceSlice = {
           expectedOutput: { classification: 'LOW_RISK', decisionOutcome: 'approved' },
           lastPassed: true,
           testedVersion: 'v1.0',
+          testedSpecHash: computeCanonicalSpecHash(BASE_SC_CUSTOMER_SPEC),
+          testedArtifactId: 'sc-customer-risk',
+          testedArtifactType: 'scorecard',
         },
       ],
       versionHistory: [],

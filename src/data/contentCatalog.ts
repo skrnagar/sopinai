@@ -1,5 +1,11 @@
 import { RoutePath } from '../types/navigation';
 
+export interface DocSubSection {
+  id: string;
+  heading: string;
+  paragraphs: string[];
+}
+
 export interface DocSection {
   id: string;
   group: string;
@@ -7,9 +13,11 @@ export interface DocSection {
   status: string;
   summary: string;
   body: string;
+  sections: DocSubSection[];
   parameters?: { name: string; type: string; required: string; description: string }[];
   codeLabel: string;
   code: string;
+  secondaryCode?: { label: string; code: string };
 }
 
 export const DOC_SECTIONS: DocSection[] = [
@@ -20,12 +28,28 @@ export const DOC_SECTIONS: DocSection[] = [
     status: 'Preview Specification',
     summary:
       'Initialize a SOPIN workspace, declare a typed output contract, and execute a deterministic workflow locally.',
-    body: 'SOPIN specifications compile identically whether authored in SOPIN Studio or written directly in TypeScript using @sopin/sdk. Start by defining your output schema and binding scoped MCP tools.',
+    body: 'SOPIN specifications compile identically whether authored in SOPIN Studio or written directly in TypeScript or Python using the official SDKs. Start by defining your typed output schema, binding read-only MCP tools, and assigning a Gateway inference profile.',
+    sections: [
+      {
+        id: 'overview',
+        heading: 'Architecture Overview',
+        paragraphs: [
+          'Every SOPIN agent separates probabilistic reasoning from execution mechanics. Rather than embedding API credentials or unvalidated prompts directly inside application routes, you declare a blueprint that binds a Gateway route, Context scope, least-privilege MCP tools, and strict output validation.',
+        ],
+      },
+      {
+        id: 'install-configure',
+        heading: 'Initialize Workspace & Output Contract',
+        paragraphs: [
+          'Define a strict Zod or Pydantic contract on every agent node. SOPIN Gateway validates payloads against this contract before downstream Flow steps or tool invocations execute, repairing malformed JSON at most once inside bounded retry policies.',
+        ],
+      },
+    ],
     parameters: [
       { name: 'name', type: 'string', required: 'Yes', description: 'Unique slug identifier for the agent blueprint.' },
       { name: 'context', type: 'ContextScopeConfig', required: 'No', description: 'Scoped corpus index and memory retention rules.' },
       { name: 'tools', type: 'McpToolBinding[]', required: 'No', description: 'Explicit list of least-privilege MCP tools bound to this node.' },
-      { name: 'outputSchema', type: 'ZodSchema', required: 'Yes', description: 'Strict typed contract validated by SOPIN Gateway.' },
+      { name: 'outputSchema', type: 'ZodSchema | BaseModel', required: 'Yes', description: 'Strict typed contract validated by SOPIN Gateway.' },
     ],
     codeLabel: 'quickstart.ts',
     code: `import { defineAgent, mcpTool, z } from "@sopin/sdk";
@@ -40,18 +64,52 @@ export const releaseNotesAgent = defineAgent({
     requiresSecurityReview: z.boolean()
   })
 });`,
+    secondaryCode: {
+      label: 'quickstart.py',
+      code: `from pydantic import BaseModel
+from sopin_sdk import define_agent, mcp_tool
+
+class ReleaseNotesOutput(BaseModel):
+    summary: str
+    breaking_changes: list[str]
+    requires_security_review: bool
+
+release_notes_agent = define_agent(
+    name="release-notes-synthesizer",
+    context={"scope": "repository", "index": "changelog-history"},
+    tools=[mcp_tool("git.commits", permission="read-only")],
+    output_schema=ReleaseNotesOutput,
+)`,
+    },
   },
   {
     id: 'studio-sync',
     group: 'Authoring',
     title: 'Bidirectional Studio & SDK Sync',
     status: 'Core Architecture',
-    summary: 'How visual DAG nodes and cyclic graphs map 1:1 to version-controlled TypeScript definitions.',
-    body: 'Every node created in SOPIN Studio emits deterministic blueprint metadata. Engineers review diffs in pull requests while automation architects inspect the same graph visually without translation loss.',
+    summary: 'How visual DAG nodes and cyclic graphs map 1:1 to version-controlled TypeScript and JSON blueprints.',
+    body: 'Every node created in SOPIN Studio emits deterministic blueprint metadata. Software engineers review diffs in pull requests while automation architects inspect and refine the exact same topology visually without translation loss.',
+    sections: [
+      {
+        id: 'blueprint-format',
+        heading: 'Canonical Blueprint Representation',
+        paragraphs: [
+          'Unlike proprietary drag-and-drop tools that trap workflow state inside opaque database blobs, SOPIN serializes Studio graphs into deterministic JSON and TypeScript definitions.',
+          'Changes edited in Git automatically reflect in SOPIN Studio upon sync, preserving node coordinates, schema contracts, and Gateway route bindings.',
+        ],
+      },
+      {
+        id: 'review-workflow',
+        heading: 'Pull Request Diffing & Environment Promotion',
+        paragraphs: [
+          'Because blueprints are deterministic files, teams can pair visual authoring with standard branch protection, automated Evaluate assertions, and staged promotion across Development, Staging, and Production.',
+        ],
+      },
+    ],
     parameters: [
       { name: 'blueprintVersion', type: 'string', required: 'Yes', description: 'Semantic blueprint schema version ("1.0-preview").' },
       { name: 'workflow', type: 'string', required: 'Yes', description: 'Canonical flow or graph identifier synced with Git.' },
-      { name: 'nodes', type: 'BlueprintNode[]', required: 'Yes', description: 'Typed trigger, transform, gateway, or approval gate definitions.' },
+      { name: 'nodes', type: 'BlueprintNode[]', required: 'Yes', description: 'Typed trigger, transform, decision, gateway, or approval gate definitions.' },
     ],
     codeLabel: 'sopin.blueprint.json',
     code: `{
@@ -60,10 +118,62 @@ export const releaseNotesAgent = defineAgent({
   "nodes": [
     { "id": "intake", "kind": "trigger.webhook" },
     { "id": "redact", "kind": "transform.piiFilter" },
+    { "id": "policy", "kind": "decision.ruleTable", "ref": "sla-routing-table" },
     { "id": "classify", "kind": "gateway.structured" },
     { "id": "approve", "kind": "gate.humanApproval" }
   ]
 }`,
+  },
+  {
+    id: 'graph-orchestration',
+    group: 'Orchestration & Graphs',
+    title: 'Cyclic Multi-Agent Graphs (SOPIN Graph)',
+    status: 'Core Architecture',
+    summary: 'Model planner-researcher-verifier loops and bounded state transitions with compile-time step ceilings.',
+    body: 'Complex engineering and research tasks often require iterative tool execution, reflection, and peer verification. SOPIN Graph lets you model cyclic state machines with typed reducers and hard maxSteps termination limits.',
+    sections: [
+      {
+        id: 'shared-state',
+        heading: 'Typed State Reducers',
+        paragraphs: [
+          'Every node in a SOPIN Graph reads from and emits partial updates to a strongly typed shared state object. Reducers guarantee predictable state merging across concurrent fan-outs and supersteps.',
+        ],
+      },
+      {
+        id: 'loop-guardrails',
+        heading: 'Bounded Recursion & Termination Guardrails',
+        paragraphs: [
+          'Autonomous loops cannot run unbounded in production. SOPIN Graph enforces mandatory maxSteps ceilings and token budgets directly inside the Runtime supervisor—halting and escalating cleanly if convergence is not reached.',
+        ],
+      },
+    ],
+    parameters: [
+      { name: 'maxSteps', type: 'number', required: 'Yes', description: 'Hard upper superstep ceiling enforced by SOPIN Runtime.' },
+      { name: 'stateSchema', type: 'ZodObject', required: 'Yes', description: 'Shared graph state contract validated across every superstep.' },
+      { name: 'edges', type: 'EdgeSpec[]', required: 'Yes', description: 'Deterministic or predicate-guarded transitions between nodes.' },
+    ],
+    codeLabel: 'research-graph.ts',
+    code: `import { defineGraph, a2aPeer, z } from "@sopin/sdk";
+
+export const verificationGraph = defineGraph({
+  name: "multi-agent-research",
+  maxSteps: 6,
+  stateSchema: z.object({
+    topic: z.string(),
+    draft: z.string().optional(),
+    verifiedCitations: z.array(z.string()).default([])
+  }),
+  nodes: {
+    planner: { gateway: "reasoning-structured" },
+    researcher: { context: "policy-corpus" },
+    auditor: a2aPeer("citation-auditor", { timeoutMs: 20000 })
+  },
+  edges: [
+    ["planner", "researcher"],
+    ["researcher", "auditor"],
+    { from: "auditor", when: (s) => s.verifiedCitations.length === 0, to: "researcher" }
+  ]
+});`,
   },
   {
     id: 'mcp-bindings',
@@ -71,7 +181,23 @@ export const releaseNotesAgent = defineAgent({
     title: 'Model Context Protocol (MCP) Bindings',
     status: 'Core Architecture',
     summary: 'Attach external tools with explicit read/write scopes, timeouts, and sandbox isolation.',
-    body: 'SOPIN treats MCP as a first-class tool transport. Each tool declaration binds an explicit capability scope so an agent running a research step cannot invoke mutating endpoints.',
+    body: 'SOPIN treats MCP as a first-class tool transport. Each tool declaration binds an explicit capability scope so an agent running a research step cannot invoke mutating endpoints or bypass network egress controls.',
+    sections: [
+      {
+        id: 'capability-scoping',
+        heading: 'Read vs. Write Allowlists',
+        paragraphs: [
+          'Rather than exposing full REST clients to a language model, MCP server declarations enumerate allowedTools and deniedTools explicitly. SOPIN Control verifies these scopes out-of-band before the Runtime boots a tool sandbox.',
+        ],
+      },
+      {
+        id: 'sandbox-egress',
+        heading: 'Ephemeral Sandboxes & Network Egress',
+        paragraphs: [
+          'Code analyzers, repository readers, and document parsers run inside isolated containers with networkEgress: "disabled". Networked connectors require an explicit destination allowlist.',
+        ],
+      },
+    ],
     parameters: [
       { name: 'transport', type: '"stdio" | "http"', required: 'Yes', description: 'MCP transport protocol used inside the Runtime sandbox.' },
       { name: 'allowedTools', type: 'string[]', required: 'Yes', description: 'Allowlisted tool operations permitted for this agent node.' },
@@ -95,6 +221,22 @@ export const repoTools = mcpServer("git-repository", {
     status: 'Preview Specification',
     summary: 'Coordinate specialized peer agents using typed task envelopes and verifiable completion artifacts.',
     body: 'Instead of packing every domain instruction into one monolithic prompt, SOPIN enables bounded A2A handoffs where each peer agent declares its input schema, capability scope, and verification contract.',
+    sections: [
+      {
+        id: 'typed-envelopes',
+        heading: 'Signed Task Envelopes',
+        paragraphs: [
+          'Every A2A delegation transmits a schema-validated task envelope containing scoped input payloads, a hop counter, and the caller trace ID so SOPIN Observe correlates multi-agent execution seamlessly.',
+        ],
+      },
+      {
+        id: 'recursion-limits',
+        heading: 'Preventing Circular Peer Delegation',
+        paragraphs: [
+          'Enforcing maxHops guarantees bounded peer communication even when multiple specialized agents collaborate across workspaces.',
+        ],
+      },
+    ],
     parameters: [
       { name: 'peerId', type: 'string', required: 'Yes', description: 'Registered peer agent identifier.' },
       { name: 'payload', type: 'Record<string, unknown>', required: 'Yes', description: 'Typed task payload validated against peer input schema.' },
@@ -111,12 +253,121 @@ const verification = await a2aDelegate("citation-auditor", {
 });`,
   },
   {
+    id: 'decisions-spec',
+    group: 'Decision Automation',
+    title: 'SOPIN Decisions Specification (RuleSpec, Tables, Chains & CEL)',
+    status: 'Core Architecture',
+    summary:
+      'Canonical data contracts for RuleSpec, DecisionTableSpec, RulesetSpec, RuleChainSpec, and ScorecardSpec with deterministic evaluation.',
+    body: 'SOPIN Decisions separates deterministic business logic from probabilistic LLM inference and SOPIN Control authorization. Rules evaluate deterministically with restricted safe expressions, version promotion (Draft -> Tested -> Published), and step-by-step audit traces.',
+    sections: [
+      {
+        id: 'five-artifacts',
+        heading: 'Five Unified Decision Artifact Types',
+        paragraphs: [
+          'SOPIN Decisions supports IF/ELSE RuleSpecs, spreadsheet Decision Tables (first-match, priority, collect-all, unique), ordered Rulesets with conflict resolution, sequential Rule Chains, and weighted Scorecards.',
+          'All five artifact types obey identical lifecycle validation, approval-hash binding, simulation batch testing, and Flow Decision Node invocation.',
+        ],
+      },
+      {
+        id: 'flow-integration',
+        heading: 'Deterministic Flow & Agent Interoperability',
+        paragraphs: [
+          'SOPIN Flow workflows invoke Decision Nodes directly using pinned version policies, mapping workflow variables in and out while branching cleanly on matched, no-match, or error outcomes. Agents in Graph/Studio can query decisions strictly read-only.',
+        ],
+      },
+    ],
+    parameters: [
+      { name: 'RuleSpec', type: 'ConditionGroup + Outputs', required: 'Yes', description: 'Typed input schema, nested AND/OR condition tree, THEN/ELSE outputs, and restricted formula expressions.' },
+      { name: 'DecisionTableSpec', type: 'HitPolicy + Matrix', required: 'Yes', description: 'Multi-column table supporting first-match, priority, collect-all, and unique hit policies.' },
+      { name: 'RulesetSpec / RuleChainSpec', type: 'Composition', required: 'No', description: 'Ordered rule groups with conflict resolution and sequential stage pipelines passing outputs forward.' },
+      { name: 'DecisionExecutionSpec', type: 'Audit Trace', required: 'Yes', description: 'Immutable execution record storing version, matched rows/clauses, output payload, and trace ID.' },
+    ],
+    codeLabel: 'decisions-eval.http',
+    code: `POST /v1/decisions/evaluate HTTP/1.1
+Content-Type: application/json
+
+{
+  "targetType": "rule",
+  "targetId": "rule-invoice-auto-approve",
+  "environment": "production",
+  "input": {
+    "invoiceAmount": 32500,
+    "vendorVerified": true,
+    "duplicateFound": false
+  }
+}`,
+    secondaryCode: {
+      label: 'flow-decision-node.ts',
+      code: `step.decision("invoiceAutoApproval", {
+  artifactId: "rule-invoice-auto-approve",
+  versionPolicy: "pinned:1.2.0",
+  inputMap: { invoiceAmount: "ctx.amount", vendorVerified: "ctx.kybOk" },
+  onMatched: "routePayment",
+  onNoMatch: "escalateController"
+});`,
+    },
+  },
+  {
+    id: 'ml-gateway',
+    group: 'Models & ML',
+    title: 'Registering Custom ML & Multimodal Routes in SOPIN Gateway',
+    status: 'Preview Specification',
+    summary: 'Invoke custom PyTorch, tabular, or fine-tuned open-weight models alongside frontier LLMs via one typed Gateway.',
+    body: 'AI/ML engineers register validated model artifacts alongside dataset provenance and evaluation metrics, exposing them seamlessly to Studio agents, Flow pipelines, and pre-inference PII redaction transforms.',
+    sections: [
+      {
+        id: 'unified-routing',
+        heading: 'Vendor-Neutral Multimodal & ML Routing',
+        paragraphs: [
+          'SOPIN Gateway abstracts provider APIs behind logical profile names. Workflows never hardcode vendor keys or SDK quirks, enabling automatic failover between commercial models, self-hosted vLLM clusters, and tabular ML classifiers.',
+        ],
+      },
+      {
+        id: 'pii-sanitization',
+        heading: 'Pre-Inference PII Redaction',
+        paragraphs: [
+          'Configure deterministic sanitization rules on any Gateway profile to mask restricted identifiers locally before payloads leave your network perimeter.',
+        ],
+      },
+    ],
+    parameters: [
+      { name: 'route', type: 'string', required: 'Yes', description: 'Registry URI or Gateway profile (e.g., registry://vendor-risk-classifier:v3).' },
+      { name: 'fallbackRoute', type: 'string', required: 'No', description: 'Secondary inference route triggered on timeout or health failure.' },
+      { name: 'piiRedaction', type: 'string[]', required: 'No', description: 'Field patterns scrubbed locally prior to external model dispatch.' },
+    ],
+    codeLabel: 'ml-gateway.ts',
+    code: `import { gateway } from "@sopin/sdk";
+
+const riskScore = await gateway.infer({
+  route: "registry://vendor-risk-classifier:v3",
+  fallbackRoute: "reasoning-structured",
+  input: { contractClauses, supplierTier: "tier-1" }
+});`,
+  },
+  {
     id: 'verification-gates',
     group: 'Verification & Governance',
     title: 'Verification Gates & Human Checkpoints',
     status: 'Planned / Preview',
     summary: 'Combine deterministic schema checks with durable pause-and-resume approval gates.',
-    body: 'Before an agent emits an external action, SOPIN evaluates deterministic assertions and routes high-impact proposals to an authorized reviewer.',
+    body: 'Before an agent emits an external action or commits a high-impact state mutation, SOPIN evaluates deterministic assertions and suspends execution into an approval queue routed to an authorized reviewer.',
+    sections: [
+      {
+        id: 'deterministic-assertions',
+        heading: 'Schema & Provenance Verification',
+        paragraphs: [
+          'Pair SOPIN Evaluate grounding assertions with Gateway schema locks so ungrounded claims or missing source checksums fail cleanly before an approval request is even raised.',
+        ],
+      },
+      {
+        id: 'durable-human-gates',
+        heading: 'Durable Pause-and-Resume Checkpoints',
+        paragraphs: [
+          'Because SOPIN Flow persists execution state in durable checkpoints, human reviewers can take minutes or days to inspect citations and approve or reject proposed tool mutations without holding compute workers open.',
+        ],
+      },
+    ],
     parameters: [
       { name: 'assertions', type: 'Assertion[]', required: 'Yes', description: 'Deterministic schema and grounding assertions executed pre-commit.' },
       { name: 'onElevatedRisk', type: 'HumanGatePolicy', required: 'No', description: 'Suspends durable state until designated RBAC reviewer approves.' },
@@ -132,64 +383,20 @@ export const reviewPolicy = {
   })
 };`,
   },
-  {
-    id: 'ml-gateway',
-    group: 'Models & ML',
-    title: 'Registering Custom ML Models in SOPIN Gateway',
-    status: 'Preview Specification',
-    summary: 'Invoke custom PyTorch, tabular, or fine-tuned open-weight models alongside frontier LLMs via one typed Gateway.',
-    body: 'AI/ML engineers register validated model artifacts alongside dataset provenance and evaluation metrics, exposing them seamlessly to Studio agents and Flow pipelines.',
-    parameters: [
-      { name: 'target', type: 'string', required: 'Yes', description: 'Registry URI (e.g., registry://vendor-risk-classifier:v3).' },
-      { name: 'fallback', type: 'string', required: 'No', description: 'Secondary inference route on timeout or health failure.' },
-      { name: 'evalBaseline', type: 'EvalThreshold', required: 'No', description: 'Minimum validation score required before Production stage promotion.' },
-    ],
-    codeLabel: 'ml-gateway.ts',
-    code: `import { gateway } from "@sopin/sdk";
-
-const riskScore = await gateway.infer({
-  route: "registry://vendor-risk-classifier:v3",
-  fallbackRoute: "reasoning-structured",
-  input: { contractClauses, supplierTier: "tier-1" }
-});`,
-  },
-  {
-    id: 'decisions-spec',
-    group: 'Decision Automation',
-    title: 'SOPIN Decisions Specification (RuleSpec, Tables, Chains & CEL)',
-    status: 'Preview Specification',
-    summary:
-      'Canonical data contracts for RuleSpec, DecisionTableSpec, RulesetSpec, RuleChainSpec, and DecisionExecutionSpec with restricted safe expression evaluation.',
-    body: 'SOPIN Decisions separates deterministic business logic from probabilistic LLM inference and SOPIN Control authorization. Production runtime architecture compiles rules into Pydantic/CEL evaluators inside FastAPI + PostgreSQL with Temporal workflow invocation and OpenTelemetry trace spans.',
-    parameters: [
-      { name: 'RuleSpec', type: 'ConditionGroup + Outputs', required: 'Yes', description: 'Typed input schema, nested AND/OR condition tree, THEN/ELSE outputs, and restricted formula expressions.' },
-      { name: 'DecisionTableSpec', type: 'HitPolicy + Matrix', required: 'Yes', description: 'Multi-column table supporting first-match, priority, collect-all, and unique hit policies.' },
-      { name: 'RulesetSpec / RuleChainSpec', type: 'Composition', required: 'No', description: 'Ordered rule groups with conflict resolution and sequential stage pipelines passing outputs forward.' },
-      { name: 'DecisionExecutionSpec', type: 'Audit Trace', required: 'Yes', description: 'Immutable execution record storing version, matched rows/clauses, output payload, and trace ID.' },
-    ],
-    codeLabel: 'decisions-eval.http',
-    code: `POST /v1/decisions/evaluate
-{
-  "targetType": "rule",
-  "targetId": "rule-invoice-auto-approve",
-  "environment": "production",
-  "input": {
-    "invoiceAmount": 32500,
-    "vendorVerified": true,
-    "duplicateFound": false
-  }
-}`,
-  },
 ];
+
+export type ResearchCategory = 'Research' | 'Engineering' | 'Case Studies';
 
 export interface ResourceArticle {
   id: string;
   category: 'Blog' | 'Guides' | 'Tutorials' | 'Case Studies' | 'Academy';
+  researchCategory: ResearchCategory;
   title: string;
   summary: string;
   readTime: string;
   status: 'Available' | 'Coming Soon' | 'Planned';
   dateLabel: string;
+  publishedDate: string;
   pillar: string;
   author: string;
   sections: { heading: string; paragraphs: string[] }[];
@@ -202,12 +409,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     id: 'arch-unifying-studio-runtime',
     category: 'Blog',
+    researchCategory: 'Research',
     title: 'Why Agent Engineering Requires a Unified Runtime and Graph Spec',
     summary:
       'Exploring why separating prompt prototyping from workflow execution creates fragile systems, and how SOPIN unifies authoring with sandboxed execution.',
     readTime: '6 min read',
     status: 'Available',
-    dateLabel: 'Engineering Note',
+    dateLabel: 'AI Architecture Research',
+    publishedDate: 'May 2026',
     pillar: '01 · Agent Engineering',
     author: 'SOPIN Platform Architecture Team',
     sections: [
@@ -241,12 +450,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     id: 'guide-deterministic-gates',
     category: 'Guides',
+    researchCategory: 'Research',
     title: 'Designing Deterministic Verification Gates Around Probabilistic Models',
     summary:
-      'Practical patterns for pairing typed JSON schemas, grounding assertions, and bounded retry policies in production-oriented agent workflows.',
+      'Architectural patterns for pairing typed JSON schemas, source checksum grounding assertions, and bounded retry policies in enterprise AI systems.',
     readTime: '8 min read',
     status: 'Available',
-    dateLabel: 'Architecture Guide',
+    dateLabel: 'Systems & Reliability Research',
+    publishedDate: 'May 2026',
     pillar: '08 · AI Evaluation & Reliability',
     author: 'SOPIN Verification Engineering',
     sections: [
@@ -278,19 +489,21 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     id: 'guide-sopin-decisions',
     category: 'Guides',
+    researchCategory: 'Engineering',
     title: 'Separating Deterministic Business Rules from AI Reasoning with SOPIN Decisions',
     summary:
-      'Architectural blueprint for combining deterministic rules, decision tables, and scorecards with SOPIN Flow workflows and human-reviewed Studio AI drafting.',
+      'Engineering blueprint for combining deterministic rules, decision tables, and scorecards with SOPIN Flow workflows and human-reviewed Studio drafting.',
     readTime: '7 min read',
     status: 'Available',
     dateLabel: 'Architecture Guide',
-    pillar: '03 · Workflow & Decision Automation',
+    publishedDate: 'Apr 2026',
+    pillar: '03 · Decision Automation',
     author: 'SOPIN Platform Architecture Team',
     sections: [
       {
         heading: 'Why LLMs Should Draft—Never Decide—Binding Business Thresholds',
         paragraphs: [
-          'Asking a language model whether a ₹48,500 vendor invoice qualifies for straight-through approval introduces latency, prompt sensitivity, and audit ambiguity. Instead, SOPIN Decisions keeps financial thresholds, SLA matrices, and risk scorecards strictly deterministic.',
+          'Asking a language model whether an enterprise invoice qualifies for straight-through approval introduces latency, prompt sensitivity, and audit ambiguity. Instead, SOPIN Decisions keeps financial thresholds, SLA matrices, and risk scorecards strictly deterministic.',
           'SOPIN Studio can translate plain-English policy notes into editable Draft RuleSpec definitions, while human maintainers test fixtures and promote versions explicitly through SOPIN Control.',
         ],
       },
@@ -310,19 +523,21 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     relatedLinks: [
       { label: 'Explore SOPIN Decisions', href: '/decisions' },
       { label: 'Read Decisions Spec', href: '/docs/decisions-spec' },
-      { label: 'Try Decisions in App', href: '/app' },
+      { label: 'Explore SOPIN Flow', href: '/flow' },
     ],
   },
   {
     id: 'guide-context-scoping',
     category: 'Guides',
+    researchCategory: 'Engineering',
     title: 'Separating Working Memory, Episodic State, and Knowledge Indexes',
     summary:
-      'How to prevent context bloat and cross-task leakage using SOPIN Context memory tiers.',
+      'Implementation patterns for preventing context bloat and cross-tenant leakage using SOPIN Context memory tiers.',
     readTime: '7 min read',
     status: 'Available',
-    dateLabel: 'Architecture Guide',
-    pillar: '04 · RAG & Context Engineering',
+    dateLabel: 'Engineering Guide',
+    publishedDate: 'Apr 2026',
+    pillar: '04 · Context Engineering',
     author: 'SOPIN Context Systems Team',
     sections: [
       {
@@ -341,18 +556,20 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     relatedLinks: [
       { label: 'Explore SOPIN Context', href: '/context' },
       { label: 'Explore Security Center', href: '/security' },
-      { label: 'Try Knowledge Tab in App', href: '/app' },
+      { label: 'Read Graph Spec', href: '/docs/graph-orchestration' },
     ],
   },
   {
     id: 'tutorial-mcp-tool-binding',
     category: 'Tutorials',
+    researchCategory: 'Engineering',
     title: 'Connecting Your First MCP Tool Server to SOPIN Flow',
     summary:
-      'Walkthrough of declaring an MCP tool manifest, scoping read-only permissions, and testing tool execution locally.',
-    readTime: '10 min walkthrough',
+      'Step-by-step tutorial on declaring an MCP tool manifest, scoping read-only permissions, and locking sandbox network egress.',
+    readTime: '10 min guide',
     status: 'Available',
-    dateLabel: 'Tutorial',
+    dateLabel: 'Developer Tutorial',
+    publishedDate: 'Mar 2026',
     pillar: '06 · MCP & A2A Interoperability',
     author: 'SOPIN Developer Relations',
     sections: [
@@ -365,7 +582,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: 'Step 2: Lock Network Egress & Test Deterministically',
         paragraphs: [
-          'Configure sandbox.networkEgress to "disabled" for local repository/document parsers or "allowlist" for approved internal APIs. Run dry-run payloads inside Studio or the /app Build tab to inspect exact inputs, outputs, and span durations.',
+          'Configure sandbox.networkEgress to "disabled" for local repository/document parsers or "allowlist" for approved internal APIs. Run dry-run payloads inside Studio to inspect exact inputs, outputs, and span durations.',
         ],
       },
     ],
@@ -385,12 +602,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     id: 'tutorial-human-checkpoint',
     category: 'Tutorials',
+    researchCategory: 'Engineering',
     title: 'Implementing Pause-and-Resume Human Approval Checkpoints',
     summary:
-      'Build a durable workflow that suspends cleanly prior to state mutation and resumes upon operator sign-off.',
-    readTime: '9 min walkthrough',
+      'Build a durable workflow that suspends cleanly prior to state mutation and resumes upon authorized operator sign-off.',
+    readTime: '9 min guide',
     status: 'Available',
-    dateLabel: 'Tutorial',
+    dateLabel: 'Developer Tutorial',
+    publishedDate: 'Mar 2026',
     pillar: '03 · Workflow Automation',
     author: 'SOPIN Runtime Team',
     sections: [
@@ -401,64 +620,75 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         ],
       },
       {
-        heading: 'Try It Directly in the SOPIN Mobile Workspace',
+        heading: 'Correlating Citations With Reviewer Decisions',
         paragraphs: [
-          'Open /app ("Try SOPIN"), launch a run in the Run tab, or open Pending Approvals on Home to inspect retrieved citations and tap Approve or Reject to observe how SOPIN Control logs audit lineage.',
+          'Every suspended checkpoint captures the exact Context chunk checksums, Decision Node outputs, and proposed MCP mutation payload so reviewers inspect verified evidence prior to sign-off.',
         ],
       },
     ],
     relatedLinks: [
       { label: 'Explore SOPIN Flow', href: '/flow' },
       { label: 'Explore SOPIN Control', href: '/control' },
-      { label: 'Test Approvals in App', href: '/app' },
+      { label: 'Read Gate Policy Spec', href: '/docs/verification-gates' },
     ],
   },
   {
     id: 'case-studies-cohort',
     category: 'Case Studies',
-    title: 'Early Design Partner Architecture Publications',
+    researchCategory: 'Case Studies',
+    title: 'Enterprise Design Partner Architecture Program — SONIL Group',
     summary:
-      'SOPIN is actively collaborating with engineering teams on initial deployments. Verified customer case studies will be published following production validation.',
-    readTime: 'Upcoming',
+      'Transparent architectural case studies covering production multi-agent workflows, deterministic decisions, and private VPC deployments will be published after partner validation.',
+    readTime: 'Program Note',
     status: 'Coming Soon',
-    dateLabel: 'Design Partner Program',
+    dateLabel: 'Case Studies · Cohort Preview',
+    publishedDate: 'Upcoming',
     pillar: '10 · Enterprise AI Architecture',
     author: 'SONIL Group Engineering',
     sections: [
       {
         heading: 'Transparent Publication Standards',
         paragraphs: [
-          'We never publish synthetic customer logos or unverified benchmark numbers. Production case studies covering latency, cost reduction, and verification outcomes will be published only after verified partner production validation.',
+          'SOPIN and SONIL Group never publish synthetic customer logos or unverified benchmark numbers. Detailed case studies covering end-to-end execution lineage, verification pass rates, and operational reliability are published exclusively following verified partner production validation.',
+        ],
+      },
+      {
+        heading: 'Focus Domains in the Initial Cohort',
+        paragraphs: [
+          'Active architectural collaborations span regulated invoice and policy triage (combining SOPIN Flow + Decisions), repository verification pipelines (SOPIN Graph + Runtime), and grounded enterprise knowledge indexing (SOPIN Context).',
         ],
       },
     ],
     relatedLinks: [
       { label: 'Apply as Design Partner', href: '/contact' },
       { label: 'Explore Enterprise Topology', href: '/enterprise' },
+      { label: 'Inspect Solutions', href: '/solutions' },
     ],
   },
   {
     id: 'academy-foundations',
     category: 'Academy',
-    title: 'SOPIN Academy: Foundations of Accountable Agent Engineering',
+    researchCategory: 'Research',
+    title: 'Foundations of Accountable Multi-Agent Systems Engineering',
     summary:
-      'Structured curriculum covering state graphs, MCP/A2A protocols, context engineering, and verification harnesses.',
+      'Curriculum and systems thesis covering cyclic state graphs, MCP/A2A protocol safety, scoped memory tiers, and regression harnesses.',
     readTime: 'Curriculum',
     status: 'Planned',
-    dateLabel: 'Planned Release',
+    dateLabel: 'Research Curriculum',
+    publishedDate: 'Planned',
     pillar: '01 · Agent Engineering',
     author: 'SOPIN Education Initiative',
     sections: [
       {
-        heading: 'Planned Learning Tracks',
+        heading: 'Structured Engineering Tracks',
         paragraphs: [
-          'Planned modules cover: (1) Authoring Typed Agents & Workflows, (2) Context & Multimodal RAG Provenance, (3) MCP/A2A Protocol Security, (4) ML & Gateway Model Routing, and (5) Enterprise Control & Evaluation Harnesses.',
+          'Modules cover: (1) Authoring Typed Agents & Workflows, (2) Context & Multimodal RAG Provenance, (3) MCP/A2A Protocol Security, (4) ML & Gateway Model Routing, and (5) Enterprise Control & Evaluation Harnesses.',
         ],
       },
     ],
     relatedLinks: [
-      { label: 'Browse Current Docs', href: '/docs' },
-      { label: 'Request Academy Updates', href: '/contact' },
+      { label: 'Browse Documentation', href: '/docs' },
+      { label: 'Contact SOPIN Team', href: '/contact' },
     ],
   },
 ];

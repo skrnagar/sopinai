@@ -435,13 +435,13 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
   return (
     <div className="space-y-4">
       {/* Mode Switcher: Mobile Agent Studio vs Mobile Workflow Designer */}
-      <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-white dark:bg-[#101126] border border-[#101014]/10 dark:border-white/10">
+      <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-white dark:bg-[#0A1226] border border-[#05070E]/10 dark:border-white/10">
         <button
           type="button"
           onClick={() => setStudioMode('agent')}
           className={`min-h-[44px] rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
             studioMode === 'agent'
-              ? 'bg-[#6252E8] text-white'
+              ? 'bg-[#2563EB] text-white'
               : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
           }`}
         >
@@ -453,7 +453,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
           onClick={() => setStudioMode('workflow')}
           className={`min-h-[44px] rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
             studioMode === 'workflow'
-              ? 'bg-[#6252E8] text-white'
+              ? 'bg-[#2563EB] text-white'
               : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
           }`}
         >
@@ -465,16 +465,16 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
       {draftSavedNotice && (
         <div
           role="status"
-          className="rounded-xl border border-[#6252E8]/30 bg-[#6252E8]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs text-[#101014] dark:text-white"
+          className="rounded-xl border border-[#2563EB]/30 bg-[#2563EB]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs text-[#05070E] dark:text-white"
         >
           <span className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#6252E8] shrink-0" aria-hidden="true" />
+            <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
             <span>{draftSavedNotice}</span>
           </span>
           <button
             type="button"
             onClick={() => setDraftSavedNotice('')}
-            className="text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] px-2 py-1"
+            className="text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] px-2 py-1"
           >
             Dismiss
           </button>
@@ -485,9 +485,9 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
       {studioMode === 'agent' && (
         <div className="space-y-4">
           {/* Natural Language Quick-Create + Templates */}
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-semibold text-[#6252E8] dark:text-[#965BFF] flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Compile from Natural Language</span>
               </span>
@@ -503,13 +503,13 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 onChange={(e) => setNlPrompt(e.target.value)}
                 placeholder="e.g., Audit vendor security questionnaire with citations"
                 aria-label="Describe agent goal"
-                className="flex-1 min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm text-[#101014] dark:text-white"
+                className="flex-1 min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm text-[#05070E] dark:text-white"
               />
               <button
                 type="button"
                 onClick={handleCompileFromNL}
                 disabled={!nlPrompt.trim()}
-                className="min-h-[44px] px-4 rounded-lg bg-[#101014] dark:bg-white text-white dark:text-[#101014] disabled:opacity-40 text-xs font-semibold whitespace-nowrap shrink-0"
+                className="min-h-[44px] px-4 rounded-lg bg-[#05070E] dark:bg-white text-white dark:text-[#05070E] disabled:opacity-40 text-xs font-semibold whitespace-nowrap shrink-0"
               >
                 Compile Spec
               </button>
@@ -521,7 +521,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   key={tpl.label}
                   type="button"
                   onClick={() => applyTemplate(tpl)}
-                  className="min-h-[38px] px-3 rounded-lg border border-[#101014]/10 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014]/70 text-xs font-medium text-[#101014] dark:text-white whitespace-nowrap shrink-0 hover:border-[#6252E8]"
+                  className="min-h-[38px] px-3 rounded-lg border border-[#05070E]/10 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E]/70 text-xs font-medium text-[#05070E] dark:text-white whitespace-nowrap shrink-0 hover:border-[#2563EB]"
                 >
                   Template: {tpl.label}
                 </button>
@@ -540,11 +540,11 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   onClick={() => setAgentDraft(ag)}
                   className={`min-h-[44px] px-3.5 py-2 rounded-xl border text-left shrink-0 transition-colors ${
                     selected
-                      ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/25'
-                      : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                      ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/25'
+                      : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]'
                   }`}
                 >
-                  <div className="text-xs font-semibold text-[#101014] dark:text-white truncate max-w-[160px]">
+                  <div className="text-xs font-semibold text-[#05070E] dark:text-white truncate max-w-[160px]">
                     {ag.name}
                   </div>
                   <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -556,7 +556,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
           </div>
 
           {/* 5-Step Sequential Mobile Wizard Progress */}
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-4">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-4">
             <div className="flex overflow-x-auto no-scrollbar gap-1.5 pb-1">
               {[
                 { step: 1, label: '1. Identity' },
@@ -571,8 +571,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   onClick={() => setWizardStep(s.step as 1 | 2 | 3 | 4 | 5)}
                   className={`min-h-[40px] px-3 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-colors ${
                     wizardStep === s.step
-                      ? 'bg-[#6252E8] text-white'
-                      : 'bg-[#F7F7FA] dark:bg-[#101014] text-[#5E5E6E] dark:text-[#B5B5C5]'
+                      ? 'bg-[#2563EB] text-white'
+                      : 'bg-[#F7F7FA] dark:bg-[#05070E] text-[#5E5E6E] dark:text-[#B5B5C5]'
                   }`}
                 >
                   {s.label}
@@ -583,7 +583,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             {wizardStep === 1 && (
               <div className="space-y-3.5">
                 <div>
-                  <label htmlFor="agent-name" className="block text-xs font-semibold text-[#101014] dark:text-white mb-1">
+                  <label htmlFor="agent-name" className="block text-xs font-semibold text-[#05070E] dark:text-white mb-1">
                     Agent Name
                   </label>
                   <input
@@ -591,11 +591,11 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     type="text"
                     value={agentDraft.name}
                     onChange={(e) => setAgentDraft({ ...agentDraft, name: e.target.value })}
-                    className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm text-[#101014] dark:text-white"
+                    className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm text-[#05070E] dark:text-white"
                   />
                 </div>
                 <div>
-                  <label htmlFor="agent-objective" className="block text-xs font-semibold text-[#101014] dark:text-white mb-1">
+                  <label htmlFor="agent-objective" className="block text-xs font-semibold text-[#05070E] dark:text-white mb-1">
                     Objective
                   </label>
                   <input
@@ -603,11 +603,11 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     type="text"
                     value={agentDraft.objective}
                     onChange={(e) => setAgentDraft({ ...agentDraft, objective: e.target.value })}
-                    className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm text-[#101014] dark:text-white"
+                    className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm text-[#05070E] dark:text-white"
                   />
                 </div>
                 <div>
-                  <label htmlFor="agent-instructions" className="block text-xs font-semibold text-[#101014] dark:text-white mb-1">
+                  <label htmlFor="agent-instructions" className="block text-xs font-semibold text-[#05070E] dark:text-white mb-1">
                     System Instructions
                   </label>
                   <textarea
@@ -615,7 +615,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     rows={3}
                     value={agentDraft.instructions}
                     onChange={(e) => setAgentDraft({ ...agentDraft, instructions: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm text-[#101014] dark:text-white"
+                    className="w-full px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm text-[#05070E] dark:text-white"
                   />
                 </div>
               </div>
@@ -624,30 +624,30 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             {wizardStep === 2 && (
               <div className="space-y-4">
                 <div>
-                  <span className="block text-xs font-semibold text-[#101014] dark:text-white mb-1.5">
+                  <span className="block text-xs font-semibold text-[#05070E] dark:text-white mb-1.5">
                     SOPIN Gateway Route Profile
                   </span>
                   <button
                     type="button"
                     onClick={() => setModelSheetOpen(true)}
-                    className="w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] flex items-center justify-between text-left"
+                    className="w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] flex items-center justify-between text-left"
                   >
                     <div>
-                      <div className="font-mono text-sm font-semibold text-[#101014] dark:text-white">
+                      <div className="font-mono text-sm font-semibold text-[#05070E] dark:text-white">
                         {agentDraft.modelRoute}
                       </div>
                       <div className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
                         Tap to search Gateway model profiles
                       </div>
                     </div>
-                    <Search className="w-4 h-4 text-[#6252E8] shrink-0" aria-hidden="true" />
+                    <Search className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
                   </button>
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between text-xs font-semibold text-[#101014] dark:text-white mb-1.5">
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#05070E] dark:text-white mb-1.5">
                     <span>Per-Run Prototype Budget Ceiling</span>
-                    <span className="font-mono text-[#6252E8] dark:text-[#B894FF]">
+                    <span className="font-mono text-[#2563EB] dark:text-[#7EC8FF]">
                       ${agentDraft.budgetCeilingUsd.toFixed(2)} USD
                     </span>
                   </div>
@@ -660,7 +660,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     onChange={(e) =>
                       setAgentDraft({ ...agentDraft, budgetCeilingUsd: Number(e.target.value) })
                     }
-                    className="w-full accent-[#6252E8] h-10"
+                    className="w-full accent-[#2563EB] h-10"
                     aria-label="Budget ceiling in USD"
                   />
                 </div>
@@ -670,7 +670,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             {wizardStep === 3 && (
               <div className="space-y-4">
                 <div>
-                  <span className="block text-xs font-semibold text-[#101014] dark:text-white mb-2">
+                  <span className="block text-xs font-semibold text-[#05070E] dark:text-white mb-2">
                     Bind Scoped MCP Tools
                   </span>
                   <div className="space-y-2">
@@ -683,19 +683,19 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                           onClick={() => toggleAgentTool(tool.name)}
                           className={`w-full min-h-[48px] text-left rounded-xl border p-3 flex items-center justify-between gap-3 ${
                             active
-                              ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/20'
-                              : 'border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014]'
+                              ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/20'
+                              : 'border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E]'
                           }`}
                         >
                           <div className="min-w-0">
-                            <div className="font-mono text-xs font-semibold text-[#101014] dark:text-white">
+                            <div className="font-mono text-xs font-semibold text-[#05070E] dark:text-white">
                               {tool.name} · {tool.scope}
                             </div>
                             <div className="text-xs text-[#5E5E6E] dark:text-[#A4A4B5] truncate">
                               {tool.description}
                             </div>
                           </div>
-                          <span className="text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] shrink-0">
+                          <span className="text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                             {active ? 'Attached' : 'Attach'}
                           </span>
                         </button>
@@ -705,7 +705,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 </div>
 
                 <div>
-                  <span className="block text-xs font-semibold text-[#101014] dark:text-white mb-2">
+                  <span className="block text-xs font-semibold text-[#05070E] dark:text-white mb-2">
                     Attach Knowledge Sources
                   </span>
                   <div className="flex flex-wrap gap-2">
@@ -718,8 +718,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                           onClick={() => toggleAgentDoc(doc.id)}
                           className={`min-h-[44px] px-3 py-2 rounded-lg border text-xs font-medium text-left ${
                             attached
-                              ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                              : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white'
+                              ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                              : 'border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-[#05070E] dark:text-white'
                           }`}
                         >
                           {doc.title}
@@ -730,10 +730,10 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 </div>
 
                 {decisions && (
-                  <div className="pt-3 border-t border-[#101014]/10 dark:border-white/10 space-y-2.5">
+                  <div className="pt-3 border-t border-[#05070E]/10 dark:border-white/10 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-[#101014] dark:text-white flex items-center gap-1.5">
-                        <Scale className="w-3.5 h-3.5 text-[#6252E8]" aria-hidden="true" />
+                      <span className="text-xs font-semibold text-[#05070E] dark:text-white flex items-center gap-1.5">
+                        <Scale className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                         <span>Attach Published SOPIN Decisions</span>
                       </span>
                       <span className="text-[10px] font-mono text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -767,8 +767,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                             }
                             className={`min-h-[40px] px-3 py-1.5 rounded-lg border text-xs font-medium text-left ${
                               attached
-                                ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                                : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white'
+                                ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                                : 'border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-[#05070E] dark:text-white'
                             }`}
                           >
                             {item.type}: {item.name} ({item.version})
@@ -780,10 +780,10 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     {(agentDraft.attachedDecisions ?? []).map((cap) => (
                       <div
                         key={cap.id}
-                        className="rounded-xl border border-[#6252E8]/30 bg-[#F7F7FA] dark:bg-[#101014] p-3 space-y-2 text-xs"
+                        className="rounded-xl border border-[#2563EB]/30 bg-[#F7F7FA] dark:bg-[#05070E] p-3 space-y-2 text-xs"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="font-semibold text-[#101014] dark:text-white">
+                          <span className="font-semibold text-[#05070E] dark:text-white">
                             {cap.targetName} ({cap.pinnedVersion || 'latest'})
                           </span>
                           <div className="flex items-center gap-1.5">
@@ -795,7 +795,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                                 })
                               }
                               aria-label="Decision version policy"
-                              className="min-h-[34px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[11px]"
+                              className="min-h-[34px] px-2 rounded border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-[11px]"
                             >
                               <option value="pinned">Pinned ({cap.pinnedVersion})</option>
                               <option value="latest-published">Latest Published</option>
@@ -808,7 +808,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                                 })
                               }
                               aria-label="Decision execution permission"
-                              className="min-h-[34px] px-2 rounded border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-[11px]"
+                              className="min-h-[34px] px-2 rounded border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-[11px]"
                             >
                               <option value="read-evaluate">Read-Evaluate</option>
                               <option value="disabled">Disabled</option>
@@ -825,7 +825,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                             updateAttachedDecision(cap.id, { usageGuidance: e.target.value })
                           }
                           placeholder="Agent usage guidance..."
-                          className="w-full min-h-[36px] px-2.5 rounded border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] text-xs"
+                          className="w-full min-h-[36px] px-2.5 rounded border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] text-xs"
                         />
                       </div>
                     ))}
@@ -837,7 +837,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             {wizardStep === 4 && (
               <div className="space-y-4">
                 <div>
-                  <span className="block text-xs font-semibold text-[#101014] dark:text-white mb-2">
+                  <span className="block text-xs font-semibold text-[#05070E] dark:text-white mb-2">
                     SOPIN Context Memory Tier
                   </span>
                   <div className="grid grid-cols-3 gap-2">
@@ -848,8 +848,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                         onClick={() => setAgentDraft({ ...agentDraft, memoryTier: tier })}
                         className={`min-h-[44px] rounded-lg border text-xs font-semibold capitalize ${
                           agentDraft.memoryTier === tier
-                            ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                            : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white'
+                            ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                            : 'border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-[#05070E] dark:text-white'
                         }`}
                       >
                         {tier}
@@ -859,7 +859,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 </div>
 
                 <div>
-                  <span className="block text-xs font-semibold text-[#101014] dark:text-white mb-2">
+                  <span className="block text-xs font-semibold text-[#05070E] dark:text-white mb-2">
                     Tool Permission Boundary
                   </span>
                   <div className="grid grid-cols-2 gap-2">
@@ -868,8 +868,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       onClick={() => setAgentDraft({ ...agentDraft, permissionMode: 'read-only' })}
                       className={`min-h-[44px] rounded-lg border text-xs font-semibold ${
                         agentDraft.permissionMode === 'read-only'
-                          ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                          : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white'
+                          ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                          : 'border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-[#05070E] dark:text-white'
                       }`}
                     >
                       Read-Only Strict
@@ -879,8 +879,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       onClick={() => setAgentDraft({ ...agentDraft, permissionMode: 'gated-write' })}
                       className={`min-h-[44px] rounded-lg border text-xs font-semibold ${
                         agentDraft.permissionMode === 'gated-write'
-                          ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                          : 'border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-[#101014] dark:text-white'
+                          ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                          : 'border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-[#05070E] dark:text-white'
                       }`}
                     >
                       Human-Gated Write
@@ -889,7 +889,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 </div>
 
                 <div>
-                  <label htmlFor="agent-criteria" className="block text-xs font-semibold text-[#101014] dark:text-white mb-1">
+                  <label htmlFor="agent-criteria" className="block text-xs font-semibold text-[#05070E] dark:text-white mb-1">
                     Success &amp; Verification Criteria
                   </label>
                   <input
@@ -897,7 +897,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     type="text"
                     value={agentDraft.successCriteria}
                     onChange={(e) => setAgentDraft({ ...agentDraft, successCriteria: e.target.value })}
-                    className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm text-[#101014] dark:text-white"
+                    className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm text-[#05070E] dark:text-white"
                   />
                 </div>
               </div>
@@ -906,15 +906,15 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             {wizardStep === 5 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-[#101014] dark:text-white">
+                  <span className="text-xs font-semibold text-[#05070E] dark:text-white">
                     Topology View
                   </span>
-                  <div className="inline-flex p-1 rounded-lg bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10">
+                  <div className="inline-flex p-1 rounded-lg bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10">
                     <button
                       type="button"
                       onClick={() => setAgentViewFormat('list')}
                       className={`min-h-[36px] px-2.5 rounded-md text-xs font-semibold inline-flex items-center gap-1 ${
-                        agentViewFormat === 'list' ? 'bg-[#6252E8] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+                        agentViewFormat === 'list' ? 'bg-[#2563EB] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                       }`}
                     >
                       <List className="w-3.5 h-3.5" aria-hidden="true" />
@@ -924,7 +924,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       type="button"
                       onClick={() => setAgentViewFormat('graph')}
                       className={`min-h-[36px] px-2.5 rounded-md text-xs font-semibold inline-flex items-center gap-1 ${
-                        agentViewFormat === 'graph' ? 'bg-[#6252E8] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+                        agentViewFormat === 'graph' ? 'bg-[#2563EB] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                       }`}
                     >
                       <Layers className="w-3.5 h-3.5" aria-hidden="true" />
@@ -950,20 +950,20 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     ].map((row) => (
                       <div
                         key={row.stage}
-                        className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#101014] p-3"
+                        className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#05070E] p-3"
                       >
-                        <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF]">
+                        <div className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF]">
                           {row.stage}
                         </div>
-                        <div className="mt-0.5 text-[#101014] dark:text-white break-words">{row.val}</div>
+                        <div className="mt-0.5 text-[#05070E] dark:text-white break-words">{row.val}</div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="rounded-xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-4 space-y-3 overflow-hidden">
+                    <div className="rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white p-4 space-y-3 overflow-hidden">
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-[11px] text-[#B894FF]">Single-Agent Topology</span>
+                        <span className="font-mono text-[11px] text-[#7EC8FF]">Single-Agent Topology</span>
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
@@ -1002,13 +1002,13 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                             { label: 'SOPIN Control', sub: agentDraft.permissionMode },
                           ].map((node, i, arr) => (
                             <React.Fragment key={node.label}>
-                              <div className="rounded-xl border border-white/15 bg-[#101014] px-3.5 py-2.5">
-                                <div className="font-mono text-[10px] text-[#965BFF]">{node.label}</div>
+                              <div className="rounded-xl border border-white/15 bg-[#05070E] px-3.5 py-2.5">
+                                <div className="font-mono text-[10px] text-[#60A5FA]">{node.label}</div>
                                 <div className="text-xs font-semibold truncate">{node.sub}</div>
                               </div>
                               {i < arr.length - 1 && (
                                 <div className="h-3 flex justify-center" aria-hidden="true">
-                                  <div className="w-px h-full bg-[#6252E8]" />
+                                  <div className="w-px h-full bg-[#2563EB]" />
                                 </div>
                               )}
                             </React.Fragment>
@@ -1020,14 +1020,14 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     {multiAgentGraphs.map((g) => (
                       <div
                         key={g.id}
-                        className="rounded-xl border border-[#6252E8]/40 bg-[#F7F7FA] dark:bg-[#101014] p-3.5 space-y-2.5"
+                        className="rounded-xl border border-[#2563EB]/40 bg-[#F7F7FA] dark:bg-[#05070E] p-3.5 space-y-2.5"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
-                            <div className="font-mono text-[10px] uppercase text-[#6252E8] dark:text-[#B894FF]">
+                            <div className="font-mono text-[10px] uppercase text-[#2563EB] dark:text-[#7EC8FF]">
                               Multi-Agent Graph ({g.version})
                             </div>
-                            <div className="text-xs font-semibold text-[#101014] dark:text-white">
+                            <div className="text-xs font-semibold text-[#05070E] dark:text-white">
                               {g.name}
                             </div>
                           </div>
@@ -1041,7 +1041,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                                 { citationCount: 4, groundedScore: 0.92, contradictionCount: 0 }
                               )
                             }
-                            className="min-h-[38px] px-3 rounded-lg bg-[#6252E8] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+                            className="min-h-[38px] px-3 rounded-lg bg-[#2563EB] text-white text-xs font-semibold inline-flex items-center gap-1.5"
                           >
                             <Play className="w-3.5 h-3.5" aria-hidden="true" />
                             <span>Run Graph</span>
@@ -1051,12 +1051,12 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                           {g.nodes.map((node) => (
                             <div
                               key={node.id}
-                              className="rounded-lg border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] px-2.5 py-2 flex items-center justify-between gap-2"
+                              className="rounded-lg border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] px-2.5 py-2 flex items-center justify-between gap-2"
                             >
-                              <span className="font-semibold text-[#101014] dark:text-white">
+                              <span className="font-semibold text-[#05070E] dark:text-white">
                                 {node.label}
                               </span>
-                              <span className="font-mono text-[10px] text-[#6252E8] dark:text-[#B894FF] uppercase">
+                              <span className="font-mono text-[10px] text-[#2563EB] dark:text-[#7EC8FF] uppercase">
                                 {node.nodeType}
                               </span>
                             </div>
@@ -1070,13 +1070,13 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             )}
 
             {/* Wizard Sticky Action Controls */}
-            <div className="pt-3 border-t border-[#101014]/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="pt-3 border-t border-[#05070E]/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex items-center gap-2">
                 {wizardStep > 1 && (
                   <button
                     type="button"
                     onClick={() => setWizardStep((s) => (s - 1) as 1 | 2 | 3 | 4 | 5)}
-                    className="min-h-[44px] px-3.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold text-[#101014] dark:text-white"
+                    className="min-h-[44px] px-3.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold text-[#05070E] dark:text-white"
                   >
                     Back
                   </button>
@@ -1085,7 +1085,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setWizardStep((s) => (s + 1) as 1 | 2 | 3 | 4 | 5)}
-                    className="min-h-[44px] px-4 rounded-lg bg-[#101014] dark:bg-white text-white dark:text-[#101014] text-xs font-semibold"
+                    className="min-h-[44px] px-4 rounded-lg bg-[#05070E] dark:bg-white text-white dark:text-[#05070E] text-xs font-semibold"
                   >
                     Next Step
                   </button>
@@ -1102,7 +1102,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       `Dry-run test for objective: ${agentDraft.objective}`
                     )
                   }
-                  className="min-h-[44px] px-3.5 rounded-lg border border-[#6252E8]/40 text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] inline-flex items-center gap-1.5"
+                  className="min-h-[44px] px-3.5 rounded-lg border border-[#2563EB]/40 text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] inline-flex items-center gap-1.5"
                 >
                   <Play className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Test</span>
@@ -1110,14 +1110,14 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 <button
                   type="button"
                   onClick={() => commitAgent('Draft')}
-                  className="min-h-[44px] px-3.5 rounded-lg border border-[#101014]/15 dark:border-white/15 text-xs font-semibold text-[#101014] dark:text-white"
+                  className="min-h-[44px] px-3.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-xs font-semibold text-[#05070E] dark:text-white"
                 >
                   Save Draft
                 </button>
                 <button
                   type="button"
                   onClick={() => setPublishConfirmOpen(true)}
-                  className="min-h-[44px] px-4 rounded-lg bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold"
+                  className="min-h-[44px] px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold"
                 >
                   Publish
                 </button>
@@ -1145,11 +1145,11 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     }}
                     className={`min-h-[44px] px-3.5 py-2 rounded-xl border text-left shrink-0 transition-colors ${
                       selected
-                        ? 'border-[#6252E8] bg-[#6252E8]/10 dark:bg-[#6252E8]/25'
-                        : 'border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126]'
+                        ? 'border-[#2563EB] bg-[#2563EB]/10 dark:bg-[#2563EB]/25'
+                        : 'border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226]'
                     }`}
                   >
-                    <div className="text-xs font-semibold text-[#101014] dark:text-white truncate max-w-[200px]">
+                    <div className="text-xs font-semibold text-[#05070E] dark:text-white truncate max-w-[200px]">
                       {wf.name}
                     </div>
                     <div className="text-[11px] text-[#5E5E6E] dark:text-[#A4A4B5]">
@@ -1161,24 +1161,24 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             </div>
           )}
 
-          <div className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-4 space-y-3">
+          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
                 <StatusText
                   items={[activeWorkflow.version, activeWorkflow.status, `${activeWorkflow.steps.length} Steps`]}
                   accentLast
                 />
-                <h2 className="mt-1 font-display text-lg font-semibold text-[#101014] dark:text-white truncate">
+                <h2 className="mt-1 font-display text-lg font-semibold text-[#05070E] dark:text-white truncate">
                   {activeWorkflow.name}
                 </h2>
               </div>
 
-              <div className="inline-flex p-1 rounded-lg bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10">
+              <div className="inline-flex p-1 rounded-lg bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setWfViewFormat('steps')}
                   className={`min-h-[38px] px-3 rounded-md text-xs font-semibold ${
-                    wfViewFormat === 'steps' ? 'bg-[#6252E8] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+                    wfViewFormat === 'steps' ? 'bg-[#2563EB] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                   }`}
                 >
                   Vertical Steps
@@ -1187,7 +1187,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   type="button"
                   onClick={() => setWfViewFormat('graph')}
                   className={`min-h-[38px] px-3 rounded-md text-xs font-semibold ${
-                    wfViewFormat === 'graph' ? 'bg-[#6252E8] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
+                    wfViewFormat === 'graph' ? 'bg-[#2563EB] text-white' : 'text-[#5E5E6E] dark:text-[#A4A4B5]'
                   }`}
                 >
                   Visual Flow
@@ -1199,17 +1199,17 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             <button
               type="button"
               onClick={() => setTriggerSheetOpen(true)}
-              className="w-full min-h-[48px] rounded-xl border border-[#6252E8]/30 bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15 p-3 text-left flex items-center justify-between gap-3"
+              className="w-full min-h-[48px] rounded-xl border border-[#2563EB]/30 bg-[#2563EB]/[0.06] dark:bg-[#2563EB]/15 p-3 text-left flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
-                <div className="font-mono text-[11px] font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                <div className="font-mono text-[11px] font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                   TRIGGER · {activeWorkflow.trigger}
                 </div>
-                <div className="text-xs text-[#101014] dark:text-white truncate">
+                <div className="text-xs text-[#05070E] dark:text-white truncate">
                   {activeWorkflow.triggerSpec}
                 </div>
               </div>
-              <span className="text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] shrink-0">
+              <span className="text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] shrink-0">
                 Change
               </span>
             </button>
@@ -1220,7 +1220,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
               {activeWorkflow.steps.map((step, index) => (
                 <div
                   key={step.id}
-                  className="rounded-2xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-3.5 space-y-2"
+                  className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-3.5 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <button
@@ -1230,21 +1230,21 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                       }}
                       className="text-left flex-1 min-w-0 min-h-[44px]"
                     >
-                      <div className="font-mono text-[11px] text-[#6252E8] dark:text-[#B894FF] uppercase flex items-center gap-1.5">
+                      <div className="font-mono text-[11px] text-[#2563EB] dark:text-[#7EC8FF] uppercase flex items-center gap-1.5">
                         {step.kind === 'decision' && <Scale className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
                         <span>
                           0{index + 1} · {step.kind} {step.requiresApproval ? '· Approval Gate' : ''}
                         </span>
                       </div>
-                      <div className="mt-0.5 font-display text-sm font-semibold text-[#101014] dark:text-white">
+                      <div className="mt-0.5 font-display text-sm font-semibold text-[#05070E] dark:text-white">
                         {step.title}
                       </div>
                       <p className="mt-0.5 text-xs text-[#5E5E6E] dark:text-[#A4A4B5]">
                         {step.detail}
                       </p>
                       {step.kind === 'decision' && step.decisionConfig && (
-                        <div className="mt-2 rounded-lg border border-[#6252E8]/25 bg-[#6252E8]/[0.06] dark:bg-[#6252E8]/15 px-2.5 py-2 text-[11px] space-y-1">
-                          <div className="font-mono font-semibold text-[#6252E8] dark:text-[#B894FF]">
+                        <div className="mt-2 rounded-lg border border-[#2563EB]/25 bg-[#2563EB]/[0.06] dark:bg-[#2563EB]/15 px-2.5 py-2 text-[11px] space-y-1">
+                          <div className="font-mono font-semibold text-[#2563EB] dark:text-[#7EC8FF]">
                             Target ({step.decisionConfig.targetType}): {step.decisionConfig.targetName}
                           </div>
                           <div className="text-[#5E5E6E] dark:text-[#C5C5D6] truncate">
@@ -1260,7 +1260,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                         onClick={() => moveWorkflowStep(index, -1)}
                         disabled={index === 0}
                         aria-label={`Move ${step.title} up`}
-                        className="w-10 h-10 rounded-lg border border-[#101014]/10 dark:border-white/15 flex items-center justify-center disabled:opacity-30"
+                        className="w-10 h-10 rounded-lg border border-[#05070E]/10 dark:border-white/15 flex items-center justify-center disabled:opacity-30"
                       >
                         <ArrowUp className="w-4 h-4" aria-hidden="true" />
                       </button>
@@ -1269,20 +1269,20 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                         onClick={() => moveWorkflowStep(index, 1)}
                         disabled={index === activeWorkflow.steps.length - 1}
                         aria-label={`Move ${step.title} down`}
-                        className="w-10 h-10 rounded-lg border border-[#101014]/10 dark:border-white/15 flex items-center justify-center disabled:opacity-30"
+                        className="w-10 h-10 rounded-lg border border-[#05070E]/10 dark:border-white/15 flex items-center justify-center disabled:opacity-30"
                       >
                         <ArrowDown className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
-                  <div className="pt-2 border-t border-[#101014]/[0.06] dark:border-white/10 flex items-center justify-between text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
+                  <div className="pt-2 border-t border-[#05070E]/[0.06] dark:border-white/10 flex items-center justify-between text-[11px] font-mono text-[#5E5E6E] dark:text-[#9A9AB0]">
                     <span>Retries: max {step.retryMax} · Timeout: {step.timeoutSec}s</span>
                     <button
                       type="button"
                       onClick={() => {
                         setEditingStep(step);
                       }}
-                      className="font-sans font-semibold text-[#6252E8] dark:text-[#B894FF] px-2 py-1"
+                      className="font-sans font-semibold text-[#2563EB] dark:text-[#7EC8FF] px-2 py-1"
                     >
                       Configure Step
                     </button>
@@ -1291,8 +1291,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-[#101014]/15 dark:border-white/15 bg-[#101126] text-white p-5 space-y-2">
-              <div className="font-mono text-xs text-[#B894FF] mb-3">
+            <div className="rounded-2xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white p-5 space-y-2">
+              <div className="font-mono text-xs text-[#7EC8FF] mb-3">
                 DAG Overview · {activeWorkflow.name}
               </div>
               {activeWorkflow.steps.map((step, i) => (
@@ -1302,13 +1302,13 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                     onClick={() => {
                       setEditingStep(step);
                     }}
-                    className={`w-full text-left rounded-xl border p-3.5 hover:border-[#965BFF] ${
+                    className={`w-full text-left rounded-xl border p-3.5 hover:border-[#60A5FA] ${
                       step.kind === 'decision'
-                        ? 'border-[#965BFF]/60 bg-[#6252E8]/15'
-                        : 'border-white/15 bg-[#101014]'
+                        ? 'border-[#60A5FA]/60 bg-[#2563EB]/15'
+                        : 'border-white/15 bg-[#05070E]'
                     }`}
                   >
-                    <div className="font-mono text-[11px] text-[#965BFF] flex items-center gap-1.5">
+                    <div className="font-mono text-[11px] text-[#60A5FA] flex items-center gap-1.5">
                       {step.kind === 'decision' && <Scale className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
                       <span>0{i + 1} · {step.kind}</span>
                     </div>
@@ -1321,7 +1321,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   </button>
                   {i < activeWorkflow.steps.length - 1 && (
                     <div className="h-4 flex justify-center" aria-hidden="true">
-                      <div className="w-px h-full bg-[#6252E8]" />
+                      <div className="w-px h-full bg-[#2563EB]" />
                     </div>
                   )}
                 </React.Fragment>
@@ -1346,7 +1346,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
           )}
 
           {activeWorkflow.sampleInputs && activeWorkflow.sampleInputs.length > 0 && (
-            <div className="rounded-xl border border-[#101014]/10 dark:border-white/10 bg-white dark:bg-[#101126] p-3 flex flex-col sm:flex-row sm:items-center gap-2">
+            <div className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-white dark:bg-[#0A1226] p-3 flex flex-col sm:flex-row sm:items-center gap-2">
               <label htmlFor="wf-sample-scenario" className="text-xs font-semibold shrink-0">
                 Demo Scenario Input:
               </label>
@@ -1354,7 +1354,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 id="wf-sample-scenario"
                 value={selectedSampleId}
                 onChange={(e) => setSelectedSampleId(e.target.value)}
-                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-xs"
+                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-xs"
               >
                 {activeWorkflow.sampleInputs.map((si) => (
                   <option key={si.id} value={si.id}>
@@ -1369,9 +1369,9 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             <button
               type="button"
               onClick={() => setAddStepOpen(true)}
-              className="min-h-[44px] px-3 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs font-semibold text-[#101014] dark:text-white inline-flex items-center justify-center gap-1.5"
+              className="min-h-[44px] px-3 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-xs font-semibold text-[#05070E] dark:text-white inline-flex items-center justify-center gap-1.5"
             >
-              <Plus className="w-4 h-4 text-[#6252E8]" aria-hidden="true" />
+              <Plus className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
               <span>Add Step</span>
             </button>
             <button
@@ -1385,7 +1385,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   chosen?.payload
                 );
               }}
-              className="min-h-[44px] px-3 rounded-xl border border-[#6252E8]/40 bg-white dark:bg-[#101126] text-xs font-semibold text-[#6252E8] dark:text-[#B894FF] inline-flex items-center justify-center gap-1.5"
+              className="min-h-[44px] px-3 rounded-xl border border-[#2563EB]/40 bg-white dark:bg-[#0A1226] text-xs font-semibold text-[#2563EB] dark:text-[#7EC8FF] inline-flex items-center justify-center gap-1.5"
             >
               <Play className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Test Flow</span>
@@ -1393,14 +1393,14 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             <button
               type="button"
               onClick={() => bumpWorkflowVersion(false)}
-              className="min-h-[44px] px-3 rounded-xl border border-[#101014]/15 dark:border-white/15 bg-white dark:bg-[#101126] text-xs font-semibold text-[#101014] dark:text-white"
+              className="min-h-[44px] px-3 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#0A1226] text-xs font-semibold text-[#05070E] dark:text-white"
             >
               Save Version
             </button>
             <button
               type="button"
               onClick={() => bumpWorkflowVersion(true)}
-              className="min-h-[44px] px-3 rounded-xl bg-[#6252E8] hover:bg-[#5243d6] text-white text-xs font-semibold"
+              className="min-h-[44px] px-3 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold"
             >
               Publish Flow
             </button>
@@ -1423,7 +1423,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             onChange={(e) => setModelSearch(e.target.value)}
             placeholder="Search route profiles..."
             aria-label="Search model profiles"
-            className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+            className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
           />
           <div className="space-y-2">
             {filteredModels.map((m) => (
@@ -1436,8 +1436,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 }}
                 className={`w-full min-h-[52px] text-left rounded-xl border p-3.5 ${
                   agentDraft.modelRoute === m.id
-                    ? 'border-[#6252E8] bg-[#6252E8]/10'
-                    : 'border-[#101014]/10 dark:border-white/10'
+                    ? 'border-[#2563EB] bg-[#2563EB]/10'
+                    : 'border-[#05070E]/10 dark:border-white/10'
                 }`}
               >
                 <div className="font-mono text-sm font-semibold">{m.label}</div>
@@ -1456,7 +1456,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
         subtitle="Publishes this configuration to your local workspace prototype registry."
       >
         <div className="space-y-4">
-          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#101014] border border-[#101014]/10 dark:border-white/10 p-3.5 text-xs space-y-1">
+          <div className="rounded-xl bg-[#F7F7FA] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 p-3.5 text-xs space-y-1">
             <div><strong>Agent:</strong> {agentDraft.name}</div>
             <div><strong>Model Route:</strong> {agentDraft.modelRoute}</div>
             <div><strong>Permissions:</strong> {agentDraft.permissionMode}</div>
@@ -1466,14 +1466,14 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
             <button
               type="button"
               onClick={() => setPublishConfirmOpen(false)}
-              className="min-h-[44px] rounded-lg border border-[#101014]/15 dark:border-white/15 text-sm font-semibold"
+              className="min-h-[44px] rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={() => commitAgent('Published')}
-              className="min-h-[44px] rounded-lg bg-[#6252E8] text-white text-sm font-semibold"
+              className="min-h-[44px] rounded-lg bg-[#2563EB] text-white text-sm font-semibold"
             >
               Confirm Publish
             </button>
@@ -1507,8 +1507,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
               }}
               className={`w-full min-h-[52px] text-left rounded-xl border p-3.5 ${
                 activeWorkflow.trigger === item.t
-                  ? 'border-[#6252E8] bg-[#6252E8]/10'
-                  : 'border-[#101014]/10 dark:border-white/10'
+                  ? 'border-[#2563EB] bg-[#2563EB]/10'
+                  : 'border-[#05070E]/10 dark:border-white/10'
               }`}
             >
               <div className="text-sm font-semibold">{item.t}</div>
@@ -1539,8 +1539,8 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   onClick={() => setNewStepKind(k)}
                   className={`min-h-[44px] rounded-lg border text-xs font-semibold capitalize ${
                     newStepKind === k
-                      ? 'border-[#6252E8] bg-[#6252E8] text-white'
-                      : 'border-[#101014]/15 dark:border-white/15'
+                      ? 'border-[#2563EB] bg-[#2563EB] text-white'
+                      : 'border-[#05070E]/15 dark:border-white/15'
                   }`}
                 >
                   {k === 'decision' ? 'Decision Node' : k}
@@ -1558,7 +1558,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
               value={newStepTitle}
               onChange={(e) => setNewStepTitle(e.target.value)}
               placeholder="e.g., Verify Compliance Citations"
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             />
           </div>
           <div>
@@ -1571,14 +1571,14 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
               value={newStepDetail}
               onChange={(e) => setNewStepDetail(e.target.value)}
               placeholder="Describe schema check or integration action..."
-              className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+              className="w-full px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
             />
           </div>
           <button
             type="button"
             onClick={handleAddStep}
             disabled={!newStepTitle.trim()}
-            className="w-full min-h-[48px] rounded-lg bg-[#6252E8] disabled:opacity-40 text-white text-sm font-semibold"
+            className="w-full min-h-[48px] rounded-lg bg-[#2563EB] disabled:opacity-40 text-white text-sm font-semibold"
           >
             Insert Step
           </button>
@@ -1624,7 +1624,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                 rows={3}
                 value={editingStep.detail}
                 onChange={(e) => setEditingStep({ ...editingStep, detail: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+                className="w-full px-3.5 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -1641,7 +1641,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   onChange={(e) =>
                     setEditingStep({ ...editingStep, retryMax: Number(e.target.value) })
                   }
-                  className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+                  className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
                 />
               </div>
               <div>
@@ -1657,7 +1657,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   onChange={(e) =>
                     setEditingStep({ ...editingStep, timeoutSec: Number(e.target.value) })
                   }
-                  className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#101014]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#101014] text-base sm:text-sm"
+                  className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#05070E] text-base sm:text-sm"
                 />
               </div>
             </div>
@@ -1690,7 +1690,7 @@ export const AppBuildView: React.FC<AppBuildViewProps> = ({
                   onSaveWorkflow(next);
                   setEditingStep(null);
                 }}
-                className="min-h-[44px] px-5 rounded-lg bg-[#6252E8] text-white text-xs font-semibold"
+                className="min-h-[44px] px-5 rounded-lg bg-[#2563EB] text-white text-xs font-semibold"
               >
                 Save Step
               </button>
