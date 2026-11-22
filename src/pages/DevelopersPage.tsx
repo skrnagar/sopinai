@@ -42,7 +42,7 @@ audit_agent = client.agent(
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Developers', 'SDK · MCP · A2A · Integrations']} accentLast />
@@ -67,7 +67,7 @@ audit_agent = client.agent(
       </section>
 
       {/* API and SDK */}
-      <section id="sdk" className="py-20 border-b border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
+      <section id="sdk" className="py-20 border-b border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-5 space-y-5 min-w-0">
             <SectionHeader
@@ -84,7 +84,7 @@ audit_agent = client.agent(
                 className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'typescript'
                     ? 'bg-[#2563EB] text-white'
-                    : 'bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
+                    : 'bg-[#FAF9F5] dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
                 }`}
               >
                 TypeScript (@sopin/sdk)
@@ -97,7 +97,7 @@ audit_agent = client.agent(
                 className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[44px] sm:min-h-[40px] ${
                   sdkLang === 'python'
                     ? 'bg-[#2563EB] text-white'
-                    : 'bg-white dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
+                    : 'bg-[#FAF9F5] dark:bg-[#0A1226] text-[#5E5E6E] dark:text-[#B5B5C5] border border-[#05070E]/10 dark:border-white/10'
                 }`}
               >
                 Python (sopin-sdk · Planned)
@@ -114,9 +114,9 @@ audit_agent = client.agent(
       </section>
 
       {/* MCP & A2A, Integrations, Open Source */}
-      <section id="protocols" className="py-20 bg-[#FFFFFF] dark:bg-[#05070E]">
+      <section id="protocols" className="py-20 bg-[#FAF9F5] dark:bg-[#05070E]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             <Plug className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
             <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
               MCP and A2A Protocols
@@ -126,7 +126,7 @@ audit_agent = client.agent(
             </p>
           </div>
 
-          <div id="integrations" className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div id="integrations" className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             <Terminal className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
             <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
               Structured Integrations
@@ -136,7 +136,7 @@ audit_agent = client.agent(
             </p>
           </div>
 
-          <div id="open-source" className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div id="open-source" className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             <div className="flex items-center justify-between">
               <Globe className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
               <span className="text-xs font-medium text-[#2563EB] dark:text-[#7EC8FF]">Coming Soon</span>

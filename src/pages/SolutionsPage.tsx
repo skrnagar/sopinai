@@ -99,7 +99,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Solutions', 'Eight Domain Blueprints']} accentLast />
@@ -118,7 +118,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                 key={b.id}
                 type="button"
                 onClick={() => scrollToDomain(b.id)}
-                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-xs font-semibold text-[#05070E] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FBF7F0] dark:bg-[#0A1226] text-xs font-semibold text-[#05070E] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
               >
                 {b.category}
               </button>
@@ -127,13 +127,13 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
+      <section className="py-16 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-6">
           {solutionBlocks.map((block) => (
             <article
               key={block.id}
               id={block.id}
-              className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)] scroll-mt-20"
+              className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)] scroll-mt-20"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-6 space-y-3 min-w-0">
@@ -148,7 +148,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     {block.description}
                   </p>
                   <div className="pt-2">
-                    <div className="font-mono text-xs p-3 rounded-lg bg-[#F7F7FA] dark:bg-[#0A1226] border border-[#05070E]/[0.08] dark:border-white/10 text-[#2563EB] dark:text-[#7EC8FF] break-words">
+                    <div className="font-mono text-xs p-3 rounded-lg bg-[#FBF7F0] dark:bg-[#0A1226] border border-[#05070E]/[0.08] dark:border-white/10 text-[#2563EB] dark:text-[#7EC8FF] break-words">
                       {block.topology}
                     </div>
                   </div>

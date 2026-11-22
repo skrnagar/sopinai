@@ -32,7 +32,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#E5E7EB] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#080D18] py-16 lg:py-24">
+      <section className="border-b border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Resources', 'Engineering Knowledge Base']} accentLast />
@@ -46,7 +46,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F7F8FA] dark:bg-[#0B1221] min-h-[540px]">
+      <section className="py-12 sm:py-16 bg-[#FBF7F0] dark:bg-[#0B1221] min-h-[540px]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-1.5 pb-1 sm:pb-0" role="tablist" aria-label="Resource categories">
@@ -60,7 +60,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                   className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                     category === cat
                       ? 'bg-[#2563EB] text-white'
-                      : 'bg-white dark:bg-[#080D18] text-[#667085] dark:text-[#CBD5E1] border border-[#E5E7EB] dark:border-white/10 hover:text-[#111827] dark:hover:text-white'
+                      : 'bg-[#FAF9F5] dark:bg-[#080D18] text-[#667085] dark:text-[#CBD5E1] border border-[#E5E7EB] dark:border-white/10 hover:text-[#111827] dark:hover:text-white'
                   }`}
                 >
                   {cat}
@@ -80,7 +80,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Filter guides & tutorials..."
                 aria-label="Filter resources"
-                className="w-full min-h-[44px] pl-9 pr-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#080D18] text-base sm:text-sm text-[#111827] dark:text-white placeholder:text-[#667085] dark:placeholder:text-[#94A3B8]"
+                className="w-full min-h-[44px] pl-9 pr-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#080D18] text-base sm:text-sm text-[#111827] dark:text-white placeholder:text-[#667085] dark:placeholder:text-[#94A3B8]"
               />
             </div>
           </div>
@@ -104,7 +104,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                   <article
                     key={entry.id}
                     id={entry.category.toLowerCase().replace(/\s+/g, '-')}
-                    className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
+                    className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
                   >
                     <div>
                       <StatusText

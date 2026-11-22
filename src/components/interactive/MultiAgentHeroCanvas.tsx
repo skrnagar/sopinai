@@ -133,7 +133,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
             onClick={() => setViewMode('collaboration')}
             className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
               viewMode === 'collaboration'
-                ? 'bg-white text-[#05070E]'
+                ? 'bg-[#FAF9F5] text-[#05070E]'
                 : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
@@ -147,7 +147,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               setViewMode('sdk');
             }}
             className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-              viewMode === 'sdk' ? 'bg-white text-[#05070E]' : 'text-[#B5B5C5] hover:text-white'
+              viewMode === 'sdk' ? 'bg-[#FAF9F5] text-[#05070E]' : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
             <Code2 className="w-3.5 h-3.5" aria-hidden="true" />
@@ -203,7 +203,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   setIsPlaying(false);
                   setStepIdx((prev) => (prev + 1) % COLLAB_MAP.length);
                 }}
-                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-white text-[#05070E] hover:bg-[#F7F7FA] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#FAF9F5] text-[#05070E] hover:bg-[#FBF7F0] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <SkipForward className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                 <span className="tabular-nums">

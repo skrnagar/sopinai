@@ -138,9 +138,9 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
       : null;
 
   return (
-    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#080D18] min-h-[75vh]">
+    <div className="overflow-x-clip bg-[#FAF9F5] dark:bg-[#080D18] min-h-[75vh]">
       {/* Documentation Header & Search */}
-      <section className="border-b border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#0B1221] py-10 lg:py-14">
+      <section className="border-b border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0B1221] py-10 lg:py-14">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <StatusText
@@ -168,7 +168,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search docs (Ctrl/Cmd + K)..."
               aria-label="Search documentation"
-              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#080D18] text-base sm:text-sm text-[#111827] dark:text-white placeholder:text-[#667085] dark:placeholder:text-[#94A3B8]"
+              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#080D18] text-base sm:text-sm text-[#111827] dark:text-white placeholder:text-[#667085] dark:placeholder:text-[#94A3B8]"
             />
           </div>
         </div>
@@ -191,7 +191,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 type="button"
                 aria-expanded={mobileNavOpen}
                 onClick={() => setMobileNavOpen((prev) => !prev)}
-                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-[#F7F8FA] dark:bg-[#101D35] flex items-center justify-between text-sm font-semibold text-[#111827] dark:text-white"
+                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] flex items-center justify-between text-sm font-semibold text-[#111827] dark:text-white"
               >
                 <span className="truncate">
                   Topic: {activeDoc?.title ?? 'Select documentation'}
@@ -206,7 +206,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
               {mobileNavOpen && (
                 <nav
                   aria-label="Mobile documentation navigation"
-                  className="mt-2 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#0B1221] p-3 space-y-4"
+                  className="mt-2 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#0B1221] p-3 space-y-4"
                 >
                   {groupedDocs.map((group) => (
                     <div key={group.group} className="space-y-1">
@@ -229,7 +229,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                             className={`block min-h-[44px] px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                               isSelected
                                 ? 'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] font-semibold'
-                                : 'text-[#111827] dark:text-[#CBD5E1] hover:bg-[#F7F8FA] dark:hover:bg-white/5'
+                                : 'text-[#111827] dark:text-[#CBD5E1] hover:bg-[#FBF7F0] dark:hover:bg-white/5'
                             }`}
                           >
                             {doc.title}
@@ -266,7 +266,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                               className={`block min-h-[40px] px-3 py-2 rounded-lg text-sm transition-colors ${
                                 isSelected
                                   ? 'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] font-semibold'
-                                  : 'text-[#667085] dark:text-[#CBD5E1] hover:text-[#111827] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-white/5'
+                                  : 'text-[#667085] dark:text-[#CBD5E1] hover:text-[#111827] dark:hover:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/5'
                               }`}
                             >
                               {doc.title}
@@ -309,7 +309,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Overview Box */}
                 <div
                   id="doc-overview"
-                  className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/50 p-6 sm:p-8"
+                  className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/50 p-6 sm:p-8"
                 >
                   <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
@@ -357,7 +357,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         <div
                           role="tablist"
                           aria-label="Select specification language"
-                          className="inline-flex p-1 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#F7F8FA] dark:bg-[#101D35]"
+                          className="inline-flex p-1 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35]"
                         >
                           <button
                             type="button"
@@ -455,7 +455,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 </nav>
 
                 {/* Preview Credentials CTA */}
-                <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/60 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/60 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-display text-base font-semibold text-[#111827] dark:text-white">
                       Need early cohort SDK credentials?

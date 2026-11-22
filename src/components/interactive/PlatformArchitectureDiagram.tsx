@@ -135,7 +135,7 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
   const selectedNode = allNodes.find((n) => n.id === selectedId) ?? allNodes[0];
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#080D18] overflow-hidden shadow-[0_1px_3px_rgba(17,24,39,0.05)]">
+    <div className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] overflow-hidden shadow-[0_1px_3px_rgba(17,24,39,0.05)]">
       {/* Architectural Diagram Grid */}
       <div className="p-5 sm:p-8 space-y-5 sopin-grid-light dark:sopin-grid-dark">
         {ARCH_LAYERS.map((tier, tierIdx) => (
@@ -168,7 +168,7 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
                     className={`text-left rounded-xl border p-4 transition-all min-h-[76px] ${
                       active
                         ? 'border-[#2563EB] bg-[#2563EB]/[0.06] dark:bg-[#101D35] ring-1 ring-[#2563EB]'
-                        : 'border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/50 hover:border-[#2563EB]/50'
+                        : 'border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/50 hover:border-[#2563EB]/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -203,7 +203,7 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
       </div>
 
       {/* Selected Layer Inspection Bar */}
-      <div className="px-5 sm:px-8 py-5 border-t border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="px-5 sm:px-8 py-5 border-t border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1 max-w-2xl">
           <div className="flex items-center gap-2 font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
             <span>{selectedNode.name}</span>

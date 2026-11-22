@@ -79,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <footer className="border-t border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#080D18] text-[#111827] dark:text-[#FFFFFF] pb-safe">
+    <footer className="border-t border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#080D18] text-[#111827] dark:text-[#FFFFFF] pb-safe">
       <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-14 sm:py-16">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 lg:gap-12">
           <div className="xl:col-span-3 space-y-4">

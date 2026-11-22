@@ -150,8 +150,8 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 onMouseEnter={() => setActiveIndex(idx)}
                 className={`relative w-full text-left rounded-2xl border p-5 transition-colors ${
                   isActive
-                    ? 'border-[#2563EB] bg-white dark:bg-[#0A1226] shadow-lg'
-                    : 'border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/45 hover:border-[#2563EB]/40'
+                    ? 'border-[#2563EB] bg-[#FAF9F5] dark:bg-[#0A1226] shadow-lg'
+                    : 'border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]/45 hover:border-[#2563EB]/40'
                 }`}
               >
                 {isActive && (
@@ -168,7 +168,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                       className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                         isActive
                           ? 'bg-[#2563EB] text-white'
-                          : 'bg-white dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 text-[#2563EB] dark:text-[#60A5FA]'
+                          : 'bg-[#FAF9F5] dark:bg-[#05070E] border border-[#05070E]/10 dark:border-white/10 text-[#2563EB] dark:text-[#60A5FA]'
                       }`}
                     >
                       <Icon className="w-5 h-5" aria-hidden="true" />
@@ -230,7 +230,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#0A1226] p-7 sm:p-8 flex flex-col justify-between gap-6"
+            className="w-full rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#FAF9F5] dark:bg-[#0A1226] p-7 sm:p-8 flex flex-col justify-between gap-6"
           >
             <div>
               <div className="flex flex-wrap items-center justify-between gap-3">

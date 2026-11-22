@@ -112,7 +112,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Pricing & Access', 'Transparent Pre-Release Model']} accentLast />
@@ -127,7 +127,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
           <div
             role="tablist"
             aria-label="Deployment topology model"
-            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F7FA] dark:bg-[#0A1226] border border-[#05070E]/10 dark:border-white/10 max-w-full"
+            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#FBF7F0] dark:bg-[#0A1226] border border-[#05070E]/10 dark:border-white/10 max-w-full"
           >
             <button
               type="button"
@@ -159,9 +159,9 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
+      <section className="py-12 sm:py-16 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-12">
-          <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             {deploymentModel === 'managed' ? (
               <span>
                 <strong className="text-[#05070E] dark:text-white">Managed Cloud Topology:</strong>{' '}
@@ -179,7 +179,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             {pathways.map((tier) => (
               <div
                 key={tier.name}
-                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
               >
                 <div>
                   <StatusText items={[tier.stage, tier.licensing]} accentLast />
@@ -249,7 +249,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               ].map((faq) => (
                 <div
                   key={faq.title}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6"
                 >
                   <h3 className="font-display text-base font-semibold text-[#05070E] dark:text-white">
                     {faq.title}

@@ -321,8 +321,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               onClick={() => setActiveTab(tab.id)}
               className={`relative snap-start shrink-0 w-[180px] sm:w-auto text-left rounded-xl border p-3.5 min-h-[56px] transition-colors min-w-0 ${
                 active
-                  ? 'border-[#2563EB] bg-white dark:bg-[#0A1226] shadow-sm'
-                  : 'border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/50 hover:border-[#2563EB]/40'
+                  ? 'border-[#2563EB] bg-[#FAF9F5] dark:bg-[#0A1226] shadow-sm'
+                  : 'border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]/50 hover:border-[#2563EB]/40'
               }`}
             >
               {active && (

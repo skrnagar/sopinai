@@ -259,8 +259,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       <header
         className={`fixed top-0 inset-x-0 z-50 pt-safe border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-200 ${
           isScrolled
-            ? 'border-[#E5E7EB] dark:border-white/12 bg-[#FFFFFF]/95 dark:bg-[#080D18]/95 backdrop-blur-lg shadow-[0_8px_24px_-12px_rgba(17,24,39,0.12)]'
-            : 'border-[#E5E7EB]/80 dark:border-white/10 bg-[#FFFFFF]/90 dark:bg-[#080D18]/90 backdrop-blur-md'
+            ? 'border-[#E5E7EB] dark:border-white/12 bg-[#FAF9F5]/95 dark:bg-[#080D18]/95 backdrop-blur-lg shadow-[0_8px_24px_-12px_rgba(17,24,39,0.12)]'
+            : 'border-[#E5E7EB]/80 dark:border-white/10 bg-[#FAF9F5]/90 dark:bg-[#080D18]/90 backdrop-blur-md'
         }`}
       >
         <div className="max-w-[1280px] mx-auto h-16 px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4">
@@ -368,12 +368,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                           isPlatform ? 'w-[880px]' : 'w-[660px]'
                         }`}
                       >
-                        <div className="rounded-2xl border border-[#E5E7EB] dark:border-white/12 bg-[#FFFFFF] dark:bg-[#080D18] shadow-2xl overflow-hidden grid grid-cols-12">
+                        <div className="rounded-2xl border border-[#E5E7EB] dark:border-white/12 bg-[#FAF9F5] dark:bg-[#080D18] shadow-2xl overflow-hidden grid grid-cols-12">
                           {intro && (
                             <div
                               className={`${
                                 isPlatform ? 'col-span-3' : 'col-span-4'
-                              } bg-[#F7F8FA] dark:bg-[#101D35]/60 border-r border-[#E5E7EB] dark:border-white/10 p-5 flex flex-col justify-between gap-4`}
+                              } bg-[#FBF7F0] dark:bg-[#101D35]/60 border-r border-[#E5E7EB] dark:border-white/10 p-5 flex flex-col justify-between gap-4`}
                             >
                               <div>
                                 <p className="text-[11px] font-semibold text-[#2563EB] dark:text-[#60A5FA]">
@@ -419,9 +419,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                                     e.preventDefault();
                                     handleLinkClick(item.href, item.sectionId);
                                   }}
-                                  className="group text-left rounded-xl p-2.5 hover:bg-[#F7F8FA] dark:hover:bg-[#101D35]/70 transition-colors flex items-start gap-2.5"
+                                  className="group text-left rounded-xl p-2.5 hover:bg-[#FBF7F0] dark:hover:bg-[#101D35]/70 transition-colors flex items-start gap-2.5"
                                 >
-                                  <div className="w-8 h-8 rounded-lg border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#101D35] flex items-center justify-center shrink-0 mt-0.5 text-[#2563EB] dark:text-[#60A5FA] group-hover:border-[#2563EB]/40 transition-colors">
+                                  <div className="w-8 h-8 rounded-lg border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#101D35] flex items-center justify-center shrink-0 mt-0.5 text-[#2563EB] dark:text-[#60A5FA] group-hover:border-[#2563EB]/40 transition-colors">
                                     <Icon className="w-4 h-4" aria-hidden="true" />
                                   </div>
                                   <div className="min-w-0 flex-1">
@@ -458,7 +458,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={onToggleTheme}
               aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
-              className="w-10 h-10 rounded-lg inline-flex items-center justify-center text-[#667085] dark:text-[#94A3B8] hover:text-[#111827] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-white/10 transition-colors shrink-0"
+              className="w-10 h-10 rounded-lg inline-flex items-center justify-center text-[#667085] dark:text-[#94A3B8] hover:text-[#111827] dark:hover:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors shrink-0"
             >
               {theme === 'light' ? (
                 <Moon className="w-[18px] h-[18px]" aria-hidden="true" />
@@ -497,7 +497,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav-drawer"
               aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="lg:hidden w-11 h-11 rounded-lg inline-flex items-center justify-center text-[#111827] dark:text-white hover:bg-[#F7F8FA] dark:hover:bg-white/10 transition-colors shrink-0"
+              className="lg:hidden w-11 h-11 rounded-lg inline-flex items-center justify-center text-[#111827] dark:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors shrink-0"
             >
               {mobileOpen ? (
                 <X className="w-5 h-5" aria-hidden="true" />
@@ -521,7 +521,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:hidden fixed inset-x-0 top-[calc(4rem+env(safe-area-inset-top,0px))] bottom-0 z-50 bg-[#FFFFFF] dark:bg-[#080D18] border-t border-[#E5E7EB] dark:border-white/10 overflow-y-auto overscroll-contain px-5 py-6 pb-safe shadow-2xl"
+            className="lg:hidden fixed inset-x-0 top-[calc(4rem+env(safe-area-inset-top,0px))] bottom-0 z-50 bg-[#FAF9F5] dark:bg-[#080D18] border-t border-[#E5E7EB] dark:border-white/10 overflow-y-auto overscroll-contain px-5 py-6 pb-safe shadow-2xl"
           >
             <nav aria-label="Mobile navigation" className="space-y-1 max-w-lg mx-auto pb-8">
               {NAVIGATION_CATEGORIES.map((category) => {
@@ -579,7 +579,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                                 e.preventDefault();
                                 handleLinkClick(item.href, item.sectionId);
                               }}
-                              className="w-full text-left min-h-[44px] p-2.5 rounded-xl hover:bg-[#F7F8FA] dark:hover:bg-[#101D35]/70 flex items-start gap-3"
+                              className="w-full text-left min-h-[44px] p-2.5 rounded-xl hover:bg-[#FBF7F0] dark:hover:bg-[#101D35]/70 flex items-start gap-3"
                             >
                               <Icon
                                 className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0"
@@ -621,7 +621,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     e.preventDefault();
                     handleLinkClick('/app');
                   }}
-                  className="w-full min-h-[48px] py-3 px-4 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#F7F8FA] dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white inline-flex items-center justify-center"
+                  className="w-full min-h-[48px] py-3 px-4 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white inline-flex items-center justify-center"
                 >
                   Sign in to Workspace
                 </a>

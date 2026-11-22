@@ -18,7 +18,7 @@ export const PageSkeleton: React.FC = () => {
         {[1, 2, 3].map((item) => (
           <div
             key={item}
-            className="h-44 rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]/50 p-5"
+            className="h-44 rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]/50 p-5"
           >
             <div className="h-4 w-20 rounded bg-[#05070E]/10 dark:bg-white/10" />
             <div className="mt-4 h-6 w-2/3 rounded bg-[#05070E]/10 dark:bg-white/10" />

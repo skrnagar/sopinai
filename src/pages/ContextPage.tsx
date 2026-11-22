@@ -35,7 +35,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Context', 'Memory & Retrieval Architecture']} accentLast />
@@ -59,7 +59,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Context Explorer Preview"
@@ -70,7 +70,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-[#FFFFFF] dark:bg-[#05070E]">
+      <section className="py-20 bg-[#FAF9F5] dark:bg-[#05070E]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <SectionHeader
             kicker="Memory Architecture"
@@ -84,7 +84,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={item.name}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">

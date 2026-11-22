@@ -16,7 +16,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
   return (
     <div className="overflow-x-clip">
       {/* Hero */}
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={[spec.layer, spec.status]} accentLast={isPlannedOrRoadmap} />
@@ -38,7 +38,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
               <button
                 type="button"
                 onClick={() => onNavigate(spec.secondaryCta.href, undefined, spec.secondaryCta.query)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>{spec.secondaryCta.label}</span>
               </button>
@@ -48,9 +48,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       </section>
 
       {/* Problem & Audience */}
-      <section className="py-16 bg-[#F7F7FA] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div className="lg:col-span-7 rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
               Architectural Problem Solved
             </div>
@@ -68,7 +68,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
             </div>
           </div>
 
-          <div className="lg:col-span-5 rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)] flex flex-col justify-between">
+          <div className="lg:col-span-5 rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)] flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                 <Shield className="w-4 h-4" aria-hidden="true" />
@@ -89,7 +89,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       </section>
 
       {/* Capabilities */}
-      <section className="py-16 lg:py-20 bg-[#FFFFFF] dark:bg-[#05070E] border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#FAF9F5] dark:bg-[#05070E] border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Core Capabilities"
@@ -99,7 +99,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
             {spec.capabilities.map((cap, idx) => (
               <div
                 key={cap.title}
-                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
               >
                 <div className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
                   0{idx + 1}.
@@ -117,7 +117,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       </section>
 
       {/* Workflow & Code Contract */}
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-5 space-y-6 min-w-0">
             <SectionHeader
@@ -128,7 +128,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
               {spec.workflowSteps.map((step, idx) => (
                 <li
                   key={step}
-                  className="flex items-start gap-3 rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-4 text-sm text-[#05070E] dark:text-[#E8E8F2]"
+                  className="flex items-start gap-3 rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-4 text-sm text-[#05070E] dark:text-[#E8E8F2]"
                 >
                   <span className="font-mono text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0">
                     0{idx + 1}
@@ -138,7 +138,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
               ))}
             </ol>
 
-            <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-5 space-y-2.5">
+            <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-5 space-y-2.5">
               <div className="flex items-center gap-2 text-xs font-semibold text-[#05070E] dark:text-white">
                 <Workflow className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
                 <span>Applied Use Cases</span>
@@ -162,7 +162,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
 
       {/* Interactive Surface Preview */}
       {spec.previewSurface && (
-        <section className="py-16 lg:py-20 bg-[#FFFFFF] dark:bg-[#05070E] border-b border-[#05070E]/[0.08] dark:border-white/10">
+        <section className="py-16 lg:py-20 bg-[#FAF9F5] dark:bg-[#05070E] border-b border-[#05070E]/[0.08] dark:border-white/10">
           <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-8">
             <SectionHeader
               kicker="Interactive Software Preview"
@@ -175,7 +175,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       )}
 
       {/* Related Modules */}
-      <section className="py-14 bg-[#F7F7FA] dark:bg-[#0A1226]/60">
+      <section className="py-14 bg-[#FBF7F0] dark:bg-[#0A1226]/60">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
@@ -195,7 +195,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
                   e.preventDefault();
                   onNavigate(rel.href);
                 }}
-                className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-white dark:bg-[#05070E] text-xs font-semibold text-[#05070E] dark:text-white hover:border-[#2563EB] transition-colors"
+                className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FAF9F5] dark:bg-[#05070E] text-xs font-semibold text-[#05070E] dark:text-white hover:border-[#2563EB] transition-colors"
               >
                 <span>{rel.name}</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

@@ -9,7 +9,7 @@ interface LegalPageProps {
 
 export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
   return (
-    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#080D18]">
+    <div className="overflow-x-clip bg-[#FAF9F5] dark:bg-[#080D18]">
       <section className="border-b border-[#E5E7EB] dark:border-white/10 py-16 lg:py-24">
         <div className="max-w-[1000px] mx-auto px-6 lg:px-10 space-y-5">
           <StatusText items={['SOPIN · SONIL Group', 'Legal & Governance']} accentLast />
@@ -33,7 +33,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className="min-h-[40px] inline-flex items-center px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#F7F8FA] dark:bg-[#101D35] text-xs font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors"
+                className="min-h-[40px] inline-flex items-center px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] text-xs font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors"
               >
                 {item.label}
               </a>
@@ -42,11 +42,11 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-14 lg:py-20 bg-[#F7F8FA] dark:bg-[#0B1221]">
+      <section className="py-14 lg:py-20 bg-[#FBF7F0] dark:bg-[#0B1221]">
         <div className="max-w-[1000px] mx-auto px-6 lg:px-10 space-y-8">
           <article
             id="privacy"
-            className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18] p-7 sm:p-9 space-y-4"
+            className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-7 sm:p-9 space-y-4"
           >
             <div className="flex items-center gap-2.5 text-[#2563EB] dark:text-[#60A5FA]">
               <Lock className="w-5 h-5" aria-hidden="true" />
@@ -67,7 +67,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
 
           <article
             id="terms"
-            className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18] p-7 sm:p-9 space-y-4"
+            className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-7 sm:p-9 space-y-4"
           >
             <div className="flex items-center gap-2.5 text-[#2563EB] dark:text-[#60A5FA]">
               <Scale className="w-5 h-5" aria-hidden="true" />
@@ -88,7 +88,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
 
           <article
             id="responsible-ai"
-            className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18] p-7 sm:p-9 space-y-4"
+            className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-7 sm:p-9 space-y-4"
           >
             <div className="flex items-center gap-2.5 text-[#2563EB] dark:text-[#60A5FA]">
               <ShieldCheck className="w-5 h-5" aria-hidden="true" />

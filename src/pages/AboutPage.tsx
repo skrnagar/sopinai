@@ -35,7 +35,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['About SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
@@ -49,11 +49,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
+      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           {/* Vision & Mission */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                 Our Vision
               </div>
@@ -65,7 +65,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                 SONIL Group Stewardship
               </div>
@@ -90,7 +90,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={p.number}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
@@ -111,7 +111,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
           {/* Ecosystem Links: Security, Partners, Careers */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 flex flex-col justify-between">
               <div>
                 <ShieldCheck className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
@@ -134,7 +134,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </a>
             </div>
 
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 flex flex-col justify-between">
               <div>
                 <Globe className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
@@ -157,7 +157,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </a>
             </div>
 
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 flex flex-col justify-between">
               <div>
                 <Users className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">

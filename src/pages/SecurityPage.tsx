@@ -94,7 +94,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Trust & Security Center', 'SONIL Group', 'Architectural Transparency']} accentLast />
@@ -116,7 +116,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/contact', undefined, { topic: 'SONIL Group Enterprise' })}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#F7F7FA] dark:hover:bg-white/10 transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors"
               >
                 <span>Schedule Security Briefing</span>
               </button>
@@ -126,7 +126,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Four Pillar Security Breakdown */}
-      <section className="py-16 lg:py-20 bg-[#F7F7FA] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Defense-in-Depth"
@@ -159,7 +159,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={card.title}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <Icon className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
                   <h2 className="mt-4 font-display text-lg font-semibold text-[#05070E] dark:text-white">
@@ -176,7 +176,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Full Security Architecture Table */}
-      <section className="py-16 lg:py-20 bg-[#FFFFFF] dark:bg-[#05070E]">
+      <section className="py-16 lg:py-20 bg-[#FAF9F5] dark:bg-[#05070E]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-8">
           <SectionHeader
             kicker="Control Matrix"

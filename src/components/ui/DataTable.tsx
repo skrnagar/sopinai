@@ -16,12 +16,12 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<T>) {
   return (
-    <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] overflow-hidden shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+    <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] overflow-hidden shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
-            <tr className="border-b border-[#05070E]/10 dark:border-white/10 bg-[#F7F7FA] dark:bg-[#0A1226]">
+            <tr className="border-b border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]">
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -39,7 +39,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<
             {rows.map((row, idx) => (
               <tr
                 key={rowKey(row, idx)}
-                className="hover:bg-[#F7F7FA]/70 dark:hover:bg-white/[0.03] transition-colors"
+                className="hover:bg-[#FBF7F0]/70 dark:hover:bg-white/[0.03] transition-colors"
               >
                 {columns.map((col) => (
                   <td

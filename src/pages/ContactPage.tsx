@@ -95,7 +95,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['Contact SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
@@ -109,10 +109,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F7F7FA] dark:bg-[#0A1226]/40">
+      <section className="py-12 sm:py-16 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
           <div className="lg:col-span-5 space-y-6 min-w-0">
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 sm:p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 sm:p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               <h2 className="font-display text-lg font-semibold text-[#05070E] dark:text-white">
                 Direct Channels
               </h2>
@@ -138,7 +138,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
           </div>
 
           <div className="lg:col-span-7 min-w-0">
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-white dark:bg-[#05070E] p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               {status === 'success' ? (
                 <div className="py-6 text-center space-y-4" role="status">
                   <CheckCircle2 className="w-10 h-10 text-[#2563EB] mx-auto" aria-hidden="true" />
@@ -149,7 +149,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                     Thank you, {name}. Your {topic.toLowerCase()} note for {organization || 'your team'} has been logged cleanly for the SOPIN &amp; SONIL Group team.
                   </p>
                   {referenceId && (
-                    <div className="inline-block font-mono text-xs px-3 py-1 rounded-md bg-[#F7F7FA] dark:bg-[#0A1226] text-[#2563EB] dark:text-[#7EC8FF]">
+                    <div className="inline-block font-mono text-xs px-3 py-1 rounded-md bg-[#FBF7F0] dark:bg-[#0A1226] text-[#2563EB] dark:text-[#7EC8FF]">
                       Reference ID: {referenceId}
                     </div>
                   )}
@@ -188,7 +188,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Alex Rivera"
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FBF7F0] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
                       />
                     </div>
                     <div>
@@ -204,7 +204,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="alex@company.com"
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FBF7F0] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
                       />
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         value={organization}
                         onChange={(e) => setOrganization(e.target.value)}
                         placeholder="Organization name"
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FBF7F0] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
                       />
                     </div>
                     <div>
@@ -232,7 +232,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         id="contact-topic"
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FBF7F0] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
                       >
                         {VALID_TOPICS.map((t) => (
                           <option key={t} value={t}>
@@ -254,7 +254,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Describe the agent workflows, tools, or governance requirements you are exploring..."
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#F7F7FA] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FBF7F0] dark:bg-[#0A1226] text-base sm:text-sm text-[#05070E] dark:text-white"
                     />
                   </div>
 

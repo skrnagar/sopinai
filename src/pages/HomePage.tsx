@@ -102,6 +102,8 @@ const ENTERPRISE_SOLUTIONS: {
   },
 ];
 
+const RADIAL_ANGLES = [0, 60, 120, 180, 240, 300];
+
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [researchFilter, setResearchFilter] = useState<'All' | ResearchCategory>('All');
 
@@ -119,16 +121,48 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="overflow-x-clip bg-[#FFFFFF] dark:bg-[#080D18]">
+    <div className="overflow-x-clip bg-[#FAF9F5] dark:bg-[#080D18]">
       {/* B. HERO SECTION */}
-      <section className="relative overflow-hidden border-b border-[#E5E7EB] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#080D18] sopin-grid-light dark:sopin-grid-dark sopin-neo-hero-glow">
+      <section className="relative overflow-hidden border-b border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18]">
+        {/* Subtle ambient geometric field echoing SOPIN's 6-prong radial emblem */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-52 -left-52 w-[680px] h-[680px] opacity-[0.05] dark:opacity-[0.1]"
+        >
+          <motion.svg
+            viewBox="0 0 100 100"
+            fill="none"
+            className="w-full h-full text-[#2563EB] dark:text-[#3B82F6]"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 96, ease: 'linear' }}
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="47.5"
+              stroke="currentColor"
+              strokeWidth="0.4"
+              strokeDasharray="1.8 2.8"
+            />
+            {RADIAL_ANGLES.map((angle) => (
+              <path
+                key={angle}
+                d="M 35.5 4 L 39.2 26 A 10.8 10.8 0 0 0 60.8 26 L 64.5 4 L 53.5 4 L 53.5 24.5 A 3.5 3.5 0 0 1 46.5 24.5 L 46.5 4 Z"
+                stroke="currentColor"
+                strokeWidth="0.6"
+                transform={`rotate(${angle} 50 50)`}
+              />
+            ))}
+          </motion.svg>
+        </div>
+
         <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 py-14 sm:py-16 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 flex flex-col justify-center min-w-0"
+              className="lg:col-span-6 flex flex-col justify-center min-w-0"
             >
               <StatusText
                 items={['SOPIN · SONIL Group', 'Unified AI Agent Engineering & Execution Platform']}
@@ -165,7 +199,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     e.preventDefault();
                     onNavigate('/platform');
                   }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#101D35] hover:bg-[#F7F8FA] dark:hover:bg-[#162746] text-[#111827] dark:text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] hover:bg-[#F3EDE2] dark:hover:bg-[#162746] text-[#111827] dark:text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                 >
                   <span>Explore the Platform</span>
                 </a>
@@ -176,7 +210,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-7 flex min-w-0"
+              className="lg:col-span-6 flex items-center justify-center min-w-0"
             >
               <HeroComputationalVisual />
             </motion.div>
@@ -185,7 +219,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* C. PLATFORM OVERVIEW */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#F7F8FA] dark:bg-[#0B1221] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FBF7F0] dark:bg-[#0B1221] border-b border-[#E5E7EB] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <SectionHeader
@@ -199,7 +233,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/platform');
               }}
-              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-white dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
             >
               <span>Inspect Full Platform</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -211,7 +245,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* D. PRODUCT SURFACES (ALL 10 SURFACES SHOWCASE) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FFFFFF] dark:bg-[#080D18] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F5] dark:bg-[#080D18] border-b border-[#E5E7EB] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <SectionHeader
             kicker="Product Surfaces"
@@ -229,7 +263,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 key={surface.id}
                 type="button"
                 onClick={() => scrollToSurface(surface.id)}
-                className="min-h-[40px] px-3.5 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/12 bg-[#F7F8FA] dark:bg-[#101D35]/70 hover:border-[#2563EB] text-xs font-semibold text-[#111827] dark:text-[#E2E8F0] transition-colors whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3.5 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/12 bg-[#FBF7F0] dark:bg-[#101D35]/70 hover:border-[#2563EB] text-xs font-semibold text-[#111827] dark:text-[#E2E8F0] transition-colors whitespace-nowrap shrink-0"
               >
                 <span className="font-mono text-[#2563EB] dark:text-[#60A5FA] mr-1.5">
                   {surface.index}
@@ -272,7 +306,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                       {surface.description}
                     </p>
 
-                    <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/60 px-4 py-3 text-xs sm:text-sm text-[#111827] dark:text-[#CBD5E1]">
+                    <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/60 px-4 py-3 text-xs sm:text-sm text-[#111827] dark:text-[#CBD5E1]">
                       <span className="font-semibold text-[#2563EB] dark:text-[#60A5FA]">
                         Role in platform:{' '}
                       </span>
@@ -316,7 +350,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* E. HOW SOPIN WORKS (5-STAGE LIFECYCLE) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#F7F8FA] dark:bg-[#0B1221] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FBF7F0] dark:bg-[#0B1221] border-b border-[#E5E7EB] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <SectionHeader
             kicker="How SOPIN Works"
@@ -328,7 +362,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             {LIFECYCLE_5_STAGES.map((stage, idx) => (
               <li
                 key={stage.step}
-                className="relative rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#080D18] p-6 flex flex-col justify-between gap-5"
+                className="relative rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-6 flex flex-col justify-between gap-5"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
@@ -363,7 +397,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* F. SOLUTIONS (6 ENTERPRISE USE CASES) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FFFFFF] dark:bg-[#080D18] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F5] dark:bg-[#080D18] border-b border-[#E5E7EB] dark:border-white/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <SectionHeader
@@ -377,7 +411,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/solutions');
               }}
-              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 text-sm font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
             >
               <span>View All Solutions</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -396,11 +430,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     e.preventDefault();
                     onNavigate(sol.href, sol.sectionId);
                   }}
-                  className="group rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#101D35]/50 hover:border-[#2563EB] hover:-translate-y-0.5 transition-all p-6 sm:p-7 flex flex-col justify-between gap-6"
+                  className="group rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/50 hover:border-[#2563EB] hover:-translate-y-0.5 transition-all p-6 sm:p-7 flex flex-col justify-between gap-6"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="w-10 h-10 rounded-lg border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18] flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA]">
+                      <div className="w-10 h-10 rounded-lg border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA]">
                         <Icon className="w-5 h-5" aria-hidden={true} />
                       </div>
                       <ArrowUpRight
@@ -435,7 +469,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* G. RESEARCH & INSIGHTS */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#F7F8FA] dark:bg-[#0B1221]">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FBF7F0] dark:bg-[#0B1221]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <SectionHeader
@@ -448,7 +482,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <div
                 role="tablist"
                 aria-label="Filter research publications"
-                className="flex overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18]"
+                className="flex overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18]"
               >
                 {(['All', 'Research', 'Engineering', 'Case Studies'] as const).map((cat) => {
                   const active = researchFilter === cat;
@@ -491,7 +525,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               return (
                 <article
                   key={entry.id}
-                  className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#080D18] p-6 sm:p-7 flex flex-col justify-between gap-6"
+                  className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-6 sm:p-7 flex flex-col justify-between gap-6"
                 >
                   <div className="space-y-3">
                     <StatusText
