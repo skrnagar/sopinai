@@ -30,9 +30,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     >
       {kicker && (
         <p
-          className={`text-sm font-semibold tracking-tight mb-2.5 ${
-            dark ? 'text-[#60A5FA]' : 'text-[#2563EB]'
-          }`}
+          className="text-sm font-semibold tracking-tight mb-2.5 text-[#8F00FF]"
         >
           {kicker}
         </p>
@@ -86,11 +84,7 @@ export const StatusText: React.FC<StatusTextProps> = ({
             {idx > 0 && <span aria-hidden="true">·</span>}
             <span
               className={
-                accentLast && isLast
-                  ? dark
-                    ? 'text-[#60A5FA]'
-                    : 'text-[#2563EB] dark:text-[#60A5FA]'
-                  : undefined
+                accentLast && isLast ? 'text-[#8F00FF]' : undefined
               }
             >
               {item}
@@ -202,17 +196,17 @@ export const StateDisplay: React.FC<StateDisplayProps> = ({
   return (
     <div
       role={mode === 'error' ? 'alert' : 'status'}
-      className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]/60 p-8 sm:p-10 text-center max-w-xl mx-auto"
+      className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#FAF9F5] dark:bg-[#0A1226]/60 p-8 sm:p-10 text-center max-w-xl mx-auto"
     >
       <div className="w-10 h-10 rounded-lg border border-[#05070E]/10 dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] mx-auto flex items-center justify-center mb-4">
         {mode === 'loading' && (
-          <RefreshCw className="w-5 h-5 text-[#2563EB] animate-spin" aria-hidden="true" />
+          <RefreshCw className="w-5 h-5 text-[#8F00FF] animate-spin" aria-hidden="true" />
         )}
         {mode === 'empty' && (
           <Inbox className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
         )}
         {mode === 'error' && (
-          <AlertCircle className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+          <AlertCircle className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
         )}
       </div>
       <h3 className="font-display text-lg font-semibold text-[#05070E] dark:text-white">

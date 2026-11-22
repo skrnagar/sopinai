@@ -110,7 +110,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
       key: 'name',
       header: 'Field / Option',
       render: (r) => (
-        <code className="font-mono text-xs text-[#2563EB]">{r.name}</code>
+        <code className="font-mono text-xs text-[#8F00FF]">{r.name}</code>
       ),
     },
     {
@@ -140,7 +140,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
   return (
     <div className="overflow-x-clip bg-[#FAF9F5] min-h-[75vh]">
       {/* Documentation Header & Search */}
-      <section className="border-b border-[#05070E]/10 bg-[#FBF7F0] py-10 lg:py-14">
+      <section className="border-b border-[#05070E]/10 bg-[#FAF9F5] py-10 lg:py-14">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <StatusText
@@ -191,7 +191,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 type="button"
                 aria-expanded={mobileNavOpen}
                 onClick={() => setMobileNavOpen((prev) => !prev)}
-                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] flex items-center justify-between text-sm font-semibold text-[#05070E]"
+                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] flex items-center justify-between text-sm font-semibold text-[#05070E]"
               >
                 <span className="truncate">
                   Topic: {activeDoc?.title ?? 'Select documentation'}
@@ -210,7 +210,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 >
                   {groupedDocs.map((group) => (
                     <div key={group.group} className="space-y-1">
-                      <div className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#2563EB]">
+                      <div className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#8F00FF]">
                         {group.group}
                       </div>
                       {group.docs.map((doc) => {
@@ -228,8 +228,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                             }}
                             className={`block min-h-[44px] px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                               isSelected
-                                ? 'bg-[#2563EB]/10 text-[#2563EB] font-semibold'
-                                : 'text-[#05070E] hover:bg-[#FBF7F0]'
+                                ? 'bg-[#8F00FF]/10 text-[#8F00FF] font-semibold'
+                                : 'text-[#05070E] hover:bg-[#FAF9F5]'
                             }`}
                           >
                             {doc.title}
@@ -265,8 +265,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                               }}
                               className={`block min-h-[40px] px-3 py-2 rounded-lg text-sm transition-colors ${
                                 isSelected
-                                  ? 'bg-[#2563EB]/10 text-[#2563EB] font-semibold'
-                                  : 'text-[#5E5E6E] hover:text-[#05070E] hover:bg-[#FBF7F0]'
+                                  ? 'bg-[#8F00FF]/10 text-[#8F00FF] font-semibold'
+                                  : 'text-[#5E5E6E] hover:text-[#05070E] hover:bg-[#FAF9F5]'
                               }`}
                             >
                               {doc.title}
@@ -294,7 +294,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                       e.preventDefault();
                       onNavigate('/docs');
                     }}
-                    className="hover:text-[#2563EB] transition-colors"
+                    className="hover:text-[#8F00FF] transition-colors"
                   >
                     Docs
                   </a>
@@ -309,9 +309,9 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Overview Box */}
                 <div
                   id="doc-overview"
-                  className="scroll-mt-24 rounded-2xl border border-[#05070E]/10 bg-[#FBF7F0] p-6 sm:p-8"
+                  className="scroll-mt-24 rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-8"
                 >
-                  <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] mb-2">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#8F00FF] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
                     <span>
                       {activeDoc.group} · {activeDoc.status}
@@ -357,7 +357,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         <div
                           role="tablist"
                           aria-label="Select specification language"
-                          className="inline-flex p-1 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0]"
+                          className="inline-flex p-1 rounded-lg border border-[#05070E]/10 bg-[#FAF9F5]"
                         >
                           <button
                             type="button"
@@ -455,7 +455,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 </nav>
 
                 {/* Preview Credentials CTA */}
-                <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="font-display text-base font-semibold text-[#05070E]">
                       Need early cohort SDK credentials?
@@ -491,7 +491,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         <button
                           type="button"
                           onClick={() => scrollToHeading(item.id)}
-                          className="text-left text-[#5E5E6E] hover:text-[#2563EB] transition-colors leading-snug"
+                          className="text-left text-[#5E5E6E] hover:text-[#8F00FF] transition-colors leading-snug"
                         >
                           {item.label}
                         </button>

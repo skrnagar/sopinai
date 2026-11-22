@@ -21,7 +21,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<
         <table className="w-full text-left border-collapse">
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
-            <tr className="border-b border-[#05070E]/10 bg-[#FBF7F0]">
+            <tr className="border-b border-[#05070E]/10 bg-[#FAF9F5]">
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -39,7 +39,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<
             {rows.map((row, idx) => (
               <tr
                 key={rowKey(row, idx)}
-                className="hover:bg-[#FBF7F0] transition-colors"
+                className="hover:bg-[#FAF9F5] transition-colors"
               >
                 {columns.map((col) => (
                   <td

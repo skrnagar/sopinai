@@ -28,7 +28,7 @@ export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({
               e.preventDefault();
               onNavigate(basePath);
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline mb-6"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8F00FF] hover:underline mb-6"
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{backLabel}</span>
@@ -84,8 +84,8 @@ export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({
           </div>
         )}
 
-        <div className="rounded-2xl border border-[#05070E]/10 bg-[#FBF7F0] p-6 sm:p-8 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB]">
+        <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-8 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#8F00FF]">
             <BookOpen className="w-4 h-4" aria-hidden="true" />
             <span>Related Platform Destinations</span>
           </div>

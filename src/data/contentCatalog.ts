@@ -383,6 +383,44 @@ export const reviewPolicy = {
   })
 };`,
   },
+  {
+    id: 'changelog',
+    group: 'Release Notes',
+    title: 'Platform Specification Changelog',
+    status: 'Preview Specification',
+    summary:
+      'Transparent record of published SOPIN specification updates across Studio, Flow, Decisions, Gateway, and Context.',
+    body: 'Track structural additions to the SOPIN public engineering specification and SDK contracts. Core architectural contracts and planned roadmap modules remain explicitly labeled throughout.',
+    sections: [
+      {
+        id: 'spec-1-0-preview',
+        heading: '1.0-preview — Unified Engineering & Decisions Contracts',
+        paragraphs: [
+          'Introduced SOPIN Decisions contracts (RuleSpec, DecisionTableSpec, RulesetSpec, RuleChainSpec, and ScorecardSpec) alongside native Flow Decision Node bindings and read-only Graph queries.',
+          'Published bidirectional Studio-to-SDK blueprint alignment and pre-inference PII redaction profiles in SOPIN Gateway.',
+        ],
+      },
+      {
+        id: 'roadmap-transparency',
+        heading: 'Scheduled Architecture Modules',
+        paragraphs: [
+          'SOPIN Observe, SOPIN Evaluate, SOPIN Control, and SOPIN Cloud remain transparently marked as Planned while core runtime contracts and design-partner topologies stabilize under SONIL Group.',
+        ],
+      },
+    ],
+    parameters: [
+      { name: 'blueprintVersion', type: '"1.0-preview"', required: 'Yes', description: 'Current preview blueprint contract identifier.' },
+      { name: 'decisions', type: 'Core Architecture', required: 'Yes', description: 'Deterministic rules, decision tables, chains, rulesets, and scorecards.' },
+      { name: 'observe / evaluate / control', type: 'Planned', required: 'No', description: 'Scheduled tracing, regression harnesses, and RBAC governance layers.' },
+    ],
+    codeLabel: 'spec-manifest.json',
+    code: `{
+  "spec": "sopin-platform",
+  "version": "1.0-preview",
+  "coreModules": ["studio", "flow", "context", "graph", "runtime", "gateway", "decisions"],
+  "plannedModules": ["observe", "evaluate", "control", "cloud"]
+}`,
+  },
 ];
 
 export type ResearchCategory = 'Research' | 'Engineering' | 'Case Studies';

@@ -11,8 +11,8 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
   return (
     <section className="py-20 sm:py-28 bg-[#FAF9F5]">
       <div className="max-w-2xl mx-auto px-6 text-center space-y-6">
-        <div className="w-12 h-12 rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] mx-auto flex items-center justify-center">
-          <Compass className="w-6 h-6 text-[#2563EB]" aria-hidden="true" />
+        <div className="w-12 h-12 rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] mx-auto flex items-center justify-center">
+          <Compass className="w-6 h-6 text-[#8F00FF]" aria-hidden="true" />
         </div>
         <StatusText items={['HTTP 404', 'Route Not Found', 'SOPIN']} accentLast className="justify-center" />
         <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#05070E]">
@@ -33,7 +33,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
           <button
             type="button"
             onClick={() => onNavigate('/app')}
-            className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-lg border border-[#05070E]/15 bg-[#FBF7F0] hover:bg-[#F3EDE2] text-[#05070E] text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+            className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-[#05070E] text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors"
           >
             <span>Try SOPIN</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

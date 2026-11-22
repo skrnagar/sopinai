@@ -38,6 +38,7 @@ export interface NavDropdownItem {
   description: string;
   href: RoutePath;
   sectionId?: string;
+  group?: string;
   status?: 'Preview' | 'Planned' | 'Coming Soon' | 'Roadmap';
 }
 
@@ -48,9 +49,36 @@ export interface NavCategory {
   items?: NavDropdownItem[];
 }
 
+export type FeaturedPlatformProductId =
+  | 'studio'
+  | 'flow'
+  | 'context'
+  | 'graph'
+  | 'runtime'
+  | 'gateway'
+  | 'observe'
+  | 'evaluate'
+  | 'control'
+  | 'decisions';
+
+export interface PlatformProductGroup {
+  id: string;
+  label: string;
+  items: NavDropdownItem[];
+}
+
+export interface FeaturedPlatformProduct {
+  id: FeaturedPlatformProductId;
+  name: string;
+  summary: string;
+  href: RoutePath;
+  ctaLabel: string;
+}
+
 export interface RouteMeta {
   title: string;
   description: string;
   canonicalPath: string;
   robots?: string;
 }
+

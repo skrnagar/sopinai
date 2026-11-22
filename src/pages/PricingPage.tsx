@@ -127,7 +127,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
           <div
             role="tablist"
             aria-label="Deployment topology model"
-            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#FBF7F0] border border-[#05070E]/10 max-w-full"
+            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#FAF9F5] border border-[#05070E]/10 max-w-full"
           >
             <button
               type="button"
@@ -159,7 +159,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#FBF7F0]">
+      <section className="py-12 sm:py-16 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-12">
           <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-5 text-sm text-[#5E5E6E] shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
             {deploymentModel === 'managed' ? (
@@ -197,7 +197,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
                         className="flex items-start gap-2.5 text-sm text-[#05070E]"
                       >
                         <CheckCircle2
-                          className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0"
+                          className="w-4 h-4 text-[#8F00FF] mt-0.5 shrink-0"
                           aria-hidden="true"
                         />
                         <span>{feat}</span>

@@ -118,7 +118,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                 key={b.id}
                 type="button"
                 onClick={() => scrollToDomain(b.id)}
-                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-xs font-semibold text-[#05070E] hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#05070E]/10 bg-[#FAF9F5] text-xs font-semibold text-[#05070E] hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
               >
                 {b.category}
               </button>
@@ -127,7 +127,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 bg-[#FBF7F0]">
+      <section className="py-16 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-6">
           {solutionBlocks.map((block) => (
             <article
@@ -148,7 +148,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     {block.description}
                   </p>
                   <div className="pt-2">
-                    <div className="font-mono text-xs p-3 rounded-lg bg-[#FBF7F0] border border-[#05070E]/10 text-[#2563EB] break-words">
+                    <div className="font-mono text-xs p-3 rounded-lg bg-[#FAF9F5] border border-[#05070E]/10 text-[#8F00FF] break-words">
                       {block.topology}
                     </div>
                   </div>
@@ -179,7 +179,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     <button
                       type="button"
                       onClick={() => onNavigate('/contact', undefined, { topic: block.topic })}
-                      className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#2563EB] hover:underline whitespace-nowrap shrink-0 self-start sm:self-center"
+                      className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#8F00FF] hover:underline whitespace-nowrap shrink-0 self-start sm:self-center"
                     >
                       <span>Discuss</span>
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />

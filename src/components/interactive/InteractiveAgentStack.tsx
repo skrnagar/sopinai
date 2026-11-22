@@ -151,7 +151,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
               className={`relative w-full text-left rounded-2xl border p-5 transition-colors ${
                 isActive
                   ? 'border-[#2563EB] bg-[#FAF9F5] shadow-lg'
-                  : 'border-[#05070E]/10 bg-[#FBF7F0] hover:border-[#2563EB]/40'
+                  : 'border-[#05070E]/10 bg-[#FAF9F5] hover:border-[#2563EB]/40'
               }`}
             >
               {isActive && (
@@ -168,14 +168,14 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       isActive
                         ? 'bg-[#2563EB] text-white'
-                        : 'bg-[#FAF9F5] border border-[#05070E]/10 text-[#2563EB]'
+                        : 'bg-[#FAF9F5] border border-[#05070E]/10 text-[#8F00FF]'
                     }`}
                   >
                     <Icon className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 text-xs font-medium text-[#5E5E6E]">
-                      <span className="font-mono text-[#2563EB]">
+                      <span className="font-mono text-[#8F00FF]">
                         {layer.order}
                       </span>
                       <span aria-hidden="true">·</span>
@@ -193,7 +193,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 <ArrowRight
                   className={`w-4 h-4 mt-1 shrink-0 transition-transform ${
                     isActive
-                      ? 'text-[#2563EB] translate-x-0.5'
+                      ? 'text-[#8F00FF] translate-x-0.5'
                       : 'text-[#5E5E6E]/60'
                   }`}
                   aria-hidden="true"
@@ -241,7 +241,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
               <button
                 type="button"
                 onClick={() => onNavigate(activeLayer.route, activeLayer.sectionId)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8F00FF] hover:underline whitespace-nowrap shrink-0"
               >
                 <span>Explore Layer</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -263,7 +263,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                   className="flex items-start gap-2.5 text-sm text-[#05070E]"
                 >
                   <CheckCircle2
-                    className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0"
+                    className="w-4 h-4 text-[#8F00FF] mt-0.5 shrink-0"
                     aria-hidden="true"
                   />
                   <span>{item}</span>

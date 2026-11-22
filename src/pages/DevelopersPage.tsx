@@ -67,7 +67,7 @@ audit_agent = client.agent(
       </section>
 
       {/* API and SDK */}
-      <section id="sdk" className="py-20 border-b border-[#05070E]/10 bg-[#FBF7F0]">
+      <section id="sdk" className="py-20 border-b border-[#05070E]/10 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-5 space-y-5 min-w-0">
             <SectionHeader
@@ -116,8 +116,8 @@ audit_agent = client.agent(
       {/* MCP & A2A, Integrations, Open Source */}
       <section id="protocols" className="py-20 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-2xl border border-[#05070E]/10 bg-[#FBF7F0] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-            <Plug className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+          <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <Plug className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
             <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E]">
               MCP and A2A Protocols
             </h2>
@@ -126,8 +126,8 @@ audit_agent = client.agent(
             </p>
           </div>
 
-          <div id="integrations" className="rounded-2xl border border-[#05070E]/10 bg-[#FBF7F0] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-            <Terminal className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+          <div id="integrations" className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <Terminal className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
             <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E]">
               Structured Integrations
             </h2>
@@ -136,10 +136,10 @@ audit_agent = client.agent(
             </p>
           </div>
 
-          <div id="open-source" className="rounded-2xl border border-[#05070E]/10 bg-[#FBF7F0] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div id="open-source" className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
             <div className="flex items-center justify-between">
-              <Globe className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
-              <span className="text-xs font-medium text-[#2563EB]">Coming Soon</span>
+              <Globe className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
+              <span className="text-xs font-medium text-[#8F00FF]">Coming Soon</span>
             </div>
             <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E]">
               Open Source Adapters
@@ -153,7 +153,7 @@ audit_agent = client.agent(
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 mt-10">
           <div className="rounded-2xl border border-[#05070E]/10 bg-[#0A1226] text-white p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
-              <Code2 className="w-6 h-6 text-[#60A5FA] mt-1 shrink-0" aria-hidden="true" />
+              <Code2 className="w-6 h-6 text-[#8F00FF] mt-1 shrink-0" aria-hidden="true" />
               <div>
                 <h3 className="font-display text-lg font-semibold">
                   Explore the SOPIN Developer Quickstart

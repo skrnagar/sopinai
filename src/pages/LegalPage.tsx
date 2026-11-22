@@ -33,7 +33,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className="min-h-[40px] inline-flex items-center px-4 py-2 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-xs font-semibold text-[#05070E] hover:border-[#2563EB] transition-colors"
+                className="min-h-[40px] inline-flex items-center px-4 py-2 rounded-lg border border-[#05070E]/10 bg-[#FAF9F5] text-xs font-semibold text-[#05070E] hover:border-[#2563EB] transition-colors"
               >
                 {item.label}
               </a>
@@ -42,13 +42,13 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-14 lg:py-20 bg-[#FBF7F0]">
+      <section className="py-14 lg:py-20 bg-[#FAF9F5]">
         <div className="max-w-[1000px] mx-auto px-6 lg:px-10 space-y-8">
           <article
             id="privacy"
             className="scroll-mt-24 rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 sm:p-9 space-y-4"
           >
-            <div className="flex items-center gap-2.5 text-[#2563EB]">
+            <div className="flex items-center gap-2.5 text-[#8F00FF]">
               <Lock className="w-5 h-5" aria-hidden="true" />
               <span className="font-mono text-xs font-semibold uppercase tracking-wider">
                 Section 01 · Privacy Policy
@@ -69,7 +69,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
             id="terms"
             className="scroll-mt-24 rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 sm:p-9 space-y-4"
           >
-            <div className="flex items-center gap-2.5 text-[#2563EB]">
+            <div className="flex items-center gap-2.5 text-[#8F00FF]">
               <Scale className="w-5 h-5" aria-hidden="true" />
               <span className="font-mono text-xs font-semibold uppercase tracking-wider">
                 Section 02 · Terms of Service
@@ -90,7 +90,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
             id="responsible-ai"
             className="scroll-mt-24 rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 sm:p-9 space-y-4"
           >
-            <div className="flex items-center gap-2.5 text-[#2563EB]">
+            <div className="flex items-center gap-2.5 text-[#8F00FF]">
               <ShieldCheck className="w-5 h-5" aria-hidden="true" />
               <span className="font-mono text-xs font-semibold uppercase tracking-wider">
                 Section 03 · Responsible AI Governance
@@ -109,7 +109,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/security');
                 }}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] hover:underline"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#8F00FF] hover:underline"
               >
                 <span>Inspect Trust &amp; Security Center</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -120,7 +120,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact');
                 }}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] hover:underline"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#8F00FF] hover:underline"
               >
                 <span>Contact Legal &amp; Compliance</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />

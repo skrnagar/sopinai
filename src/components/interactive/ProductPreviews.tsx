@@ -322,7 +322,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               className={`relative snap-start shrink-0 w-[180px] sm:w-auto text-left rounded-xl border p-3.5 min-h-[56px] transition-colors min-w-0 ${
                 active
                   ? 'border-[#2563EB] bg-[#FAF9F5] shadow-sm'
-                  : 'border-[#05070E]/10 bg-[#FBF7F0] hover:border-[#2563EB]/40'
+                  : 'border-[#05070E]/10 bg-[#FAF9F5] hover:border-[#2563EB]/40'
               }`}
             >
               {active && (
@@ -335,7 +335,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               <div className="flex items-center gap-2 relative z-10 min-w-0">
                 <Icon
                   className={`w-4 h-4 shrink-0 ${
-                    active ? 'text-[#2563EB]' : 'text-[#5E5E6E]'
+                    active ? 'text-[#8F00FF]' : 'text-[#5E5E6E]'
                   }`}
                   aria-hidden="true"
                 />

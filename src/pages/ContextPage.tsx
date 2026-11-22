@@ -59,7 +59,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] border-b border-[#05070E]/10">
+      <section className="py-16 lg:py-20 bg-[#FAF9F5] border-b border-[#05070E]/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Context Explorer Preview"
@@ -84,10 +84,10 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={item.name}
-                  className="rounded-2xl border border-[#05070E]/10 bg-[#FBF7F0] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#2563EB]">
+                    <span className="font-mono text-xs text-[#8F00FF]">
                       {item.tier}
                     </span>
                     <Icon className="w-5 h-5 text-[#5E5E6E]" aria-hidden="true" />
@@ -105,7 +105,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
             <div className="lg:col-span-5 space-y-4 min-w-0">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563EB]">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#8F00FF]">
                 <Database className="w-4 h-4" aria-hidden="true" />
                 <span>Provenance Binding</span>
               </div>

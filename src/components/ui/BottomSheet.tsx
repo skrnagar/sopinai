@@ -76,7 +76,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             type="button"
             onClick={onClose}
             aria-label={`Close ${title}`}
-            className="w-11 h-11 -mr-2 -mt-1 inline-flex items-center justify-center rounded-lg text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#05070E] dark:hover:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors shrink-0"
+            className="w-11 h-11 -mr-2 -mt-1 inline-flex items-center justify-center rounded-lg text-[#5E5E6E] dark:text-[#A4A4B5] hover:text-[#05070E] dark:hover:text-white hover:bg-[#FAF9F5] dark:hover:bg-white/10 transition-colors shrink-0"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -87,7 +87,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         </div>
 
         {footer && (
-          <div className="px-4 sm:px-6 py-3.5 pb-safe border-t border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#05070E]/60 shrink-0">
+          <div className="px-4 sm:px-6 py-3.5 pb-safe border-t border-[#05070E]/10 dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E]/60 shrink-0">
             {footer}
           </div>
         )}

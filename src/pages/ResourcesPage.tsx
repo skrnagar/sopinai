@@ -46,7 +46,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#FBF7F0] min-h-[540px]">
+      <section className="py-12 sm:py-16 bg-[#FAF9F5] min-h-[540px]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-1.5 pb-1 sm:pb-0" role="tablist" aria-label="Resource categories">
@@ -118,7 +118,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                             e.preventDefault();
                             onNavigate(articleHref);
                           }}
-                          className="hover:text-[#2563EB] transition-colors"
+                          className="hover:text-[#8F00FF] transition-colors"
                         >
                           {entry.title}
                         </a>
@@ -138,7 +138,7 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                           e.preventDefault();
                           onNavigate(articleHref);
                         }}
-                        className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-xs font-semibold text-[#2563EB] hover:underline whitespace-nowrap"
+                        className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-xs font-semibold text-[#8F00FF] hover:underline whitespace-nowrap"
                       >
                         <span>{entry.status === 'Available' ? 'Read Article' : 'Read Note'}</span>
                         <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

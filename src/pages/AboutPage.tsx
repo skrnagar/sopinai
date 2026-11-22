@@ -49,12 +49,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#FBF7F0]">
+      <section className="py-16 lg:py-20 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           {/* Vision & Mission */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <div className="text-xs font-semibold text-[#2563EB]">
+              <div className="text-xs font-semibold text-[#8F00FF]">
                 Our Vision
               </div>
               <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E]">
@@ -66,7 +66,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </div>
 
             <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <div className="text-xs font-semibold text-[#2563EB]">
+              <div className="text-xs font-semibold text-[#8F00FF]">
                 SONIL Group Stewardship
               </div>
               <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E]">
@@ -93,7 +93,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#2563EB]">
+                    <span className="font-mono text-xs text-[#8F00FF]">
                       {p.number}
                     </span>
                     <Icon className="w-5 h-5 text-[#5E5E6E]" aria-hidden="true" />
@@ -113,7 +113,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 flex flex-col justify-between">
               <div>
-                <ShieldCheck className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <ShieldCheck className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E]">
                   Trust &amp; Security Center
                 </h3>
@@ -127,7 +127,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/security');
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#8F00FF] hover:underline"
               >
                 <span>Open Trust Center</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -136,7 +136,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
             <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 flex flex-col justify-between">
               <div>
-                <Globe className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <Globe className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E]">
                   Protocol &amp; Technology Partners
                 </h3>
@@ -150,7 +150,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#8F00FF] hover:underline"
               >
                 <span>Partner With SOPIN</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -159,7 +159,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
             <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 flex flex-col justify-between">
               <div>
-                <Users className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <Users className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E]">
                   Engineering Careers &amp; Cohort
                 </h3>
@@ -173,7 +173,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#8F00FF] hover:underline"
               >
                 <span>Connect With Engineering</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -183,12 +183,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
           <div className="rounded-2xl border border-[#05070E]/10 bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-5 space-y-3">
-              <p className="text-xs font-medium text-[#60A5FA]">Official Brand Identity</p>
+              <p className="text-xs font-medium text-[#8F00FF]">Official Brand Identity</p>
               <h3 className="font-display text-2xl font-semibold">
                 The SOPIN Radial Emblem &amp; Wordmark
               </h3>
               <p className="text-sm text-[#B5B5C5] leading-relaxed">
-                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the #60A5FA purple accent highlights the dot over the &ldquo;i&rdquo;.
+                Six interlocking radial channels converge around an open core, paired with monoline geometric lettering. Across the digital platform, the #8F00FF purple accent highlights the dot over the &ldquo;i&rdquo;.
               </p>
             </div>
             <div className="lg:col-span-7 flex items-center justify-center rounded-xl border border-white/10 bg-[#000000] p-8">
@@ -198,7 +198,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
           <div className="rounded-2xl bg-[#0A1226] text-white p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl">
-              <p className="text-xs font-medium text-[#60A5FA]">SONIL Group Initiative</p>
+              <p className="text-xs font-medium text-[#8F00FF]">SONIL Group Initiative</p>
               <h3 className="mt-2 font-display text-2xl font-semibold">
                 Collaborate with the SOPIN engineering team.
               </h3>

@@ -87,7 +87,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
       key: 'status',
       header: 'Readiness Status',
       render: (r) => (
-        <span className="text-xs font-semibold text-[#2563EB]">{r.status}</span>
+        <span className="text-xs font-semibold text-[#8F00FF]">{r.status}</span>
       ),
     },
   ];
@@ -116,7 +116,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/contact', undefined, { topic: 'SONIL Group Enterprise' })}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FBF7F0] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors"
               >
                 <span>Schedule Security Briefing</span>
               </button>
@@ -126,7 +126,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Four Pillar Security Breakdown */}
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] border-b border-[#05070E]/10">
+      <section className="py-16 lg:py-20 bg-[#FAF9F5] border-b border-[#05070E]/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Defense-in-Depth"
@@ -161,7 +161,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
                   key={card.title}
                   className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
                 >
-                  <Icon className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                  <Icon className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                   <h2 className="mt-4 font-display text-lg font-semibold text-[#05070E]">
                     {card.title}
                   </h2>
@@ -193,7 +193,7 @@ export const SecurityPage: React.FC<SecurityPageProps> = ({ onNavigate }) => {
 
           <div className="rounded-2xl border border-white/10 bg-[#0A1226] text-white p-7 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#60A5FA]">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#8F00FF]">
                 <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                 <span>Responsible Disclosure &amp; Security Contact</span>
               </div>

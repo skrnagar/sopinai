@@ -141,11 +141,7 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
         {ARCH_LAYERS.map((tier, tierIdx) => (
           <div key={tier.tier} className="space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span
-                className={`font-mono text-[11px] font-semibold ${
-                  tierIdx === 1 ? 'text-[#8F00FF]' : 'text-[#2563EB]'
-                }`}
-              >
+              <span className="font-mono text-[11px] font-semibold text-[#8F00FF]">
                 {tier.tier}
               </span>
               <span className="text-xs text-[#5E5E6E]">{tier.subtitle}</span>
@@ -172,7 +168,7 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
                     className={`text-left rounded-xl border p-4 transition-all min-h-[76px] ${
                       active
                         ? 'border-[#2563EB] bg-[#2563EB]/[0.06] ring-1 ring-[#2563EB]'
-                        : 'border-[#05070E]/10 bg-[#FBF7F0] hover:border-[#2563EB]/50'
+                        : 'border-[#05070E]/10 bg-[#FAF9F5] hover:border-[#2563EB]/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -207,9 +203,9 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
       </div>
 
       {/* Selected Layer Inspection Bar */}
-      <div className="px-5 sm:px-8 py-5 border-t border-[#05070E]/10 bg-[#FBF7F0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="px-5 sm:px-8 py-5 border-t border-[#05070E]/10 bg-[#FAF9F5] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1 max-w-2xl">
-          <div className="flex items-center gap-2 font-mono text-xs text-[#2563EB]">
+          <div className="flex items-center gap-2 font-mono text-xs text-[#8F00FF]">
             <span>{selectedNode.name}</span>
             <span aria-hidden="true">·</span>
             <span>{selectedNode.role}</span>

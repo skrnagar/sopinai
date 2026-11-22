@@ -57,14 +57,14 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/decisions')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FBF7F0] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore SOPIN Decisions</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate('/docs')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FBF7F0] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Read Architecture Docs</span>
               </button>
@@ -74,7 +74,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Model Gateway */}
-      <section id="gateway" className="py-20 border-b border-[#05070E]/10 bg-[#FBF7F0]">
+      <section id="gateway" className="py-20 border-b border-[#05070E]/10 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             <div className="lg:col-span-5 space-y-5 min-w-0">
@@ -128,8 +128,8 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
           />
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-              <Cpu className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+            <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+              <Cpu className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg font-semibold text-[#05070E]">
                 Ephemeral Sandboxes
               </h3>
@@ -137,8 +137,8 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                 Code interpreters and local MCP servers run inside scoped containers with strict CPU, memory, and network egress limits.
               </p>
             </div>
-            <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-              <Layers className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+            <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+              <Layers className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg font-semibold text-[#05070E]">
                 Durable Checkpoints
               </h3>
@@ -146,8 +146,8 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
                 Each completed node persists an immutable state snapshot so long-running workflows pause for human sign-off or recover without restarting from scratch.
               </p>
             </div>
-            <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-              <Network className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+            <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+              <Network className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg font-semibold text-[#05070E]">
                 Idempotent Tool Retries
               </h3>
@@ -165,7 +165,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 space-y-5">
             <StatusText items={['SOPIN Evaluate & Observe', 'Roadmap Status: Planned']} dark accentLast />
             <div className="flex items-center gap-3">
-              <Eye className="w-5 h-5 text-[#60A5FA]" aria-hidden="true" />
+              <Eye className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
               <h2 className="font-display text-2xl font-semibold">
                 Evaluations & Trace Replay
               </h2>
@@ -175,15 +175,15 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
             </p>
             <ul className="space-y-2.5 text-sm text-[#D8D8E6]">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+                <CheckCircle2 className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
                 <span>Span-level inspection across retrieval, model inference, and MCP calls</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+                <CheckCircle2 className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
                 <span>Deterministic schema and citation grounding assertions</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+                <CheckCircle2 className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
                 <span>Side-by-side comparison of candidate model routes</span>
               </li>
             </ul>
@@ -192,7 +192,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
           <div id="governance" className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 space-y-5">
             <StatusText items={['SOPIN Control', 'Roadmap Status: Planned']} dark accentLast />
             <div className="flex items-center gap-3">
-              <ShieldCheck className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+              <ShieldCheck className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
               <h2 className="font-display text-2xl font-semibold">
                 Governance & Policy Enforcement
               </h2>
@@ -202,15 +202,15 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
             </p>
             <ul className="space-y-2.5 text-sm text-[#D8D8E6]">
               <li className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+                <Lock className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
                 <span>Role-based tool allowlists and per-workflow credential scoping</span>
               </li>
               <li className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+                <Lock className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
                 <span>Mandatory human-in-the-loop sign-off gates on high-impact actions</span>
               </li>
               <li className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+                <Lock className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
                 <span>Structured execution audit records under SONIL Group enterprise architecture</span>
               </li>
             </ul>
@@ -219,7 +219,7 @@ export const PlatformPage: React.FC<PlatformPageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Interactive Execution & Governance Preview */}
-      <section className="py-20 bg-[#FBF7F0]">
+      <section className="py-20 bg-[#FAF9F5]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Execution & Control Surfaces"

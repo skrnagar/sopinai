@@ -79,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <footer className="border-t border-[#05070E]/10 bg-[#FBF7F0] text-[#05070E] pb-safe">
+    <footer className="border-t border-[#05070E]/10 bg-[#FAF9F5] text-[#05070E] pb-safe">
       <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-14 sm:py-16">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 lg:gap-12">
           <div className="xl:col-span-3 flex flex-col items-start gap-6">
@@ -105,7 +105,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             >
               <h2
                 id="footer-our-mission"
-                className="font-display text-xs font-semibold tracking-tight text-[#2563EB]"
+                className="font-display text-xs font-semibold tracking-tight text-[#8F00FF]"
               >
                 Our Mission
               </h2>
@@ -130,7 +130,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                           e.preventDefault();
                           onNavigate(link.href, link.sectionId);
                         }}
-                        className="inline-block py-0.5 text-sm text-[#5E5E6E] hover:text-[#2563EB] transition-colors"
+                        className="inline-block py-0.5 text-sm text-[#5E5E6E] hover:text-[#8F00FF] transition-colors"
                       >
                         {link.label}
                       </a>

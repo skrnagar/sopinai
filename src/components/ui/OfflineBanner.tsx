@@ -19,7 +19,7 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ hasBottomBar = fal
         hasBottomBar ? 'bottom-[76px] mb-safe lg:bottom-5' : 'bottom-4 mb-safe'
       }`}
     >
-      <WifiOff className="w-4 h-4 text-[#60A5FA] shrink-0" aria-hidden="true" />
+      <WifiOff className="w-4 h-4 text-[#8F00FF] shrink-0" aria-hidden="true" />
       <div className="min-w-0">
         <p className="text-xs font-semibold">Offline mode active</p>
         <p className="text-[11px] text-[#C5C5D6] leading-snug">

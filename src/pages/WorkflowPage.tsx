@@ -33,14 +33,14 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/decisions')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FBF7F0] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore SOPIN Decisions</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate('/context')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FBF7F0] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore Context &amp; Memory</span>
               </button>
@@ -49,7 +49,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] border-b border-[#05070E]/10">
+      <section className="py-16 lg:py-20 bg-[#FAF9F5] border-b border-[#05070E]/10">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Workflow Designer Preview"
@@ -70,8 +70,8 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-                <GitBranch className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+              <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <GitBranch className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-base font-semibold text-[#05070E]">
                   Typed Branching
                 </h3>
@@ -79,8 +79,8 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                   Route edges based on validated schema fields rather than brittle string matching.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-                <RefreshCw className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+              <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <RefreshCw className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-base font-semibold text-[#05070E]">
                   Bounded Retries
                 </h3>
@@ -88,8 +88,8 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                   Configure backoff, circuit breakers, and fallback model routes per step.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-                <PauseCircle className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+              <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <PauseCircle className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-base font-semibold text-[#05070E]">
                   Pause &amp; Resume Gates
                 </h3>
@@ -97,8 +97,8 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
                   Checkpoint execution state while waiting on human review or external webhook signals.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
-                <ShieldAlert className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+              <div className="rounded-xl border border-[#05070E]/10 bg-[#FAF9F5] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <ShieldAlert className="w-5 h-5 text-[#8F00FF]" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-base font-semibold text-[#05070E]">
                   Dead-Letter Routing
                 </h3>
