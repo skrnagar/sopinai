@@ -99,7 +99,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
   ];
 
   return (
-    <div className="h-full w-full min-w-0 rounded-2xl border border-[#E5E7EB] bg-[#0A1226] text-white flex flex-col overflow-hidden shadow-2xl">
+    <div className="h-full w-full min-w-0 rounded-2xl border border-[#05070E]/15 bg-[#0A1226] text-white flex flex-col overflow-hidden shadow-2xl">
       {/* Top Studio Header */}
       <div className="px-3.5 sm:px-5 py-3 border-b border-white/10 bg-white/[0.025] flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-1.5 min-w-0 overflow-x-auto no-scrollbar max-w-full">
@@ -133,7 +133,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
             onClick={() => setViewMode('collaboration')}
             className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
               viewMode === 'collaboration'
-                ? 'bg-[#FFFFFF] text-[#111827]'
+                ? 'bg-[#FAF9F5] text-[#05070E]'
                 : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
@@ -147,7 +147,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               setViewMode('sdk');
             }}
             className={`inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-              viewMode === 'sdk' ? 'bg-[#FFFFFF] text-[#111827]' : 'text-[#B5B5C5] hover:text-white'
+              viewMode === 'sdk' ? 'bg-[#FAF9F5] text-[#05070E]' : 'text-[#B5B5C5] hover:text-white'
             }`}
           >
             <Code2 className="w-3.5 h-3.5" aria-hidden="true" />
@@ -183,7 +183,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsPlaying((p) => !p)}
-                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#000000] hover:bg-[#1F2937] border border-white/15 text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 {isPlaying ? (
                   <>
@@ -203,7 +203,7 @@ export const MultiAgentHeroCanvas: React.FC = () => {
                   setIsPlaying(false);
                   setStepIdx((prev) => (prev + 1) % COLLAB_MAP.length);
                 }}
-                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#FFFFFF] text-[#111827] hover:bg-[#F7F8FA] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[34px] px-3 rounded-lg bg-[#FAF9F5] text-[#05070E] hover:bg-[#FBF7F0] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
               >
                 <SkipForward className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
                 <span className="tabular-nums">

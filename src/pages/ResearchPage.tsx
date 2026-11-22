@@ -66,24 +66,24 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ activeSection, onNav
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/10 bg-[#FAF9F5] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText
               items={['SOPIN Research & Insights', 'SONIL Group']}
               accentLast
             />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] text-balance">
               Research, systems engineering, and transparent field notes.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] leading-relaxed">
               Explore our architectural papers, engineering implementation guides, and design-partner case study previews across agent systems, deterministic decisions, and runtime verification.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F7F8FA] min-h-[540px]">
+      <section className="py-12 sm:py-16 bg-[#FBF7F0] min-h-[540px]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div
@@ -100,8 +100,8 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ activeSection, onNav
                   onClick={() => setCategory(cat)}
                   className={`min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                     category === cat
-                      ? 'bg-[#2563EB] text-white'
-                      : 'bg-[#FFFFFF] text-[#667085] border border-[#E5E7EB] hover:text-[#111827]'
+                      ? 'bg-[#000000] text-white'
+                      : 'bg-[#FAF9F5] text-[#5E5E6E] border border-[#05070E]/10 hover:text-[#05070E]'
                   }`}
                 >
                   {cat}
@@ -111,7 +111,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ activeSection, onNav
 
             <div className="relative w-full sm:w-72">
               <Search
-                className="w-4 h-4 text-[#667085] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="w-4 h-4 text-[#5E5E6E] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -121,7 +121,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ activeSection, onNav
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search research & guides..."
                 aria-label="Search research publications"
-                className="w-full min-h-[44px] pl-9 pr-4 py-2 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] text-base sm:text-sm text-[#111827] placeholder:text-[#667085]"
+                className="w-full min-h-[44px] pl-9 pr-4 py-2 rounded-lg border border-[#05070E]/10 bg-[#FAF9F5] text-base sm:text-sm text-[#05070E] placeholder:text-[#5E5E6E]"
               />
             </div>
           </div>
@@ -144,14 +144,14 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ activeSection, onNav
                 return (
                   <article
                     key={entry.id}
-                    className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
+                    className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
                   >
                     <div>
                       <StatusText
                         items={[entry.researchCategory, entry.publishedDate, entry.status]}
                         accentLast={entry.status !== 'Available'}
                       />
-                      <h2 className="mt-3 font-display text-xl font-semibold text-[#111827] leading-snug">
+                      <h2 className="mt-3 font-display text-xl font-semibold text-[#05070E] leading-snug">
                         <a
                           href={articleHref}
                           onClick={(e) => {
@@ -163,13 +163,13 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ activeSection, onNav
                           {entry.title}
                         </a>
                       </h2>
-                      <p className="mt-3 text-sm text-[#667085] leading-relaxed">
+                      <p className="mt-3 text-sm text-[#5E5E6E] leading-relaxed">
                         {entry.summary}
                       </p>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-[#E5E7EB] flex items-center justify-between gap-2">
-                      <span className="text-xs font-medium text-[#667085]">
+                    <div className="mt-6 pt-4 border-t border-[#05070E]/10 flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium text-[#5E5E6E]">
                         {entry.readTime}
                       </span>
                       <a

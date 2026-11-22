@@ -150,8 +150,8 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                 onMouseEnter={() => setActiveIndex(idx)}
               className={`relative w-full text-left rounded-2xl border p-5 transition-colors ${
                 isActive
-                  ? 'border-[#2563EB] bg-[#FFFFFF] shadow-lg'
-                  : 'border-[#E5E7EB] bg-[#F7F8FA] hover:border-[#2563EB]/40'
+                  ? 'border-[#2563EB] bg-[#FAF9F5] shadow-lg'
+                  : 'border-[#05070E]/10 bg-[#FBF7F0] hover:border-[#2563EB]/40'
               }`}
             >
               {isActive && (
@@ -168,23 +168,23 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       isActive
                         ? 'bg-[#2563EB] text-white'
-                        : 'bg-[#FFFFFF] border border-[#E5E7EB] text-[#2563EB]'
+                        : 'bg-[#FAF9F5] border border-[#05070E]/10 text-[#2563EB]'
                     }`}
                   >
                     <Icon className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-[#667085]">
+                    <div className="flex items-center gap-2 text-xs font-medium text-[#5E5E6E]">
                       <span className="font-mono text-[#2563EB]">
                         {layer.order}
                       </span>
                       <span aria-hidden="true">·</span>
                       <span>{layer.status}</span>
                     </div>
-                    <h3 className="mt-0.5 font-display text-lg font-semibold text-[#111827]">
+                    <h3 className="mt-0.5 font-display text-lg font-semibold text-[#05070E]">
                       {layer.name}
                     </h3>
-                    <p className="text-xs text-[#667085] mt-0.5">
+                    <p className="text-xs text-[#5E5E6E] mt-0.5">
                       {layer.modules}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
                   className={`w-4 h-4 mt-1 shrink-0 transition-transform ${
                     isActive
                       ? 'text-[#2563EB] translate-x-0.5'
-                      : 'text-[#667085]/60'
+                      : 'text-[#5E5E6E]/60'
                   }`}
                   aria-hidden="true"
                 />
@@ -204,7 +204,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
             {/* Animated vertical signal link between layers */}
             {idx < STACK_LAYERS.length - 1 && (
               <div className="h-3 flex justify-center items-center" aria-hidden="true">
-                <div className="w-px h-full bg-[#E5E7EB] relative overflow-hidden">
+                <div className="w-px h-full bg-[#05070E]/10 relative overflow-hidden">
                   {idx === activeIndex && (
                     <motion.div
                       initial={{ y: -12 }}
@@ -230,7 +230,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 sm:p-8 flex flex-col justify-between gap-6"
+          className="w-full rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 sm:p-8 flex flex-col justify-between gap-6"
         >
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -248,11 +248,11 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
               </button>
             </div>
 
-            <h3 className="mt-3 font-display text-2xl font-semibold text-[#111827] leading-snug">
+            <h3 className="mt-3 font-display text-2xl font-semibold text-[#05070E] leading-snug">
               {activeLayer.headline}
             </h3>
 
-            <p className="mt-3 text-sm sm:text-base text-[#667085] leading-relaxed">
+            <p className="mt-3 text-sm sm:text-base text-[#5E5E6E] leading-relaxed">
               {activeLayer.description}
             </p>
 
@@ -260,7 +260,7 @@ export const InteractiveAgentStack: React.FC<InteractiveAgentStackProps> = ({ on
               {activeLayer.highlights.map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-2.5 text-sm text-[#111827]"
+                  className="flex items-start gap-2.5 text-sm text-[#05070E]"
                 >
                   <CheckCircle2
                     className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0"

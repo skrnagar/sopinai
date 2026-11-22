@@ -99,14 +99,14 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/10 bg-[#FAF9F5] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Solutions', 'Eight Domain Blueprints']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] text-balance">
               Reference architectures engineered for domain rigor.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] leading-relaxed">
               Each blueprint demonstrates how SOPIN combines grounded context, multimodal models, ML pipelines, scoped tools, verification gates, and human oversight.
             </p>
           </div>
@@ -118,7 +118,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                 key={b.id}
                 type="button"
                 onClick={() => scrollToDomain(b.id)}
-                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-xs font-semibold text-[#111827] hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3.5 py-1.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-xs font-semibold text-[#05070E] hover:border-[#2563EB] transition-colors whitespace-nowrap shrink-0"
               >
                 {b.category}
               </button>
@@ -127,13 +127,13 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 bg-[#F7F8FA]">
+      <section className="py-16 bg-[#FBF7F0]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-6">
           {solutionBlocks.map((block) => (
             <article
               key={block.id}
               id={block.id}
-              className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 sm:p-8 shadow-[0_1px_2px_rgba(17,24,39,0.04)] scroll-mt-20"
+              className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-7 sm:p-8 shadow-[0_1px_2px_rgba(17,24,39,0.04)] scroll-mt-20"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-6 space-y-3 min-w-0">
@@ -141,38 +141,38 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onNavigate }) => {
                     items={[block.category, block.status]}
                     accentLast={block.status.includes('Planned') || block.status.includes('Core')}
                   />
-                  <h2 className="font-display text-2xl font-semibold text-[#111827]">
+                  <h2 className="font-display text-2xl font-semibold text-[#05070E]">
                     {block.headline}
                   </h2>
-                  <p className="text-sm sm:text-base text-[#667085] leading-relaxed">
+                  <p className="text-sm sm:text-base text-[#5E5E6E] leading-relaxed">
                     {block.description}
                   </p>
                   <div className="pt-2">
-                    <div className="font-mono text-xs p-3 rounded-lg bg-[#F7F8FA] border border-[#E5E7EB] text-[#2563EB] break-words">
+                    <div className="font-mono text-xs p-3 rounded-lg bg-[#FBF7F0] border border-[#05070E]/10 text-[#2563EB] break-words">
                       {block.topology}
                     </div>
                   </div>
                 </div>
 
                 <div className="lg:col-span-6 space-y-4 min-w-0">
-                  <div className="rounded-xl border border-[#E5E7EB] p-4">
-                    <div className="text-xs font-semibold text-[#111827] mb-1.5">
+                  <div className="rounded-xl border border-[#05070E]/10 p-4">
+                    <div className="text-xs font-semibold text-[#05070E] mb-1.5">
                       Bindings &amp; Modules
                     </div>
                     <StatusText items={block.tools} />
                   </div>
-                  <div className="rounded-xl border border-[#E5E7EB] p-4">
-                    <div className="text-xs font-semibold text-[#111827] mb-1">
+                  <div className="rounded-xl border border-[#05070E]/10 p-4">
+                    <div className="text-xs font-semibold text-[#05070E] mb-1">
                       Verification Criteria
                     </div>
-                    <p className="text-sm text-[#667085]">{block.verification}</p>
+                    <p className="text-sm text-[#5E5E6E]">{block.verification}</p>
                   </div>
-                  <div className="rounded-xl border border-[#E5E7EB] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="rounded-xl border border-[#05070E]/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <div className="text-xs font-semibold text-[#111827] mb-1">
+                      <div className="text-xs font-semibold text-[#05070E] mb-1">
                         Human Oversight
                       </div>
-                      <p className="text-sm text-[#667085]">
+                      <p className="text-sm text-[#5E5E6E]">
                         {block.humanCheckpoint}
                       </p>
                     </div>

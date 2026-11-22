@@ -13,7 +13,7 @@ export const ProductSurfaceIllustration: React.FC<ProductSurfaceIllustrationProp
   surfaceId,
 }) => {
   return (
-    <div className="w-full rounded-xl border border-[#E5E7EB] bg-[#080D18] text-white overflow-hidden shadow-[0_8px_28px_-10px_rgba(8,13,24,0.35)]">
+    <div className="w-full rounded-xl border border-[#05070E]/15 bg-[#080D18] text-white overflow-hidden shadow-[0_8px_28px_-10px_rgba(8,13,24,0.35)]">
       {/* Minimal Workspace Window Bar */}
       <div className="px-4 py-2.5 border-b border-white/10 bg-[#101D35]/70 flex items-center justify-between gap-3">
         <span className="font-mono text-[11px] text-[#93C5FD] truncate">

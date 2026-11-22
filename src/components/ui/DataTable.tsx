@@ -16,17 +16,17 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<T>) {
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] overflow-hidden shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+    <div className="rounded-2xl border border-[#05070E]/[0.08] bg-[#FAF9F5] overflow-hidden shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
-            <tr className="border-b border-[#E5E7EB] bg-[#F7F8FA]">
+            <tr className="border-b border-[#05070E]/10 bg-[#FBF7F0]">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   scope="col"
-                  className={`py-3.5 px-4 sm:px-5 text-xs font-semibold text-[#111827] whitespace-nowrap ${
+                  className={`py-3.5 px-4 sm:px-5 text-xs font-semibold text-[#05070E] whitespace-nowrap ${
                     col.align === 'right' ? 'text-right' : 'text-left'
                   }`}
                 >
@@ -35,16 +35,16 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: DataTableProps<
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E5E7EB] text-sm">
+          <tbody className="divide-y divide-[#05070E]/[0.08] text-sm">
             {rows.map((row, idx) => (
               <tr
                 key={rowKey(row, idx)}
-                className="hover:bg-[#F7F8FA] transition-colors"
+                className="hover:bg-[#FBF7F0] transition-colors"
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`py-3.5 px-4 sm:px-5 text-[#667085] align-top ${
+                    className={`py-3.5 px-4 sm:px-5 text-[#5E5E6E] align-top ${
                       col.align === 'right' ? 'text-right tabular-nums' : 'text-left'
                     }`}
                   >

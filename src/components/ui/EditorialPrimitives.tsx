@@ -39,7 +39,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       )}
       <h2
         className={`font-display text-3xl sm:text-4xl font-semibold tracking-[-0.02em] leading-[1.14] text-balance ${
-          dark ? 'text-[#FFFFFF]' : 'text-[#111827]'
+          dark ? 'text-[#FFFFFF]' : 'text-[#05070E]'
         }`}
       >
         {title}
@@ -47,7 +47,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {description && (
         <p
           className={`mt-4 text-base sm:text-lg leading-relaxed ${
-            dark ? 'text-[#CBD5E1]' : 'text-[#667085]'
+            dark ? 'text-[#CBD5E1]' : 'text-[#5E5E6E]'
           }`}
         >
           {description}
@@ -76,7 +76,7 @@ export const StatusText: React.FC<StatusTextProps> = ({
   return (
     <div
       className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium ${
-        dark ? 'text-[#94A3B8]' : 'text-[#667085] dark:text-[#94A3B8]'
+        dark ? 'text-[#94A3B8]' : 'text-[#5E5E6E] dark:text-[#94A3B8]'
       } ${className}`}
     >
       {items.map((item, idx) => {
@@ -202,30 +202,30 @@ export const StateDisplay: React.FC<StateDisplayProps> = ({
   return (
     <div
       role={mode === 'error' ? 'alert' : 'status'}
-      className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#F7F8FA] dark:bg-[#0A1226]/60 p-8 sm:p-10 text-center max-w-xl mx-auto"
+      className="rounded-xl border border-[#05070E]/10 dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226]/60 p-8 sm:p-10 text-center max-w-xl mx-auto"
     >
-      <div className="w-10 h-10 rounded-lg border border-[#E5E7EB] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#05070E] mx-auto flex items-center justify-center mb-4">
+      <div className="w-10 h-10 rounded-lg border border-[#05070E]/10 dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] mx-auto flex items-center justify-center mb-4">
         {mode === 'loading' && (
           <RefreshCw className="w-5 h-5 text-[#2563EB] animate-spin" aria-hidden="true" />
         )}
         {mode === 'empty' && (
-          <Inbox className="w-5 h-5 text-[#667085] dark:text-[#A4A4B5]" aria-hidden="true" />
+          <Inbox className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
         )}
         {mode === 'error' && (
           <AlertCircle className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
         )}
       </div>
-      <h3 className="font-display text-lg font-semibold text-[#111827] dark:text-white">
+      <h3 className="font-display text-lg font-semibold text-[#05070E] dark:text-white">
         {title}
       </h3>
-      <p className="mt-2 text-sm text-[#667085] dark:text-[#A4A4B5] leading-relaxed">
+      <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#A4A4B5] leading-relaxed">
         {description}
       </p>
       {actionLabel && onAction && (
         <button
           type="button"
           onClick={onAction}
-          className="mt-5 inline-flex items-center justify-center px-5 min-h-[44px] text-sm font-medium rounded-lg bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors whitespace-nowrap shrink-0"
+          className="mt-5 inline-flex items-center justify-center px-5 min-h-[44px] text-sm font-medium rounded-lg bg-[#000000] text-white hover:bg-[#1F2937] transition-colors whitespace-nowrap shrink-0"
         >
           {actionLabel}
         </button>

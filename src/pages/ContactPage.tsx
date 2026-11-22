@@ -95,42 +95,42 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
+      <section className="border-b border-[#05070E]/10 bg-[#FAF9F5] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['Contact SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] text-balance">
               Connect with the SOPIN team.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] leading-relaxed">
               Reach out regarding Developer Preview access, architecture reviews, MCP/A2A integrations, or enterprise collaboration with the SONIL Group.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F7F8FA]">
+      <section className="py-12 sm:py-16 bg-[#FBF7F0]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
           <div className="lg:col-span-5 space-y-6 min-w-0">
-            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 sm:p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <h2 className="font-display text-lg font-semibold text-[#111827]">
+            <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-7 space-y-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <h2 className="font-display text-lg font-semibold text-[#05070E]">
                 Direct Channels
               </h2>
-              <div className="space-y-3 text-sm text-[#667085]">
+              <div className="space-y-3 text-sm text-[#5E5E6E]">
                 <div>
-                  <div className="font-medium text-[#111827]">Platform &amp; Preview Inquiries</div>
+                  <div className="font-medium text-[#05070E]">Platform &amp; Preview Inquiries</div>
                   <div>hello@sopin.ai</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[#111827]">Security &amp; Trust Disclosures</div>
+                  <div className="font-medium text-[#05070E]">Security &amp; Trust Disclosures</div>
                   <div>security@sopin.ai</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[#111827]">Parent Organization</div>
+                  <div className="font-medium text-[#05070E]">Parent Organization</div>
                   <div>SONIL Group · Global AI Infrastructure</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[#111827]">Engineering Routing</div>
+                  <div className="font-medium text-[#05070E]">Engineering Routing</div>
                   <div>Inquiries are validated and routed directly to the SOPIN platform and enterprise onboarding queue.</div>
                 </div>
               </div>
@@ -138,18 +138,18 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
           </div>
 
           <div className="lg:col-span-7 min-w-0">
-            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+            <div className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-8 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
               {status === 'success' ? (
                 <div className="py-6 text-center space-y-4" role="status">
                   <CheckCircle2 className="w-10 h-10 text-[#2563EB] mx-auto" aria-hidden="true" />
-                  <h2 className="font-display text-2xl font-semibold text-[#111827]">
+                  <h2 className="font-display text-2xl font-semibold text-[#05070E]">
                     Inquiry Received
                   </h2>
-                  <p className="text-sm text-[#667085] max-w-md mx-auto leading-relaxed">
+                  <p className="text-sm text-[#5E5E6E] max-w-md mx-auto leading-relaxed">
                     Thank you, {name}. Your {topic.toLowerCase()} note for {organization || 'your team'} has been logged cleanly for the SOPIN &amp; SONIL Group team.
                   </p>
                   {referenceId && (
-                    <div className="inline-block font-mono text-xs px-3 py-1 rounded-md bg-[#F7F8FA] text-[#2563EB]">
+                    <div className="inline-block font-mono text-xs px-3 py-1 rounded-md bg-[#FBF7F0] text-[#2563EB]">
                       Reference ID: {referenceId}
                     </div>
                   )}
@@ -157,7 +157,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1D4ED8] transition-colors"
+                      className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#000000] text-white text-sm font-semibold hover:bg-[#1F2937] transition-colors"
                     >
                       Submit Another Note
                     </button>
@@ -168,7 +168,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                   {status === 'error' && errorText && (
                     <div
                       role="alert"
-                      className="rounded-lg border border-[#60A5FA]/40 bg-[#60A5FA]/10 px-4 py-3 flex items-center gap-2.5 text-sm text-[#111827]"
+                      className="rounded-lg border border-[#60A5FA]/40 bg-[#60A5FA]/10 px-4 py-3 flex items-center gap-2.5 text-sm text-[#05070E]"
                     >
                       <AlertCircle className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
                       <span>{errorText}</span>
@@ -177,7 +177,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="contact-name" className="block text-xs font-semibold text-[#111827] mb-1.5">
+                      <label htmlFor="contact-name" className="block text-xs font-semibold text-[#05070E] mb-1.5">
                         Full Name
                       </label>
                       <input
@@ -188,11 +188,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Alex Rivera"
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-base sm:text-sm text-[#111827]"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-base sm:text-sm text-[#05070E]"
                       />
                     </div>
                     <div>
-                      <label htmlFor="contact-email" className="block text-xs font-semibold text-[#111827] mb-1.5">
+                      <label htmlFor="contact-email" className="block text-xs font-semibold text-[#05070E] mb-1.5">
                         Email Address
                       </label>
                       <input
@@ -204,14 +204,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="alex@company.com"
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-base sm:text-sm text-[#111827]"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-base sm:text-sm text-[#05070E]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="contact-org" className="block text-xs font-semibold text-[#111827] mb-1.5">
+                      <label htmlFor="contact-org" className="block text-xs font-semibold text-[#05070E] mb-1.5">
                         Organization (Optional)
                       </label>
                       <input
@@ -221,18 +221,18 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                         value={organization}
                         onChange={(e) => setOrganization(e.target.value)}
                         placeholder="Organization name"
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-base sm:text-sm text-[#111827]"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-base sm:text-sm text-[#05070E]"
                       />
                     </div>
                     <div>
-                      <label htmlFor="contact-topic" className="block text-xs font-semibold text-[#111827] mb-1.5">
+                      <label htmlFor="contact-topic" className="block text-xs font-semibold text-[#05070E] mb-1.5">
                         Inquiry Topic
                       </label>
                       <select
                         id="contact-topic"
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-base sm:text-sm text-[#111827]"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-base sm:text-sm text-[#05070E]"
                       >
                         {VALID_TOPICS.map((t) => (
                           <option key={t} value={t}>
@@ -244,7 +244,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                   </div>
 
                   <div>
-                    <label htmlFor="contact-message" className="block text-xs font-semibold text-[#111827] mb-1.5">
+                    <label htmlFor="contact-message" className="block text-xs font-semibold text-[#05070E] mb-1.5">
                       Technical Context or Inquiry
                     </label>
                     <textarea
@@ -254,14 +254,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({ queryString }) => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Describe the agent workflows, tools, or governance requirements you are exploring..."
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-base sm:text-sm text-[#111827]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-[#05070E]/10 bg-[#FBF7F0] text-base sm:text-sm text-[#05070E]"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={status === 'submitting'}
-                    className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+                    className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#000000] hover:bg-[#1F2937] disabled:opacity-60 text-white text-sm font-semibold transition-colors"
                   >
                     <Send className="w-4 h-4" aria-hidden="true" />
                     <span>{status === 'submitting' ? 'Sending...' : 'Send Inquiry'}</span>

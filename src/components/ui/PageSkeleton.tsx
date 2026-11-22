@@ -8,22 +8,22 @@ export const PageSkeleton: React.FC = () => {
       aria-label="Loading page content"
     >
       <div className="max-w-2xl space-y-4">
-        <div className="h-4 w-28 rounded bg-[#E5E7EB]" />
-        <div className="h-10 w-3/4 rounded-lg bg-[#E5E7EB]" />
-        <div className="h-5 w-full rounded bg-[#F7F8FA]" />
-        <div className="h-5 w-2/3 rounded bg-[#F7F8FA]" />
+        <div className="h-4 w-28 rounded bg-[#05070E]/10" />
+        <div className="h-10 w-3/4 rounded-lg bg-[#05070E]/10" />
+        <div className="h-5 w-full rounded bg-[#FBF7F0]" />
+        <div className="h-5 w-2/3 rounded bg-[#FBF7F0]" />
       </div>
 
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {[1, 2, 3].map((item) => (
           <div
             key={item}
-            className="h-44 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5"
+            className="h-44 rounded-xl border border-[#05070E]/10 bg-[#FBF7F0] p-5"
           >
-            <div className="h-4 w-20 rounded bg-[#E5E7EB]" />
-            <div className="mt-4 h-6 w-2/3 rounded bg-[#E5E7EB]" />
-            <div className="mt-3 h-4 w-full rounded bg-[#E5E7EB]/70" />
-            <div className="mt-2 h-4 w-4/5 rounded bg-[#E5E7EB]/70" />
+            <div className="h-4 w-20 rounded bg-[#05070E]/10" />
+            <div className="mt-4 h-6 w-2/3 rounded bg-[#05070E]/10" />
+            <div className="mt-3 h-4 w-full rounded bg-[#05070E]/10" />
+            <div className="mt-2 h-4 w-4/5 rounded bg-[#05070E]/10" />
           </div>
         ))}
       </div>

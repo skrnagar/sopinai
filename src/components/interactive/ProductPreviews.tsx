@@ -321,8 +321,8 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               onClick={() => setActiveTab(tab.id)}
               className={`relative snap-start shrink-0 w-[180px] sm:w-auto text-left rounded-xl border p-3.5 min-h-[56px] transition-colors min-w-0 ${
                 active
-                  ? 'border-[#2563EB] bg-[#FFFFFF] shadow-sm'
-                  : 'border-[#E5E7EB] bg-[#F7F8FA] hover:border-[#2563EB]/40'
+                  ? 'border-[#2563EB] bg-[#FAF9F5] shadow-sm'
+                  : 'border-[#05070E]/10 bg-[#FBF7F0] hover:border-[#2563EB]/40'
               }`}
             >
               {active && (
@@ -335,15 +335,15 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
               <div className="flex items-center gap-2 relative z-10 min-w-0">
                 <Icon
                   className={`w-4 h-4 shrink-0 ${
-                    active ? 'text-[#2563EB]' : 'text-[#667085]'
+                    active ? 'text-[#2563EB]' : 'text-[#5E5E6E]'
                   }`}
                   aria-hidden="true"
                 />
-                <span className="font-display text-sm font-semibold text-[#111827] truncate">
+                <span className="font-display text-sm font-semibold text-[#05070E] truncate">
                   {tab.label}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-[#667085] truncate relative z-10">
+              <p className="mt-1 text-xs text-[#5E5E6E] truncate relative z-10">
                 {tab.subtitle}
               </p>
             </button>
@@ -352,7 +352,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
       </div>
 
       {/* Realistic Software Application Window */}
-      <div className="rounded-2xl border border-[#E5E7EB] bg-[#0A1226] text-white overflow-hidden shadow-2xl">
+      <div className="rounded-2xl border border-[#05070E]/15 bg-[#0A1226] text-white overflow-hidden shadow-2xl">
         {/* Desktop App Window Chrome */}
         <div className="px-5 py-3 border-b border-white/10 bg-white/[0.03] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -1220,7 +1220,7 @@ export const ProductPreviews: React.FC<ProductPreviewsProps> = ({ initialTab = '
                   <button
                     type="button"
                     onClick={() => setApprovalState('approved')}
-                    className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-colors whitespace-nowrap"
+                    className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#000000] hover:bg-[#1F2937] border border-white/15 text-white text-xs font-semibold transition-colors whitespace-nowrap"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Approve</span>

@@ -78,7 +78,7 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-[#FFFFFF]">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-[#FAF9F5]">
           <StateDisplay
             mode="error"
             title="Unable to render view"
@@ -191,10 +191,10 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <AppErrorBoundary>
-        <div className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#111827]">
+        <div className="min-h-screen flex flex-col bg-[#FAF9F5] text-[#05070E]">
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[#2563EB] focus:text-white focus:text-sm focus:font-semibold"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[#000000] focus:text-white focus:text-sm focus:font-semibold"
           >
             Skip to main content
           </a>
