@@ -121,18 +121,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="overflow-x-clip bg-[#FAF9F5] dark:bg-[#080D18]">
+    <div className="overflow-x-clip bg-[#FFFFFF]">
       {/* B. HERO SECTION */}
-      <section className="relative overflow-hidden border-b border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18]">
+      <section className="relative overflow-hidden border-b border-[#E5E7EB] bg-[#FFFFFF]">
         {/* Subtle ambient geometric field echoing SOPIN's 6-prong radial emblem */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-52 -left-52 w-[680px] h-[680px] opacity-[0.05] dark:opacity-[0.1]"
+          className="pointer-events-none absolute -top-52 -left-52 w-[680px] h-[680px] opacity-[0.05]"
         >
           <motion.svg
             viewBox="0 0 100 100"
             fill="none"
-            className="w-full h-full text-[#2563EB] dark:text-[#3B82F6]"
+            className="w-full h-full text-[#2563EB]"
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 96, ease: 'linear' }}
           >
@@ -164,20 +164,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-6 flex flex-col justify-center min-w-0"
             >
-              <StatusText
-                items={['SOPIN · SONIL Group', 'Unified AI Agent Engineering & Execution Platform']}
-                accentLast
-              />
-
-              <h1 className="mt-4 font-display text-[clamp(2.25rem,4.1vw,3.65rem)] font-bold tracking-[-0.025em] leading-[1.06] text-[#111827] dark:text-[#FFFFFF] text-balance">
-                Build AI agents that deliver work.
+              <h1 className="font-display text-[clamp(2.25rem,4.1vw,3.65rem)] font-bold tracking-[-0.025em] leading-[1.06] text-[#111827] text-balance">
+                Intelligence beyond limits.
               </h1>
 
-              <p className="mt-4 font-display text-sm sm:text-base font-semibold tracking-tight text-[#2563EB] dark:text-[#60A5FA]">
-                Design. Connect. Execute. Verify. Govern.
-              </p>
-
-              <p className="mt-4 text-base sm:text-[17px] text-[#667085] dark:text-[#CBD5E1] leading-relaxed max-w-xl">
+              <p className="mt-5 text-base sm:text-[17px] text-[#667085] leading-relaxed max-w-xl">
                 Unify agent authoring, scoped context, deterministic business decisions, multi-agent graphs, and governed runtime execution in one engineering platform.
               </p>
 
@@ -199,7 +190,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     e.preventDefault();
                     onNavigate('/platform');
                   }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] hover:bg-[#F3EDE2] dark:hover:bg-[#162746] text-[#111827] dark:text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] hover:bg-[#EEF1F5] text-[#111827] text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                 >
                   <span>Explore the Platform</span>
                 </a>
@@ -219,7 +210,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* C. PLATFORM OVERVIEW */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FBF7F0] dark:bg-[#0B1221] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#F7F8FA] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <SectionHeader
@@ -233,7 +224,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/platform');
               }}
-              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] text-sm font-semibold text-[#111827] hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
             >
               <span>Inspect Full Platform</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -245,7 +236,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* D. PRODUCT SURFACES (ALL 10 SURFACES SHOWCASE) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F5] dark:bg-[#080D18] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FFFFFF] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <SectionHeader
             kicker="Product Surfaces"
@@ -263,9 +254,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 key={surface.id}
                 type="button"
                 onClick={() => scrollToSurface(surface.id)}
-                className="min-h-[40px] px-3.5 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/12 bg-[#FBF7F0] dark:bg-[#101D35]/70 hover:border-[#2563EB] text-xs font-semibold text-[#111827] dark:text-[#E2E8F0] transition-colors whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-3.5 py-2 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] hover:border-[#2563EB] text-xs font-semibold text-[#111827] transition-colors whitespace-nowrap shrink-0"
               >
-                <span className="font-mono text-[#2563EB] dark:text-[#60A5FA] mr-1.5">
+                <span className="font-mono text-[#2563EB] mr-1.5">
                   {surface.index}
                 </span>
                 {surface.name.replace('SOPIN ', '')}
@@ -274,7 +265,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Alternating Visual + Content Rows for All 10 Surfaces */}
-          <div className="mt-12 divide-y divide-[#E5E7EB] dark:divide-white/10">
+          <div className="mt-12 divide-y divide-[#E5E7EB]">
             {PRODUCT_SURFACES_10.map((surface, idx) => {
               const reverse = idx % 2 === 1;
               return (
@@ -296,18 +287,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                       items={[`${surface.index} · ${surface.category}`, surface.status]}
                       accentLast={surface.status === 'Planned'}
                     />
-                    <h3 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-[#111827] dark:text-white">
+                    <h3 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-[#111827]">
                       {surface.name}
                     </h3>
-                    <p className="text-sm sm:text-base font-medium text-[#111827] dark:text-[#E2E8F0] leading-snug">
+                    <p className="text-sm sm:text-base font-medium text-[#111827] leading-snug">
                       {surface.tagline}
                     </p>
-                    <p className="text-sm sm:text-base text-[#667085] dark:text-[#94A3B8] leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#667085] leading-relaxed">
                       {surface.description}
                     </p>
 
-                    <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/60 px-4 py-3 text-xs sm:text-sm text-[#111827] dark:text-[#CBD5E1]">
-                      <span className="font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+                    <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-xs sm:text-sm text-[#111827]">
+                      <span className="font-semibold text-[#2563EB]">
                         Role in platform:{' '}
                       </span>
                       {surface.purpose}
@@ -317,10 +308,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                       {surface.highlights.map((item) => (
                         <li
                           key={item}
-                          className="flex items-start gap-2 text-xs text-[#111827] dark:text-[#CBD5E1]"
+                          className="flex items-start gap-2 text-xs text-[#111827]"
                         >
                           <CheckCircle2
-                            className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] shrink-0 mt-0.5"
+                            className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5"
                             aria-hidden="true"
                           />
                           <span>{item}</span>
@@ -335,7 +326,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                           e.preventDefault();
                           onNavigate(surface.href);
                         }}
-                        className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
+                        className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-[#2563EB] hover:underline"
                       >
                         <span>Explore {surface.name}</span>
                         <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -350,7 +341,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* E. HOW SOPIN WORKS (5-STAGE LIFECYCLE) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FBF7F0] dark:bg-[#0B1221] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#F7F8FA] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <SectionHeader
             kicker="How SOPIN Works"
@@ -362,32 +353,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             {LIFECYCLE_5_STAGES.map((stage, idx) => (
               <li
                 key={stage.step}
-                className="relative rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-6 flex flex-col justify-between gap-5"
+                className="relative rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 flex flex-col justify-between gap-5"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+                    <span className="font-mono text-xs font-semibold text-[#2563EB]">
                       Stage {stage.step}
                     </span>
                     {idx < LIFECYCLE_5_STAGES.length - 1 && (
                       <ArrowRight
-                        className="hidden lg:block w-4 h-4 text-[#667085] dark:text-[#64748B]"
+                        className="hidden lg:block w-4 h-4 text-[#667085]"
                         aria-hidden="true"
                       />
                     )}
                   </div>
-                  <h3 className="font-display text-xl font-semibold text-[#111827] dark:text-white">
+                  <h3 className="font-display text-xl font-semibold text-[#111827]">
                     {stage.title}
                   </h3>
-                  <p className="text-xs font-semibold text-[#111827] dark:text-[#CBD5E1]">
+                  <p className="text-xs font-semibold text-[#111827]">
                     {stage.headline}
                   </p>
-                  <p className="text-sm text-[#667085] dark:text-[#94A3B8] leading-relaxed">
+                  <p className="text-sm text-[#667085] leading-relaxed">
                     {stage.description}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10">
+                <div className="pt-4 border-t border-[#E5E7EB]">
                   <StatusText items={stage.surfaces} />
                 </div>
               </li>
@@ -397,7 +388,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* F. SOLUTIONS (6 ENTERPRISE USE CASES) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F5] dark:bg-[#080D18] border-b border-[#E5E7EB] dark:border-white/10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#FFFFFF] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <SectionHeader
@@ -411,7 +402,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/solutions');
               }}
-              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] text-sm font-semibold text-[#111827] dark:text-white hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-sm font-semibold text-[#111827] hover:border-[#2563EB] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
             >
               <span>View All Solutions</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -430,15 +421,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     e.preventDefault();
                     onNavigate(sol.href, sol.sectionId);
                   }}
-                  className="group rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/50 hover:border-[#2563EB] hover:-translate-y-0.5 transition-all p-6 sm:p-7 flex flex-col justify-between gap-6"
+                  className="group rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] hover:border-[#2563EB] hover:-translate-y-0.5 transition-all p-6 sm:p-7 flex flex-col justify-between gap-6"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="w-10 h-10 rounded-lg border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA]">
+                      <div className="w-10 h-10 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] flex items-center justify-center text-[#2563EB]">
                         <Icon className="w-5 h-5" aria-hidden={true} />
                       </div>
                       <ArrowUpRight
-                        className="w-4 h-4 text-[#667085] group-hover:text-[#2563EB] dark:group-hover:text-[#60A5FA] transition-colors"
+                        className="w-4 h-4 text-[#667085] group-hover:text-[#2563EB] transition-colors"
                         aria-hidden="true"
                       />
                     </div>
@@ -448,16 +439,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                       accentLast={sol.status === 'Planned'}
                     />
 
-                    <h3 className="font-display text-xl font-semibold text-[#111827] dark:text-white group-hover:text-[#2563EB] dark:group-hover:text-[#60A5FA] transition-colors">
+                    <h3 className="font-display text-xl font-semibold text-[#111827] group-hover:text-[#2563EB] transition-colors">
                       {sol.title}
                     </h3>
 
-                    <p className="text-sm text-[#667085] dark:text-[#94A3B8] leading-relaxed">
+                    <p className="text-sm text-[#667085] leading-relaxed">
                       {sol.summary}
                     </p>
                   </div>
 
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB]">
                     <span>Inspect architecture</span>
                     <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                   </span>
@@ -469,7 +460,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* G. RESEARCH & INSIGHTS */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FBF7F0] dark:bg-[#0B1221]">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#F7F8FA]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <SectionHeader
@@ -482,7 +473,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <div
                 role="tablist"
                 aria-label="Filter research publications"
-                className="flex overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18]"
+                className="flex overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF]"
               >
                 {(['All', 'Research', 'Engineering', 'Case Studies'] as const).map((cat) => {
                   const active = researchFilter === cat;
@@ -496,7 +487,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                       className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                         active
                           ? 'bg-[#2563EB] text-white'
-                          : 'text-[#667085] dark:text-[#94A3B8] hover:text-[#111827] dark:hover:text-white'
+                          : 'text-[#667085] hover:text-[#111827]'
                       }`}
                     >
                       {cat}
@@ -511,7 +502,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/research');
                 }}
-                className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-sm font-semibold text-[#2563EB] hover:underline whitespace-nowrap"
               >
                 <span>View all</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -525,32 +516,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               return (
                 <article
                   key={entry.id}
-                  className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] p-6 sm:p-7 flex flex-col justify-between gap-6"
+                  className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 sm:p-7 flex flex-col justify-between gap-6"
                 >
                   <div className="space-y-3">
                     <StatusText
                       items={[entry.researchCategory, entry.publishedDate, entry.status]}
                       accentLast={entry.status !== 'Available'}
                     />
-                    <h3 className="font-display text-lg sm:text-xl font-semibold text-[#111827] dark:text-white leading-snug">
+                    <h3 className="font-display text-lg sm:text-xl font-semibold text-[#111827] leading-snug">
                       <a
                         href={articleHref}
                         onClick={(e) => {
                           e.preventDefault();
                           onNavigate(articleHref);
                         }}
-                        className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors"
+                        className="hover:text-[#2563EB] transition-colors"
                       >
                         {entry.title}
                       </a>
                     </h3>
-                    <p className="text-sm text-[#667085] dark:text-[#94A3B8] leading-relaxed">
+                    <p className="text-sm text-[#667085] leading-relaxed">
                       {entry.summary}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between gap-2">
-                    <span className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
+                  <div className="pt-4 border-t border-[#E5E7EB] flex items-center justify-between gap-2">
+                    <span className="text-xs font-medium text-[#667085]">
                       {entry.readTime}
                     </span>
                     <a
@@ -559,7 +550,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                         e.preventDefault();
                         onNavigate(articleHref);
                       }}
-                      className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline whitespace-nowrap"
+                      className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold text-[#2563EB] hover:underline whitespace-nowrap"
                     >
                       <span>Read more</span>
                       <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

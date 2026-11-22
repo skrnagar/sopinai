@@ -79,10 +79,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <footer className="border-t border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#080D18] text-[#111827] dark:text-[#FFFFFF] pb-safe">
+    <footer className="border-t border-[#E5E7EB] bg-[#F7F8FA] text-[#111827] pb-safe">
       <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 py-14 sm:py-16">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 lg:gap-12">
-          <div className="xl:col-span-3 space-y-4">
+          <div className="xl:col-span-3 flex flex-col items-start gap-6">
             <a
               href="/"
               onClick={(e) => {
@@ -90,25 +90,35 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 onNavigate('/');
               }}
               aria-label="SOPIN Home"
-              className="inline-flex items-center text-[#111827] dark:text-white min-h-[44px] rounded-md"
+              className="inline-flex items-center text-[#111827] min-h-[48px] rounded-md"
             >
-              <SopinLogo size="md" />
+              <SopinLogo
+                showWordmark={false}
+                size="lg"
+                className="[&>svg]:w-12 [&>svg]:h-12"
+              />
             </a>
-            <p className="text-sm text-[#667085] dark:text-[#94A3B8] leading-relaxed max-w-xs">
-              Intelligence beyond limits. Unified AI Agent Engineering and Execution Platform.
-            </p>
-            <p className="text-xs font-semibold text-[#111827] dark:text-[#CBD5E1]">
-              Design. Connect. Execute. Verify. Govern.
-            </p>
-            <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
-              SOPIN · A platform under SONIL Group
-            </p>
+
+            <section
+              aria-labelledby="footer-our-mission"
+              className="w-full max-w-xs rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-4 sm:p-5 space-y-2"
+            >
+              <h2
+                id="footer-our-mission"
+                className="font-display text-xs font-semibold tracking-tight text-[#2563EB]"
+              >
+                Our Mission
+              </h2>
+              <p className="text-sm text-[#667085] leading-relaxed">
+                Our mission is to make intelligent systems capable of doing meaningful work—reliably, securely and at scale.
+              </p>
+            </section>
           </div>
 
           <div className="xl:col-span-9 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
             {columns.map((col) => (
               <div key={col.heading}>
-                <h3 className="text-xs font-semibold tracking-tight text-[#111827] dark:text-white mb-3.5">
+                <h3 className="text-xs font-semibold tracking-tight text-[#111827] mb-3.5">
                   {col.heading}
                 </h3>
                 <ul className="space-y-2">
@@ -120,7 +130,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                           e.preventDefault();
                           onNavigate(link.href, link.sectionId);
                         }}
-                        className="inline-block py-0.5 text-sm text-[#667085] dark:text-[#94A3B8] hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors"
+                        className="inline-block py-0.5 text-sm text-[#667085] hover:text-[#2563EB] transition-colors"
                       >
                         {link.label}
                       </a>
@@ -132,8 +142,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="mt-14 pt-8 border-t border-[#E5E7EB] dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#667085] dark:text-[#94A3B8]">
-          <p>© 2026 SOPIN · SONIL Group. All rights reserved.</p>
+        <div className="mt-14 pt-8 border-t border-[#E5E7EB] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#667085]">
+          <p>© 2026 SOPIN · A platform under SONIL Group. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-6">
             <a
               href="/docs"
@@ -141,7 +151,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/docs');
               }}
-              className="inline-flex items-center min-h-[36px] hover:text-[#111827] dark:hover:text-white transition-colors"
+              className="inline-flex items-center min-h-[36px] hover:text-[#111827] transition-colors"
             >
               Documentation
             </a>
@@ -151,7 +161,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/security');
               }}
-              className="inline-flex items-center min-h-[36px] hover:text-[#111827] dark:hover:text-white transition-colors"
+              className="inline-flex items-center min-h-[36px] hover:text-[#111827] transition-colors"
             >
               Security
             </a>
@@ -161,7 +171,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/app');
               }}
-              className="inline-flex items-center min-h-[36px] hover:text-[#111827] dark:hover:text-white transition-colors"
+              className="inline-flex items-center min-h-[36px] hover:text-[#111827] transition-colors"
             >
               Sign in
             </a>
@@ -171,7 +181,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 onNavigate('/contact');
               }}
-              className="inline-flex items-center min-h-[36px] hover:text-[#111827] dark:hover:text-white transition-colors"
+              className="inline-flex items-center min-h-[36px] hover:text-[#111827] transition-colors"
             >
               hello@sopin.ai
             </a>

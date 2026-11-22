@@ -18,7 +18,7 @@ export const HeroComputationalVisual: React.FC = () => {
       <motion.svg
         viewBox="0 0 100 100"
         fill="none"
-        className="w-[300px] h-[300px] sm:w-[370px] sm:h-[370px] lg:w-[420px] lg:h-[420px] text-[#2563EB]/30 dark:text-[#60A5FA]/35"
+        className="w-[300px] h-[300px] sm:w-[370px] sm:h-[370px] lg:w-[420px] lg:h-[420px] text-[#2563EB]/25"
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 96, ease: 'linear' }}
       >
@@ -53,7 +53,7 @@ export const HeroComputationalVisual: React.FC = () => {
       <motion.svg
         viewBox="-8 -12 420 410"
         xmlns="http://www.w3.org/2000/svg"
-        className="absolute w-[150px] h-[150px] sm:w-[190px] sm:h-[190px] lg:w-[215px] lg:h-[215px] text-[#111827] dark:text-[#FFFFFF]"
+        className="absolute w-[150px] h-[150px] sm:w-[190px] sm:h-[190px] lg:w-[215px] lg:h-[215px] text-[#111827]"
         animate={{ rotate: -360 }}
         transition={{ repeat: Infinity, duration: 120, ease: 'linear' }}
       >

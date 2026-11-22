@@ -16,14 +16,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
   return (
     <div className="overflow-x-clip">
       {/* Hero */}
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={[spec.layer, spec.status]} accentLast={isPlannedOrRoadmap} />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
               {spec.name}: {spec.tagline}
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
               {spec.summary}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
@@ -38,7 +38,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
               <button
                 type="button"
                 onClick={() => onNavigate(spec.secondaryCta.href, undefined, spec.secondaryCta.query)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] px-5 py-2.5 rounded-lg border border-[#E5E7EB] text-sm font-semibold text-[#111827] hover:bg-[#F7F8FA] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>{spec.secondaryCta.label}</span>
               </button>
@@ -48,38 +48,38 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       </section>
 
       {/* Problem & Audience */}
-      <section className="py-16 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 bg-[#F7F8FA] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-            <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+          <div className="lg:col-span-7 rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+            <div className="text-xs font-semibold text-[#2563EB]">
               Architectural Problem Solved
             </div>
-            <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
+            <h2 className="mt-2 font-display text-2xl font-semibold text-[#111827]">
               Why {spec.name} exists in the SOPIN stack
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-3 text-sm sm:text-base text-[#667085] leading-relaxed">
               {spec.problemItSolves}
             </p>
-            <div className="mt-6 pt-5 border-t border-[#05070E]/10 dark:border-white/10">
-              <div className="text-xs font-semibold text-[#05070E] dark:text-white mb-2">
+            <div className="mt-6 pt-5 border-t border-[#E5E7EB]">
+              <div className="text-xs font-semibold text-[#111827] mb-2">
                 Primary Users
               </div>
               <StatusText items={spec.whoUsesIt} />
             </div>
           </div>
 
-          <div className="lg:col-span-5 rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)] flex flex-col justify-between">
+          <div className="lg:col-span-5 rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 shadow-[0_1px_2px_rgba(17,24,39,0.04)] flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB]">
                 <Shield className="w-4 h-4" aria-hidden="true" />
                 <span>Security &amp; Governance Boundary</span>
               </div>
-              <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-3 text-sm text-[#667085] leading-relaxed">
                 {spec.securityGuarantee}
               </p>
             </div>
-            <div className="mt-6 pt-5 border-t border-[#05070E]/10 dark:border-white/10">
-              <div className="text-xs font-semibold text-[#05070E] dark:text-white mb-2">
+            <div className="mt-6 pt-5 border-t border-[#E5E7EB]">
+              <div className="text-xs font-semibold text-[#111827] mb-2">
                 Compatible Integrations
               </div>
               <StatusText items={spec.integrations} />
@@ -89,7 +89,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       </section>
 
       {/* Capabilities */}
-      <section className="py-16 lg:py-20 bg-[#FAF9F5] dark:bg-[#05070E] border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#FFFFFF] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Core Capabilities"
@@ -99,15 +99,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
             {spec.capabilities.map((cap, idx) => (
               <div
                 key={cap.title}
-                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
               >
-                <div className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
+                <div className="font-mono text-xs text-[#2563EB]">
                   0{idx + 1}.
                 </div>
-                <h3 className="mt-2 font-display text-lg font-semibold text-[#05070E] dark:text-white">
+                <h3 className="mt-2 font-display text-lg font-semibold text-[#111827]">
                   {cap.title}
                 </h3>
-                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                <p className="mt-2 text-sm text-[#667085] leading-relaxed">
                   {cap.detail}
                 </p>
               </div>
@@ -117,7 +117,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       </section>
 
       {/* Workflow & Code Contract */}
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#F7F8FA] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-5 space-y-6 min-w-0">
             <SectionHeader
@@ -128,9 +128,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
               {spec.workflowSteps.map((step, idx) => (
                 <li
                   key={step}
-                  className="flex items-start gap-3 rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-4 text-sm text-[#05070E] dark:text-[#E8E8F2]"
+                  className="flex items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-4 text-sm text-[#111827]"
                 >
-                  <span className="font-mono text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0">
+                  <span className="font-mono text-xs font-semibold text-[#2563EB] mt-0.5 shrink-0">
                     0{idx + 1}
                   </span>
                   <span>{step}</span>
@@ -138,15 +138,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
               ))}
             </ol>
 
-            <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-5 space-y-2.5">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#05070E] dark:text-white">
-                <Workflow className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
+            <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-5 space-y-2.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#111827]">
+                <Workflow className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />
                 <span>Applied Use Cases</span>
               </div>
               <ul className="space-y-2">
                 {spec.useCases.map((uc) => (
-                  <li key={uc} className="flex items-start gap-2 text-xs sm:text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
-                    <CheckCircle2 className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0" aria-hidden="true" />
+                  <li key={uc} className="flex items-start gap-2 text-xs sm:text-sm text-[#667085]">
+                    <CheckCircle2 className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" aria-hidden="true" />
                     <span>{uc}</span>
                   </li>
                 ))}
@@ -162,7 +162,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
 
       {/* Interactive Surface Preview */}
       {spec.previewSurface && (
-        <section className="py-16 lg:py-20 bg-[#FAF9F5] dark:bg-[#05070E] border-b border-[#05070E]/[0.08] dark:border-white/10">
+        <section className="py-16 lg:py-20 bg-[#FFFFFF] border-b border-[#E5E7EB]">
           <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-8">
             <SectionHeader
               kicker="Interactive Software Preview"
@@ -175,14 +175,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
       )}
 
       {/* Related Modules */}
-      <section className="py-14 bg-[#FBF7F0] dark:bg-[#0A1226]/60">
+      <section className="py-14 bg-[#F7F8FA]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB]">
               <Layers className="w-4 h-4" aria-hidden="true" />
               <span>Connected SOPIN Modules</span>
             </div>
-            <h2 className="mt-1 font-display text-xl font-semibold text-[#05070E] dark:text-white">
+            <h2 className="mt-1 font-display text-xl font-semibold text-[#111827]">
               Continue exploring related architecture layers
             </h2>
           </div>
@@ -195,7 +195,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ spec, onNa
                   e.preventDefault();
                   onNavigate(rel.href);
                 }}
-                className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#05070E]/15 dark:border-white/15 bg-[#FAF9F5] dark:bg-[#05070E] text-xs font-semibold text-[#05070E] dark:text-white hover:border-[#2563EB] transition-colors"
+                className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] text-xs font-semibold text-[#111827] hover:border-[#2563EB] transition-colors"
               >
                 <span>{rel.name}</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

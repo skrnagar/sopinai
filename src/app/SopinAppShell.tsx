@@ -17,7 +17,7 @@ import {
   User,
 } from 'lucide-react';
 import { RoutePath } from '../types/navigation';
-import { ThemeMode } from '../hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
 import { SopinLogo } from '../components/brand/SopinLogo';
 import { BottomSheet } from '../components/ui/BottomSheet';
 import { OfflineBanner } from '../components/ui/OfflineBanner';
@@ -33,8 +33,6 @@ import { DecisionsWorkspaceSlice } from '../decisions/types';
 
 interface SopinAppShellProps {
   onNavigate: (path: RoutePath, sectionId?: string) => void;
-  theme: ThemeMode;
-  onToggleTheme: () => void;
 }
 
 const NAV_TABS: {
@@ -50,11 +48,8 @@ const NAV_TABS: {
   { id: 'more', label: 'More', icon: Grid },
 ];
 
-export const SopinAppShell: React.FC<SopinAppShellProps> = ({
-  onNavigate,
-  theme,
-  onToggleTheme,
-}) => {
+export const SopinAppShell: React.FC<SopinAppShellProps> = ({ onNavigate }) => {
+  const { theme, toggleTheme: onToggleTheme } = useTheme();
   const {
     state,
     activeWorkspace,

@@ -135,16 +135,16 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
   const selectedNode = allNodes.find((n) => n.id === selectedId) ?? allNodes[0];
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#080D18] overflow-hidden shadow-[0_1px_3px_rgba(17,24,39,0.05)]">
+    <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] overflow-hidden shadow-[0_1px_3px_rgba(17,24,39,0.05)]">
       {/* Architectural Diagram Grid */}
-      <div className="p-5 sm:p-8 space-y-5 sopin-grid-light dark:sopin-grid-dark">
+      <div className="p-5 sm:p-8 space-y-5 sopin-grid-light">
         {ARCH_LAYERS.map((tier, tierIdx) => (
           <div key={tier.tier} className="space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-mono text-[11px] font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+              <span className="font-mono text-[11px] font-semibold text-[#2563EB]">
                 {tier.tier}
               </span>
-              <span className="text-xs text-[#667085] dark:text-[#94A3B8]">{tier.subtitle}</span>
+              <span className="text-xs text-[#667085]">{tier.subtitle}</span>
             </div>
 
             <div
@@ -167,19 +167,19 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
                     onClick={() => setSelectedId(node.id)}
                     className={`text-left rounded-xl border p-4 transition-all min-h-[76px] ${
                       active
-                        ? 'border-[#2563EB] bg-[#2563EB]/[0.06] dark:bg-[#101D35] ring-1 ring-[#2563EB]'
-                        : 'border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/50 hover:border-[#2563EB]/50'
+                        ? 'border-[#2563EB] bg-[#2563EB]/[0.06] ring-1 ring-[#2563EB]'
+                        : 'border-[#E5E7EB] bg-[#F7F8FA] hover:border-[#2563EB]/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-display text-sm font-semibold text-[#111827] dark:text-white">
+                      <span className="font-display text-sm font-semibold text-[#111827]">
                         {node.name}
                       </span>
-                      <span className="font-mono text-[10px] text-[#667085] dark:text-[#94A3B8]">
+                      <span className="font-mono text-[10px] text-[#667085]">
                         {node.layer}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-[#667085] dark:text-[#CBD5E1] leading-snug">
+                    <p className="mt-1 text-xs text-[#667085] leading-snug">
                       {node.role}
                     </p>
                   </button>
@@ -191,7 +191,7 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
               <div className="flex justify-center pt-1" aria-hidden="true">
                 <div className="flex items-center gap-6">
                   <span className="h-4 w-px bg-[#2563EB]/35" />
-                  <span className="font-mono text-[10px] text-[#667085] dark:text-[#94A3B8]">
+                  <span className="font-mono text-[10px] text-[#667085]">
                     typed contract boundary
                   </span>
                   <span className="h-4 w-px bg-[#2563EB]/35" />
@@ -203,14 +203,14 @@ export const PlatformArchitectureDiagram: React.FC<PlatformArchitectureDiagramPr
       </div>
 
       {/* Selected Layer Inspection Bar */}
-      <div className="px-5 sm:px-8 py-5 border-t border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="px-5 sm:px-8 py-5 border-t border-[#E5E7EB] bg-[#F7F8FA] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1 max-w-2xl">
-          <div className="flex items-center gap-2 font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
+          <div className="flex items-center gap-2 font-mono text-xs text-[#2563EB]">
             <span>{selectedNode.name}</span>
             <span aria-hidden="true">·</span>
             <span>{selectedNode.role}</span>
           </div>
-          <p className="text-sm text-[#111827] dark:text-[#E2E8F0] leading-relaxed">
+          <p className="text-sm text-[#111827] leading-relaxed">
             {selectedNode.summary}
           </p>
         </div>

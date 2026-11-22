@@ -15,7 +15,7 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ hasBottomBar = fal
     <div
       role="status"
       aria-live="polite"
-      className={`fixed inset-x-3 sm:inset-x-auto sm:right-5 sm:max-w-sm z-40 rounded-xl border border-[#05070E]/15 dark:border-white/15 bg-[#0A1226] text-white px-4 py-3 shadow-xl flex items-center gap-3 ${
+      className={`fixed inset-x-3 sm:inset-x-auto sm:right-5 sm:max-w-sm z-40 rounded-xl border border-white/15 bg-[#0A1226] text-white px-4 py-3 shadow-xl flex items-center gap-3 ${
         hasBottomBar ? 'bottom-[76px] mb-safe lg:bottom-5' : 'bottom-4 mb-safe'
       }`}
     >

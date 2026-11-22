@@ -35,44 +35,44 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['About SOPIN', 'SONIL Group', 'sopin.ai']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
               Engineering accountable AI infrastructure under the SONIL Group.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
               SOPIN is a global AI technology platform created under the SONIL Group with a singular objective: give engineering and operations teams a unified system to design, connect, execute, verify, and govern AI agents that deliver dependable work.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
+      <section className="py-16 lg:py-20 bg-[#F7F8FA]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           {/* Vision & Mission */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <div className="text-xs font-semibold text-[#2563EB]">
                 Our Vision
               </div>
-              <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
+              <h2 className="mt-2 font-display text-2xl font-semibold text-[#111827]">
                 One verifiable platform across models, tools, and organizations.
               </h2>
-              <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-3 text-sm text-[#667085] leading-relaxed">
                 AI systems should never force teams into choosing between non-technical usability, developer flexibility, or enterprise security. SOPIN bridges natural language, visual graphs, typed SDKs, and custom ML inside one governed runtime.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-              <div className="text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+              <div className="text-xs font-semibold text-[#2563EB]">
                 SONIL Group Stewardship
               </div>
-              <h2 className="mt-2 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
+              <h2 className="mt-2 font-display text-2xl font-semibold text-[#111827]">
                 Built for long-horizon reliability and open standards.
               </h2>
-              <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="mt-3 text-sm text-[#667085] leading-relaxed">
                 Developed within SONIL Group&apos;s global infrastructure engineering portfolio, SOPIN prioritizes durable execution, private VPC portability, and vendor-neutral AI model independence over short-term hype cycles.
               </p>
             </div>
@@ -90,18 +90,18 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={p.number}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
+                    <span className="font-mono text-xs text-[#2563EB]">
                       {p.number}
                     </span>
-                    <Icon className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
+                    <Icon className="w-5 h-5 text-[#667085]" aria-hidden="true" />
                   </div>
-                  <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
+                  <h2 className="mt-4 font-display text-xl font-semibold text-[#111827]">
                     {p.title}
                   </h2>
-                  <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-2.5 text-sm text-[#667085] leading-relaxed">
                     {p.description}
                   </p>
                 </div>
@@ -111,13 +111,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
           {/* Ecosystem Links: Security, Partners, Careers */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 flex flex-col justify-between">
               <div>
-                <ShieldCheck className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
+                <ShieldCheck className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#111827]">
                   Trust &amp; Security Center
                 </h3>
-                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-2 text-sm text-[#667085]">
                   Inspect SOPIN&apos;s sandboxing, KMS credential vaulting, PII redaction, and RBAC roadmap transparently.
                 </p>
               </div>
@@ -127,20 +127,20 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/security');
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
               >
                 <span>Open Trust Center</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </a>
             </div>
 
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 flex flex-col justify-between">
               <div>
-                <Globe className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
+                <Globe className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#111827]">
                   Protocol &amp; Technology Partners
                 </h3>
-                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-2 text-sm text-[#667085]">
                   Collaborate with SOPIN on MCP server integrations, A2A agents, cloud runtimes, or enterprise deployments.
                 </p>
               </div>
@@ -150,20 +150,20 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
               >
                 <span>Partner With SOPIN</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </a>
             </div>
 
-            <div className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 flex flex-col justify-between">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 flex flex-col justify-between">
               <div>
-                <Users className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-lg font-semibold text-[#05070E] dark:text-white">
+                <Users className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-lg font-semibold text-[#111827]">
                   Engineering Careers &amp; Cohort
                 </h3>
-                <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-2 text-sm text-[#667085]">
                   Distributed systems, compiler, and applied AI engineers building foundational runtime infrastructure under SONIL Group.
                 </p>
               </div>
@@ -173,7 +173,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                   e.preventDefault();
                   onNavigate('/contact', undefined, { topic: 'Protocol & Partnership' });
                 }}
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:underline"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
               >
                 <span>Connect With Engineering</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -181,7 +181,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#05070E]/10 dark:border-white/10 bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="rounded-2xl border border-[#E5E7EB] bg-[#000000] text-white p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-5 space-y-3">
               <p className="text-xs font-medium text-[#60A5FA]">Official Brand Identity</p>
               <h3 className="font-display text-2xl font-semibold">

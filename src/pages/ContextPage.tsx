@@ -35,14 +35,14 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Context', 'Memory & Retrieval Architecture']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
               Structured context and memory with verifiable provenance.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
               Unbounded context stuffing degrades accuracy and creates data leakage risks. SOPIN Context organizes memory into explicit scopes so every agent receives exactly the facts it is authorized to inspect.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -59,7 +59,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#F7F8FA] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Context Explorer Preview"
@@ -70,7 +70,7 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-[#FAF9F5] dark:bg-[#05070E]">
+      <section className="py-20 bg-[#FFFFFF]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-12">
           <SectionHeader
             kicker="Memory Architecture"
@@ -84,18 +84,18 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
               return (
                 <div
                   key={item.name}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                  className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-7 shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">
+                    <span className="font-mono text-xs text-[#2563EB]">
                       {item.tier}
                     </span>
-                    <Icon className="w-5 h-5 text-[#5E5E6E] dark:text-[#A4A4B5]" aria-hidden="true" />
+                    <Icon className="w-5 h-5 text-[#667085]" aria-hidden="true" />
                   </div>
-                  <h2 className="mt-4 font-display text-xl font-semibold text-[#05070E] dark:text-white">
+                  <h2 className="mt-4 font-display text-xl font-semibold text-[#111827]">
                     {item.name}
                   </h2>
-                  <p className="mt-2.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-2.5 text-sm text-[#667085] leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -105,14 +105,14 @@ export const ContextPage: React.FC<ContextPageProps> = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
             <div className="lg:col-span-5 space-y-4 min-w-0">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563EB]">
                 <Database className="w-4 h-4" aria-hidden="true" />
                 <span>Provenance Binding</span>
               </div>
-              <h3 className="font-display text-2xl font-semibold text-[#05070E] dark:text-white">
+              <h3 className="font-display text-2xl font-semibold text-[#111827]">
                 Every retrieved passage carries source lineage.
               </h3>
-              <p className="text-sm sm:text-base text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#667085] leading-relaxed">
                 SOPIN Context attaches document checksums, version tags, and permission scopes to retrieved chunks so downstream verification gates can confirm claims against primary sources.
               </p>
             </div>

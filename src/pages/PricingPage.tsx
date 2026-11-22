@@ -103,7 +103,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
     {
       key: 'capability',
       header: 'Platform Layer',
-      render: (r) => <span className="font-semibold text-[#05070E] dark:text-white">{r.capability}</span>,
+      render: (r) => <span className="font-semibold text-[#111827]">{r.capability}</span>,
     },
     { key: 'preview', header: 'Developer Preview', render: (r) => r.preview },
     { key: 'team', header: 'Team Workspace (Planned)', render: (r) => r.team },
@@ -112,14 +112,14 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Pricing & Access', 'Transparent Pre-Release Model']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
               Transparent pathways while SOPIN evolves.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
               SOPIN is under active engineering development within the SONIL Group. Rather than publishing placeholder dollar tiers before general availability, we structure access around transparent evaluation and deployment pathways.
             </p>
           </div>
@@ -127,7 +127,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
           <div
             role="tablist"
             aria-label="Deployment topology model"
-            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#FBF7F0] dark:bg-[#0A1226] border border-[#05070E]/10 dark:border-white/10 max-w-full"
+            className="mt-8 flex sm:inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] max-w-full"
           >
             <button
               type="button"
@@ -137,7 +137,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'managed'
                   ? 'bg-[#2563EB] text-white'
-                  : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
+                  : 'text-[#667085]'
               }`}
             >
               Managed Cloud (Planned)
@@ -150,7 +150,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               className={`flex-1 sm:flex-initial min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 deploymentModel === 'self-hosted'
                   ? 'bg-[#2563EB] text-white'
-                  : 'text-[#5E5E6E] dark:text-[#B5B5C5]'
+                  : 'text-[#667085]'
               }`}
             >
               Self-Hosted Runtime (Planned)
@@ -159,17 +159,17 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#FBF7F0] dark:bg-[#0A1226]/40">
+      <section className="py-12 sm:py-16 bg-[#F7F8FA]">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-10 space-y-12">
-          <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+          <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-5 text-sm text-[#667085] shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
             {deploymentModel === 'managed' ? (
               <span>
-                <strong className="text-[#05070E] dark:text-white">Managed Cloud Topology:</strong>{' '}
+                <strong className="text-[#111827]">Managed Cloud Topology:</strong>{' '}
                 Hosted SOPIN Studio, Flow orchestration, and Gateway routing operated by SOPIN under SONIL Group. General billing plans will be announced ahead of public launch.
               </span>
             ) : (
               <span>
-                <strong className="text-[#05070E] dark:text-white">Self-Hosted Runtime Topology:</strong>{' '}
+                <strong className="text-[#111827]">Self-Hosted Runtime Topology:</strong>{' '}
                 Run SOPIN Runtime sandboxes and Model Gateway within your own VPC so sensitive data and internal MCP servers remain inside your network perimeter.
               </span>
             )}
@@ -179,25 +179,25 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
             {pathways.map((tier) => (
               <div
                 key={tier.name}
-                className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(16,16,20,0.04)]"
+                className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6 sm:p-8 flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
               >
                 <div>
                   <StatusText items={[tier.stage, tier.licensing]} accentLast />
-                  <h2 className="mt-3 font-display text-2xl font-semibold text-[#05070E] dark:text-white">
+                  <h2 className="mt-3 font-display text-2xl font-semibold text-[#111827]">
                     {tier.name}
                   </h2>
-                  <p className="mt-3 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-3 text-sm text-[#667085] leading-relaxed">
                     {tier.description}
                   </p>
 
-                  <ul className="mt-6 pt-6 border-t border-[#05070E]/10 dark:border-white/10 space-y-3">
+                  <ul className="mt-6 pt-6 border-t border-[#E5E7EB] space-y-3">
                     {tier.features.map((feat) => (
                       <li
                         key={feat}
-                        className="flex items-start gap-2.5 text-sm text-[#05070E] dark:text-[#E8E8F2]"
+                        className="flex items-start gap-2.5 text-sm text-[#111827]"
                       >
                         <CheckCircle2
-                          className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] mt-0.5 shrink-0"
+                          className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0"
                           aria-hidden="true"
                         />
                         <span>{feat}</span>
@@ -249,12 +249,12 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               ].map((faq) => (
                 <div
                   key={faq.title}
-                  className="rounded-2xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] p-6"
+                  className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-6"
                 >
-                  <h3 className="font-display text-base font-semibold text-[#05070E] dark:text-white">
+                  <h3 className="font-display text-base font-semibold text-[#111827]">
                     {faq.title}
                   </h3>
-                  <p className="mt-2 text-sm text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+                  <p className="mt-2 text-sm text-[#667085] leading-relaxed">
                     {faq.body}
                   </p>
                 </div>

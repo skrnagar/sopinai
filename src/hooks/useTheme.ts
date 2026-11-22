@@ -18,6 +18,9 @@ export function useTheme() {
       root.classList.remove('dark');
     }
     window.localStorage.setItem('sopin-theme', theme);
+    return () => {
+      root.classList.remove('dark');
+    };
   }, [theme]);
 
   const toggleTheme = useCallback(() => {

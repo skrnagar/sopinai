@@ -11,14 +11,14 @@ interface WorkflowPageProps {
 export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
   return (
     <div className="overflow-x-clip">
-      <section className="border-b border-[#05070E]/10 dark:border-white/10 bg-[#FAF9F5] dark:bg-[#05070E] py-16 lg:py-24">
+      <section className="border-b border-[#E5E7EB] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
           <div className="max-w-3xl">
             <StatusText items={['SOPIN Flow', 'Deterministic Workflow Automation']} accentLast />
-            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#05070E] dark:text-white text-balance">
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl font-bold tracking-[-0.02em] text-[#111827] text-balance">
               Orchestrate deterministic pipelines around intelligent steps.
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-[#5E5E6E] dark:text-[#B5B5C5] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-[#667085] leading-relaxed">
               Not every step should be left to open-ended reasoning. SOPIN Flow pairs explicit DAG control flow, deterministic SOPIN Decisions nodes, bounded retries, and human approval checkpoints with LLM and MCP steps.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
@@ -33,14 +33,14 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => onNavigate('/decisions')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#E5E7EB] text-sm font-semibold text-[#111827] hover:bg-[#F7F8FA] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore SOPIN Decisions</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate('/context')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#05070E]/15 dark:border-white/15 text-sm font-semibold text-[#05070E] dark:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-[#E5E7EB] text-sm font-semibold text-[#111827] hover:bg-[#F7F8FA] transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Explore Context &amp; Memory</span>
               </button>
@@ -49,7 +49,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#FBF7F0] dark:bg-[#0A1226]/40 border-b border-[#05070E]/[0.08] dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-[#F7F8FA] border-b border-[#E5E7EB]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
           <SectionHeader
             kicker="Workflow Designer Preview"
@@ -60,7 +60,7 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-[#FAF9F5] dark:bg-[#05070E]">
+      <section className="py-20 bg-[#FFFFFF]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-6 space-y-6 min-w-0">
             <SectionHeader
@@ -70,39 +70,39 @@ export const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNavigate }) => {
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <GitBranch className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <GitBranch className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#111827]">
                   Typed Branching
                 </h3>
-                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#667085]">
                   Route edges based on validated schema fields rather than brittle string matching.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <RefreshCw className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <RefreshCw className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#111827]">
                   Bounded Retries
                 </h3>
-                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#667085]">
                   Configure backoff, circuit breakers, and fallback model routes per step.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <PauseCircle className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <PauseCircle className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#111827]">
                   Pause &amp; Resume Gates
                 </h3>
-                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#667085]">
                   Checkpoint execution state while waiting on human review or external webhook signals.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#05070E]/[0.08] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0A1226] p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-                <ShieldAlert className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" aria-hidden="true" />
-                <h3 className="mt-3 font-display text-base font-semibold text-[#05070E] dark:text-white">
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+                <ShieldAlert className="w-5 h-5 text-[#2563EB]" aria-hidden="true" />
+                <h3 className="mt-3 font-display text-base font-semibold text-[#111827]">
                   Dead-Letter Routing
                 </h3>
-                <p className="mt-1.5 text-sm text-[#5E5E6E] dark:text-[#B5B5C5]">
+                <p className="mt-1.5 text-sm text-[#667085]">
                   Capture unrecoverable payloads cleanly with full execution context for inspection.
                 </p>
               </div>

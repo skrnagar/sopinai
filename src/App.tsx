@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Component, Suspense, lazy } from 'react';
+import React, { Component, Suspense, lazy, useEffect } from 'react';
 import { MotionConfig } from 'motion/react';
 import { useRoute } from './hooks/useRoute';
-import { useTheme } from './hooks/useTheme';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { PageSkeleton } from './components/ui/PageSkeleton';
@@ -79,7 +78,7 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-[#FAF9F5] dark:bg-[#080D18]">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-[#FFFFFF]">
           <StateDisplay
             mode="error"
             title="Unable to render view"
@@ -96,14 +95,20 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
 
 export default function App() {
   const { route, isNotFound, activeSection, searchQueryString, navigate } = useRoute();
-  const { theme, toggleTheme } = useTheme();
+  const isAppRoute = route === '/app' && !isNotFound;
 
-  if (route === '/app' && !isNotFound) {
+  useEffect(() => {
+    if (!isAppRoute) {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isAppRoute]);
+
+  if (isAppRoute) {
     return (
       <MotionConfig reducedMotion="user">
         <AppErrorBoundary>
           <Suspense fallback={<PageSkeleton />}>
-            <SopinAppShell onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
+            <SopinAppShell onNavigate={navigate} />
           </Suspense>
         </AppErrorBoundary>
       </MotionConfig>
@@ -186,7 +191,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <AppErrorBoundary>
-        <div className="min-h-screen flex flex-col bg-[#FAF9F5] dark:bg-[#080D18] text-[#111827] dark:text-[#FFFFFF] transition-colors">
+        <div className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#111827]">
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[#2563EB] focus:text-white focus:text-sm focus:font-semibold"
@@ -194,12 +199,7 @@ export default function App() {
             Skip to main content
           </a>
 
-          <Navbar
-            currentRoute={route}
-            onNavigate={navigate}
-            theme={theme}
-            onToggleTheme={toggleTheme}
-          />
+          <Navbar currentRoute={route} onNavigate={navigate} />
 
           <main id="main-content" className="flex-1">
             <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>

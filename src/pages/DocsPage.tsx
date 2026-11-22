@@ -110,7 +110,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
       key: 'name',
       header: 'Field / Option',
       render: (r) => (
-        <code className="font-mono text-xs text-[#2563EB] dark:text-[#60A5FA]">{r.name}</code>
+        <code className="font-mono text-xs text-[#2563EB]">{r.name}</code>
       ),
     },
     {
@@ -138,26 +138,26 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
       : null;
 
   return (
-    <div className="overflow-x-clip bg-[#FAF9F5] dark:bg-[#080D18] min-h-[75vh]">
+    <div className="overflow-x-clip bg-[#FFFFFF] min-h-[75vh]">
       {/* Documentation Header & Search */}
-      <section className="border-b border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#0B1221] py-10 lg:py-14">
+      <section className="border-b border-[#E5E7EB] bg-[#F7F8FA] py-10 lg:py-14">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <StatusText
               items={['SOPIN Documentation', 'Developer Hub', 'Specification Preview']}
               accentLast
             />
-            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-[#111827] dark:text-white">
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-[#111827]">
               SOPIN Engineering Documentation
             </h1>
-            <p className="mt-3 text-sm sm:text-base text-[#667085] dark:text-[#CBD5E1] leading-relaxed">
+            <p className="mt-3 text-sm sm:text-base text-[#667085] leading-relaxed">
               Specifications for @sopin/sdk, Studio blueprint sync, SOPIN Graph cyclic orchestration, MCP tool scopes, A2A handoffs, SOPIN Decisions contracts, and ML Gateway routing.
             </p>
           </div>
 
           <div className="relative w-full md:w-80">
             <Search
-              className="w-4 h-4 text-[#667085] dark:text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="w-4 h-4 text-[#667085] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -168,7 +168,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search docs (Ctrl/Cmd + K)..."
               aria-label="Search documentation"
-              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#080D18] text-base sm:text-sm text-[#111827] dark:text-white placeholder:text-[#667085] dark:placeholder:text-[#94A3B8]"
+              className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] text-base sm:text-sm text-[#111827] placeholder:text-[#667085]"
             />
           </div>
         </div>
@@ -191,7 +191,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 type="button"
                 aria-expanded={mobileNavOpen}
                 onClick={() => setMobileNavOpen((prev) => !prev)}
-                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35] flex items-center justify-between text-sm font-semibold text-[#111827] dark:text-white"
+                className="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] flex items-center justify-between text-sm font-semibold text-[#111827]"
               >
                 <span className="truncate">
                   Topic: {activeDoc?.title ?? 'Select documentation'}
@@ -206,11 +206,11 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
               {mobileNavOpen && (
                 <nav
                   aria-label="Mobile documentation navigation"
-                  className="mt-2 rounded-xl border border-[#E5E7EB] dark:border-white/15 bg-[#FAF9F5] dark:bg-[#0B1221] p-3 space-y-4"
+                  className="mt-2 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-3 space-y-4"
                 >
                   {groupedDocs.map((group) => (
                     <div key={group.group} className="space-y-1">
-                      <div className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#2563EB] dark:text-[#60A5FA]">
+                      <div className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#2563EB]">
                         {group.group}
                       </div>
                       {group.docs.map((doc) => {
@@ -228,8 +228,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                             }}
                             className={`block min-h-[44px] px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                               isSelected
-                                ? 'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] font-semibold'
-                                : 'text-[#111827] dark:text-[#CBD5E1] hover:bg-[#FBF7F0] dark:hover:bg-white/5'
+                                ? 'bg-[#2563EB]/10 text-[#2563EB] font-semibold'
+                                : 'text-[#111827] hover:bg-[#F7F8FA]'
                             }`}
                           >
                             {doc.title}
@@ -247,7 +247,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
               <nav aria-label="Documentation topics" className="space-y-6 pr-2">
                 {groupedDocs.map((group) => (
                   <div key={group.group} className="space-y-1.5">
-                    <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                    <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                       {group.group}
                     </div>
                     <ul className="space-y-1">
@@ -265,8 +265,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                               }}
                               className={`block min-h-[40px] px-3 py-2 rounded-lg text-sm transition-colors ${
                                 isSelected
-                                  ? 'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] font-semibold'
-                                  : 'text-[#667085] dark:text-[#CBD5E1] hover:text-[#111827] dark:hover:text-white hover:bg-[#FBF7F0] dark:hover:bg-white/5'
+                                  ? 'bg-[#2563EB]/10 text-[#2563EB] font-semibold'
+                                  : 'text-[#667085] hover:text-[#111827] hover:bg-[#F7F8FA]'
                               }`}
                             >
                               {doc.title}
@@ -286,7 +286,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Breadcrumbs */}
                 <nav
                   aria-label="Documentation breadcrumbs"
-                  className="flex flex-wrap items-center gap-1.5 text-xs text-[#667085] dark:text-[#94A3B8]"
+                  className="flex flex-wrap items-center gap-1.5 text-xs text-[#667085]"
                 >
                   <a
                     href="/docs"
@@ -294,14 +294,14 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                       e.preventDefault();
                       onNavigate('/docs');
                     }}
-                    className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors"
+                    className="hover:text-[#2563EB] transition-colors"
                   >
                     Docs
                   </a>
                   <ChevronRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                   <span>{activeDoc.group}</span>
                   <ChevronRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                  <span className="font-medium text-[#111827] dark:text-white truncate">
+                  <span className="font-medium text-[#111827] truncate">
                     {activeDoc.title}
                   </span>
                 </nav>
@@ -309,21 +309,21 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Overview Box */}
                 <div
                   id="doc-overview"
-                  className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/50 p-6 sm:p-8"
+                  className="scroll-mt-24 rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-6 sm:p-8"
                 >
-                  <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] mb-2">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#2563EB] mb-2">
                     <Book className="w-4 h-4" aria-hidden="true" />
                     <span>
                       {activeDoc.group} · {activeDoc.status}
                     </span>
                   </div>
-                  <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#111827] dark:text-white leading-tight">
+                  <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#111827] leading-tight">
                     {activeDoc.title}
                   </h2>
-                  <p className="mt-3 text-base text-[#111827] dark:text-[#E2E8F0] leading-relaxed">
+                  <p className="mt-3 text-base text-[#111827] leading-relaxed">
                     {activeDoc.summary}
                   </p>
-                  <p className="mt-4 text-sm text-[#667085] dark:text-[#94A3B8] leading-relaxed">
+                  <p className="mt-4 text-sm text-[#667085] leading-relaxed">
                     {activeDoc.body}
                   </p>
                 </div>
@@ -331,13 +331,13 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Structured Subsections */}
                 {activeDoc.sections.map((sec) => (
                   <section key={sec.id} id={sec.id} className="scroll-mt-24 space-y-3">
-                    <h2 className="font-display text-xl sm:text-2xl font-semibold text-[#111827] dark:text-white">
+                    <h2 className="font-display text-xl sm:text-2xl font-semibold text-[#111827]">
                       {sec.heading}
                     </h2>
                     {sec.paragraphs.map((p, idx) => (
                       <p
                         key={idx}
-                        className="text-sm sm:text-base text-[#667085] dark:text-[#CBD5E1] leading-relaxed"
+                        className="text-sm sm:text-base text-[#667085] leading-relaxed"
                       >
                         {p}
                       </p>
@@ -349,7 +349,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {displayedCode && (
                   <section id="code-examples" className="scroll-mt-24 space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <h2 className="font-display text-xl font-semibold text-[#111827] dark:text-white">
+                      <h2 className="font-display text-xl font-semibold text-[#111827]">
                         Code Specification
                       </h2>
 
@@ -357,7 +357,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         <div
                           role="tablist"
                           aria-label="Select specification language"
-                          className="inline-flex p-1 rounded-lg border border-[#E5E7EB] dark:border-white/15 bg-[#FBF7F0] dark:bg-[#101D35]"
+                          className="inline-flex p-1 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA]"
                         >
                           <button
                             type="button"
@@ -367,7 +367,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                             className={`min-h-[34px] px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                               codeVariant === 'primary'
                                 ? 'bg-[#2563EB] text-white'
-                                : 'text-[#667085] dark:text-[#CBD5E1]'
+                                : 'text-[#667085]'
                             }`}
                           >
                             {activeDoc.codeLabel}
@@ -380,7 +380,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                             className={`min-h-[34px] px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                               codeVariant === 'secondary'
                                 ? 'bg-[#2563EB] text-white'
-                                : 'text-[#667085] dark:text-[#CBD5E1]'
+                                : 'text-[#667085]'
                             }`}
                           >
                             {activeDoc.secondaryCode.label}
@@ -396,7 +396,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Parameters Schema Reference */}
                 {activeDoc.parameters && activeDoc.parameters.length > 0 && (
                   <section id="schema-reference" className="scroll-mt-24 space-y-3">
-                    <h2 className="font-display text-xl font-semibold text-[#111827] dark:text-white">
+                    <h2 className="font-display text-xl font-semibold text-[#111827]">
                       Configuration Schema Reference
                     </h2>
                     <DataTable
@@ -411,7 +411,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 {/* Previous / Next Navigation */}
                 <nav
                   aria-label="Documentation pagination"
-                  className="pt-6 border-t border-[#E5E7EB] dark:border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  className="pt-6 border-t border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-2 gap-4"
                 >
                   {prevDoc ? (
                     <a
@@ -420,13 +420,13 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         e.preventDefault();
                         onNavigate(`/docs/${prevDoc.id}` as RoutePath);
                       }}
-                      className="rounded-xl border border-[#E5E7EB] dark:border-white/10 p-4 hover:border-[#2563EB] transition-colors flex flex-col justify-between gap-1.5"
+                      className="rounded-xl border border-[#E5E7EB] p-4 hover:border-[#2563EB] transition-colors flex flex-col justify-between gap-1.5"
                     >
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085]">
                         <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>Previous</span>
                       </span>
-                      <span className="text-sm font-semibold text-[#111827] dark:text-white">
+                      <span className="text-sm font-semibold text-[#111827]">
                         {prevDoc.title}
                       </span>
                     </a>
@@ -441,13 +441,13 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         e.preventDefault();
                         onNavigate(`/docs/${nextDoc.id}` as RoutePath);
                       }}
-                      className="rounded-xl border border-[#E5E7EB] dark:border-white/10 p-4 hover:border-[#2563EB] transition-colors flex flex-col justify-between gap-1.5 sm:text-right sm:items-end"
+                      className="rounded-xl border border-[#E5E7EB] p-4 hover:border-[#2563EB] transition-colors flex flex-col justify-between gap-1.5 sm:text-right sm:items-end"
                     >
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085]">
                         <span>Next</span>
                         <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                       </span>
-                      <span className="text-sm font-semibold text-[#111827] dark:text-white">
+                      <span className="text-sm font-semibold text-[#111827]">
                         {nextDoc.title}
                       </span>
                     </a>
@@ -455,12 +455,12 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                 </nav>
 
                 {/* Preview Credentials CTA */}
-                <div className="rounded-xl border border-[#E5E7EB] dark:border-white/10 bg-[#FBF7F0] dark:bg-[#101D35]/60 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-display text-base font-semibold text-[#111827] dark:text-white">
+                    <h3 className="font-display text-base font-semibold text-[#111827]">
                       Need early cohort SDK credentials?
                     </h3>
-                    <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
+                    <p className="text-sm text-[#667085]">
                       Request Developer Preview access through the SOPIN engineering intake form.
                     </p>
                   </div>
@@ -481,8 +481,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
             {/* Desktop Right-Hand Table of Contents */}
             {activeDoc && (
               <aside className="hidden xl:block xl:col-span-3 sticky top-24 min-w-0">
-                <div className="pl-4 border-l border-[#E5E7EB] dark:border-white/10 space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                <div className="pl-4 border-l border-[#E5E7EB] space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-[#667085]">
                     On this page
                   </div>
                   <ul className="space-y-2 text-xs">
@@ -491,7 +491,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ activeSlug, onNavigate }) =>
                         <button
                           type="button"
                           onClick={() => scrollToHeading(item.id)}
-                          className="text-left text-[#667085] dark:text-[#CBD5E1] hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors leading-snug"
+                          className="text-left text-[#667085] hover:text-[#2563EB] transition-colors leading-snug"
                         >
                           {item.label}
                         </button>
