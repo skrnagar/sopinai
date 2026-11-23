@@ -630,7 +630,17 @@ export const PRODUCT_SURFACES_10: ProductSurfaceSummary[] = [
   },
 ];
 
-export const LIFECYCLE_5_STAGES = [
+export interface LifecycleStageSpec {
+  step: string;
+  title: string;
+  headline: string;
+  description: string;
+  surfaces: string[];
+  image: string;
+  imageAlt: string;
+}
+
+export const LIFECYCLE_5_STAGES: LifecycleStageSpec[] = [
   {
     step: '01',
     title: 'Design',
@@ -638,6 +648,8 @@ export const LIFECYCLE_5_STAGES = [
     description:
       'Define agents, workflows, decision tables, and typed schemas in SOPIN Studio, Flow, and Decisions.',
     surfaces: ['Studio', 'Flow', 'Decisions'],
+    image: '/assets/aistudio/images_e57c9e22.jpg',
+    imageAlt: 'Structured geometric blueprint diagram representing modular agent and workflow design',
   },
   {
     step: '02',
@@ -646,6 +658,8 @@ export const LIFECYCLE_5_STAGES = [
     description:
       'Wire frontier or self-hosted models via Gateway, scoped corpora via Context, and least-privilege MCP servers.',
     surfaces: ['Gateway', 'Context', 'Graph'],
+    image: '/assets/aistudio/0_A_2OYPHMqEYz5Gu3_dfcdc7c4.jpg',
+    imageAlt: 'Architectural network schematic of interconnected model, context, and MCP tool nodes',
   },
   {
     step: '03',
@@ -654,6 +668,8 @@ export const LIFECYCLE_5_STAGES = [
     description:
       'Execute multi-step graphs and deterministic rules inside isolated sandboxes with durable state recovery.',
     surfaces: ['Runtime', 'Flow', 'Graph'],
+    image: '/assets/aistudio/aacecec7ff45878d3dfbcab02f4292ac1b754d59-1312x816_c1567e8b.webp',
+    imageAlt: 'Isolated concentric execution core depicting sandboxed runtime checkpoints',
   },
   {
     step: '04',
@@ -662,6 +678,8 @@ export const LIFECYCLE_5_STAGES = [
     description:
       'Validate structured outputs against schemas, source checksums, and golden evaluation suites.',
     surfaces: ['Observe', 'Evaluate', 'Decisions'],
+    image: '/assets/aistudio/istockphoto-2173923576-612x612_499d2f38.jpg',
+    imageAlt: 'Radial circuit pathways converging into a precision optical verification aperture',
   },
   {
     step: '05',
@@ -670,6 +688,8 @@ export const LIFECYCLE_5_STAGES = [
     description:
       'Gate elevated actions behind human approvals, workspace spend caps, and auditable policy rules.',
     surfaces: ['Control', 'Enterprise'],
+    image: '/assets/aistudio/Computational-Design-VR-and-Digital-Design_f26f101a.jpg',
+    imageAlt: 'Engineers inspecting trace diagnostics and issuing governance approvals on spatial controls',
   },
 ];
 
@@ -1393,3 +1413,249 @@ export const RESOURCE_ENTRIES: ResourceEntry[] = [
     dateLabel: 'Planned Release',
   },
 ];
+
+export type ArchitectureLayerId = 'authoring' | 'orchestration' | 'execution' | 'governance';
+export type ArchitectureSignalKind = 'execution' | 'context' | 'feedback' | 'governance';
+
+export interface ArchitectureNodeSpec {
+  id: ProductSurfaceSummary['id'];
+  layerId: ArchitectureLayerId;
+  name: string;
+  shortName: string;
+  category: string;
+  tooltipPurpose: string;
+  responsibility: string;
+  architecturalRole: string;
+  href: RoutePath;
+  status: ProductSurfaceSummary['status'];
+  connectsTo: ProductSurfaceSummary['id'][];
+  receivesFrom: ProductSurfaceSummary['id'][];
+}
+
+export interface ArchitectureLayerSpec {
+  id: ArchitectureLayerId;
+  order: string;
+  heading: string;
+  visualLabel: string;
+  summary: string;
+  nodeIds: ProductSurfaceSummary['id'][];
+}
+
+export interface ArchitectureEdgeSpec {
+  id: string;
+  from: ProductSurfaceSummary['id'];
+  to: ProductSurfaceSummary['id'];
+  kind: ArchitectureSignalKind;
+  label: string;
+}
+
+const PRODUCT_BY_ID = new Map(PRODUCT_SURFACES_10.map((p) => [p.id, p]));
+
+function makeArchNode(
+  id: ProductSurfaceSummary['id'],
+  layerId: ArchitectureLayerId,
+  responsibility: string,
+  architecturalRole: string,
+  connectsTo: ProductSurfaceSummary['id'][],
+  receivesFrom: ProductSurfaceSummary['id'][]
+): ArchitectureNodeSpec {
+  const product = PRODUCT_BY_ID.get(id)!;
+  return {
+    id,
+    layerId,
+    name: product.name,
+    shortName: product.name.replace('SOPIN ', ''),
+    category: product.category,
+    tooltipPurpose: product.purpose,
+    responsibility,
+    architecturalRole,
+    href: product.href,
+    status: product.status,
+    connectsTo,
+    receivesFrom,
+  };
+}
+
+export const PLATFORM_ARCHITECTURE_NODES: Record<
+  ProductSurfaceSummary['id'],
+  ArchitectureNodeSpec
+> = {
+  studio: makeArchNode(
+    'studio',
+    'authoring',
+    'Design, configure, develop and manage AI agents.',
+    'Compiles natural-language task specs, visual DAGs, graph topologies, and typed @sopin/sdk blueprints into versioned platform definitions.',
+    ['flow', 'graph', 'context', 'decisions', 'control'],
+    ['evaluate', 'control']
+  ),
+  flow: makeArchNode(
+    'flow',
+    'orchestration',
+    'Workflow orchestration, execution state, branching, retries and human approvals.',
+    'Executes deterministic pipelines with typed branching, Decision Node routing, bounded retries, and durable pause-and-resume approval gates.',
+    ['runtime', 'gateway', 'observe', 'decisions'],
+    ['studio', 'context', 'decisions', 'gateway', 'control']
+  ),
+  graph: makeArchNode(
+    'graph',
+    'orchestration',
+    'Multi-agent coordination, delegation, communication and structured handoffs.',
+    'Coordinates specialized agents across cyclic state reducers, signed A2A handoffs, and hard maxSteps termination bounds.',
+    ['runtime', 'gateway', 'observe', 'evaluate'],
+    ['studio', 'context', 'decisions', 'gateway', 'control']
+  ),
+  context: makeArchNode(
+    'context',
+    'orchestration',
+    'Knowledge retrieval, memory, data grounding, RAG and context management.',
+    'Serves isolated working state, episodic memory, and ACL-filtered knowledge corpora stamped with SHA-256 citation provenance.',
+    ['flow', 'graph', 'gateway', 'evaluate'],
+    ['studio', 'runtime', 'control']
+  ),
+  decisions: makeArchNode(
+    'decisions',
+    'orchestration',
+    'Deterministic business rules, decision tables, scorecards and rule evaluation.',
+    'Evaluates binding eligibility, SLA, pricing, and threshold policies outside probabilistic inference with auditable decision traces.',
+    ['flow', 'graph', 'runtime', 'observe', 'evaluate'],
+    ['studio', 'evaluate', 'control']
+  ),
+  runtime: makeArchNode(
+    'runtime',
+    'execution',
+    'Secure agent execution, sandboxing, deployment and runtime management.',
+    'Runs multi-step graphs, code tasks, and MCP servers inside ephemeral read-only sandboxes with durable state checkpoints.',
+    ['observe', 'evaluate', 'context'],
+    ['studio', 'flow', 'graph', 'decisions', 'gateway', 'control']
+  ),
+  gateway: makeArchNode(
+    'gateway',
+    'execution',
+    'Model access, API integrations, tools, MCP connections and provider routing.',
+    'Unifies frontier LLMs, open-weight models, custom ML endpoints, and MCP servers behind schema enforcement, failover, and PII redaction.',
+    ['flow', 'graph', 'runtime', 'observe', 'evaluate'],
+    ['context', 'control']
+  ),
+  observe: makeArchNode(
+    'observe',
+    'execution',
+    'Execution traces, logs, monitoring, metrics and operational visibility.',
+    'Captures correlated OpenTelemetry span waterfalls, graph superstep diffs, decision outcomes, and latency telemetry across runs.',
+    ['evaluate', 'studio'],
+    ['flow', 'graph', 'decisions', 'runtime', 'gateway', 'control']
+  ),
+  evaluate: makeArchNode(
+    'evaluate',
+    'execution',
+    'Agent testing, retrieval evaluation, quality measurement, benchmarking and regression testing.',
+    'Benchmarks model routes, prompts, retrieval precision, and decision regressions against golden trace suites before promotion.',
+    ['studio', 'decisions', 'flow', 'graph'],
+    ['runtime', 'gateway', 'observe', 'context', 'control']
+  ),
+  control: makeArchNode(
+    'control',
+    'governance',
+    'Permissions, policies, approvals, security boundaries, auditability and governance.',
+    'Enforces out-of-band RBAC, MCP tool allowlists, spend ceilings, and mandatory human approvals independently of agent reasoning across every layer.',
+    ['studio', 'flow', 'graph', 'context', 'decisions', 'runtime', 'gateway', 'observe', 'evaluate'],
+    ['observe']
+  ),
+};
+
+export const PLATFORM_ARCHITECTURE_LAYERS: ArchitectureLayerSpec[] = [
+  {
+    id: 'authoring',
+    order: '01',
+    heading: 'Experience & Authoring',
+    visualLabel: 'AGENT ENGINEERING',
+    summary:
+      'Unified blueprint design bridging visual topology authoring, decision specs, and TypeScript SDK definitions.',
+    nodeIds: ['studio'],
+  },
+  {
+    id: 'orchestration',
+    order: '02',
+    heading: 'Orchestration & Intelligence',
+    visualLabel: 'INTELLIGENCE & ORCHESTRATION',
+    summary:
+      'Configurable workflows, bounded multi-agent state graphs, grounded context tiers, and deterministic business decisions.',
+    nodeIds: ['flow', 'graph', 'context', 'decisions'],
+  },
+  {
+    id: 'execution',
+    order: '03',
+    heading: 'Execution & Operations',
+    visualLabel: 'EXECUTION & OPERATIONS',
+    summary:
+      'Sandboxed execution checkpoints, unified model and MCP routing, live span traces, and golden regression verification.',
+    nodeIds: ['runtime', 'gateway', 'observe', 'evaluate'],
+  },
+];
+
+export const PLATFORM_GOVERNANCE_LAYER: ArchitectureLayerSpec = {
+  id: 'governance',
+  order: 'CROSS-CUTTING',
+  heading: 'Trust & Governance',
+  visualLabel: 'TRUST · SECURITY · GOVERNANCE',
+  summary:
+    'Out-of-band permissions, policies, human approval gates, spend caps, and immutable audit trails enforced across authoring, orchestration, and execution.',
+  nodeIds: ['control'],
+};
+
+export const PLATFORM_ARCHITECTURE_EDGES: ArchitectureEdgeSpec[] = [
+  { id: 'studio-flow', from: 'studio', to: 'flow', kind: 'execution', label: 'Workflow specs' },
+  { id: 'studio-graph', from: 'studio', to: 'graph', kind: 'execution', label: 'Agent state specs' },
+  { id: 'studio-context', from: 'studio', to: 'context', kind: 'context', label: 'Retrieval & memory schema' },
+  { id: 'studio-decisions', from: 'studio', to: 'decisions', kind: 'execution', label: 'Rule & table specs' },
+  { id: 'flow-runtime', from: 'flow', to: 'runtime', kind: 'execution', label: 'Checkpointed step dispatch' },
+  { id: 'graph-runtime', from: 'graph', to: 'runtime', kind: 'execution', label: 'Bounded agent execution' },
+  { id: 'decisions-runtime', from: 'decisions', to: 'runtime', kind: 'execution', label: 'Deterministic rule evaluation' },
+  { id: 'context-gateway', from: 'context', to: 'gateway', kind: 'context', label: 'Grounded context & citations' },
+  { id: 'gateway-flow', from: 'gateway', to: 'flow', kind: 'context', label: 'Model & MCP responses' },
+  { id: 'gateway-graph', from: 'gateway', to: 'graph', kind: 'context', label: 'Agent reasoning & tools' },
+  { id: 'gateway-runtime', from: 'gateway', to: 'runtime', kind: 'execution', label: 'Tool & inference routing' },
+  { id: 'runtime-observe', from: 'runtime', to: 'observe', kind: 'feedback', label: 'Sandbox spans & logs' },
+  { id: 'gateway-observe', from: 'gateway', to: 'observe', kind: 'feedback', label: 'Model & MCP telemetry' },
+  { id: 'observe-evaluate', from: 'observe', to: 'evaluate', kind: 'feedback', label: 'Production trace datasets' },
+  { id: 'evaluate-studio', from: 'evaluate', to: 'studio', kind: 'feedback', label: 'Quality & regression signals' },
+];
+
+export const ARCHITECTURE_LIFECYCLE_5 = [
+  {
+    step: '01',
+    title: 'DESIGN',
+    description: 'Create agents, tools and reusable components.',
+  },
+  {
+    step: '02',
+    title: 'CONNECT',
+    description: 'Provide knowledge, models, integrations and business logic.',
+  },
+  {
+    step: '03',
+    title: 'ORCHESTRATE',
+    description: 'Coordinate agents, workflows and deterministic decisions.',
+  },
+  {
+    step: '04',
+    title: 'EXECUTE & VERIFY',
+    description: 'Run securely, observe outcomes and evaluate performance.',
+  },
+  {
+    step: '05',
+    title: 'GOVERN',
+    description: 'Enforce permissions, policies, approvals and auditability.',
+  },
+];
+
+export const PRODUCTION_AI_CAPABILITIES = [
+  'Model independent',
+  'Context-aware',
+  'Multi-agent orchestration',
+  'Deterministic decisions',
+  'Secure execution',
+  'Observable by design',
+  'Evaluation-driven',
+  'Governed autonomy',
+];
+

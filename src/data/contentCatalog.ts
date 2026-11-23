@@ -437,6 +437,8 @@ export interface ResourceArticle {
   publishedDate: string;
   pillar: string;
   author: string;
+  coverImage: string;
+  coverAlt: string;
   sections: { heading: string; paragraphs: string[] }[];
   codeLabel?: string;
   codeSnippet?: string;
@@ -457,6 +459,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'May 2026',
     pillar: '01 · Agent Engineering',
     author: 'SOPIN Platform Architecture Team',
+    coverImage: '/assets/aistudio/69fcc2fb3f178a47e53fab3c_05_Lovable_Systems_Thinking_125f3d1e.webp',
+    coverAlt: 'Architectural systems thinking wireframe showing interconnected modular agent structures',
     sections: [
       {
         heading: 'The Prototype-to-Production Translation Chasm',
@@ -498,6 +502,9 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'May 2026',
     pillar: '08 · AI Evaluation & Reliability',
     author: 'SOPIN Verification Engineering',
+    coverImage:
+      '/assets/aistudio/abstract-digital-circles-of-particles-with-noise-futuristic-circular-sound-wave-big-data-visualization-3d-virtual-space-vr-cyberspace-crypto-currency-concept-vector_c1d005c2.jpg',
+    coverAlt: 'Harmonic geometric particle sphere representing deterministic constraints around probabilistic models',
     sections: [
       {
         heading: 'Constrain Outputs Before Any Downstream Action Fires',
@@ -537,6 +544,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'Apr 2026',
     pillar: '03 · Decision Automation',
     author: 'SOPIN Platform Architecture Team',
+    coverImage: '/assets/aistudio/69fcc2b2c0a9ae7804ff8cdd_04_Lovable_Every_Door_Is_Open_75449854.webp',
+    coverAlt: 'Architectural portals and geometric routing diagram illustrating deterministic decision gates',
     sections: [
       {
         heading: 'Why LLMs Should Draft—Never Decide—Binding Business Thresholds',
@@ -577,6 +586,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'Apr 2026',
     pillar: '04 · Context Engineering',
     author: 'SOPIN Context Systems Team',
+    coverImage: '/assets/aistudio/istockphoto-2220418831-612x612_d3a59beb.jpg',
+    coverAlt: 'Translucent layered code planes illustrating isolated working, episodic, and knowledge memory tiers',
     sections: [
       {
         heading: 'Why Monolithic Prompt Context Degrades',
@@ -610,6 +621,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'Mar 2026',
     pillar: '06 · MCP & A2A Interoperability',
     author: 'SOPIN Developer Relations',
+    coverImage: '/assets/aistudio/istockphoto-2173923576-612x612_499d2f38.jpg',
+    coverAlt: 'Radial circuit topology illustrating scoped MCP tool binding and sandboxed invocation routing',
     sections: [
       {
         heading: 'Step 1: Declare Scoped Read & Deny Lists',
@@ -650,6 +663,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'Mar 2026',
     pillar: '03 · Workflow Automation',
     author: 'SOPIN Runtime Team',
+    coverImage: '/assets/aistudio/Computational-Design-VR-and-Digital-Design_f26f101a.jpg',
+    coverAlt: 'Operators reviewing trace evidence and executing human approval checkpoints in spatial telemetry',
     sections: [
       {
         heading: 'Why Approval Gates Must Be Durable',
@@ -683,6 +698,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'Upcoming',
     pillar: '10 · Enterprise AI Architecture',
     author: 'SONIL Group Engineering',
+    coverImage: '/assets/aistudio/aacecec7ff45878d3dfbcab02f4292ac1b754d59-1312x816_c1567e8b.webp',
+    coverAlt: 'Precision concentric core architecture illustrating enterprise design partner deployments',
     sections: [
       {
         heading: 'Transparent Publication Standards',
@@ -716,6 +733,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     publishedDate: 'Planned',
     pillar: '01 · Agent Engineering',
     author: 'SOPIN Education Initiative',
+    coverImage: '/assets/aistudio/poly_dad75680.webp',
+    coverAlt: 'Continuous generative topology diagram representing multi-agent state graphs and coordination',
     sections: [
       {
         heading: 'Structured Engineering Tracks',

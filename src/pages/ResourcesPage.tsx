@@ -104,45 +104,66 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ onNavigate }) => {
                   <article
                     key={entry.id}
                     id={entry.category.toLowerCase().replace(/\s+/g, '-')}
-                    className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-7 flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
+                    className="group rounded-2xl overflow-hidden border border-[#05070E]/10 bg-[#FAF9F5] hover:border-[#8F00FF]/40 transition-colors flex flex-col justify-between shadow-[0_1px_2px_rgba(17,24,39,0.04)]"
                   >
-                    <div>
-                      <StatusText
-                        items={[entry.category, entry.readTime, entry.status]}
-                        accentLast={entry.status !== 'Available'}
+                    <a
+                      href={articleHref}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onNavigate(articleHref);
+                      }}
+                      className="block aspect-[16/10] w-full overflow-hidden border-b border-[#05070E]/10 bg-[#F3EDE2]"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    >
+                      <img
+                        src={entry.coverImage}
+                        alt={entry.coverAlt}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
                       />
-                      <h2 className="mt-3 font-display text-xl font-semibold text-[#05070E] leading-snug">
+                    </a>
+
+                    <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between">
+                      <div>
+                        <StatusText
+                          items={[entry.category, entry.readTime, entry.status]}
+                          accentLast={entry.status !== 'Available'}
+                        />
+                        <h2 className="mt-3 font-display text-xl font-semibold text-[#05070E] leading-snug">
+                          <a
+                            href={articleHref}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              onNavigate(articleHref);
+                            }}
+                            className="hover:text-[#8F00FF] transition-colors"
+                          >
+                            {entry.title}
+                          </a>
+                        </h2>
+                        <p className="mt-3 text-sm text-[#5E5E6E] leading-relaxed">
+                          {entry.summary}
+                        </p>
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t border-[#05070E]/10 flex items-center justify-between gap-2">
+                        <span className="text-xs font-medium text-[#5E5E6E]">
+                          {entry.dateLabel}
+                        </span>
                         <a
                           href={articleHref}
                           onClick={(e) => {
                             e.preventDefault();
                             onNavigate(articleHref);
                           }}
-                          className="hover:text-[#8F00FF] transition-colors"
+                          className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-xs font-semibold text-[#8F00FF] hover:underline whitespace-nowrap"
                         >
-                          {entry.title}
+                          <span>{entry.status === 'Available' ? 'Read Article' : 'Read Note'}</span>
+                          <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </a>
-                      </h2>
-                      <p className="mt-3 text-sm text-[#5E5E6E] leading-relaxed">
-                        {entry.summary}
-                      </p>
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-[#05070E]/10 flex items-center justify-between gap-2">
-                      <span className="text-xs font-medium text-[#5E5E6E]">
-                        {entry.dateLabel}
-                      </span>
-                      <a
-                        href={articleHref}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onNavigate(articleHref);
-                        }}
-                        className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-xs font-semibold text-[#8F00FF] hover:underline whitespace-nowrap"
-                      >
-                        <span>{entry.status === 'Available' ? 'Read Article' : 'Read Note'}</span>
-                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                      </a>
+                      </div>
                     </div>
                   </article>
                 );

@@ -62,6 +62,17 @@ export const ResourceArticlePage: React.FC<ResourceArticlePageProps> = ({
       </section>
 
       <article className="max-w-[920px] mx-auto px-6 lg:px-10 py-12 lg:py-16 space-y-10">
+        {article.coverImage && (
+          <figure className="aspect-[16/9] max-h-[380px] w-full overflow-hidden rounded-2xl border border-[#05070E]/10 bg-[#F3EDE2]">
+            <img
+              src={article.coverImage}
+              alt={article.coverAlt}
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-center"
+            />
+          </figure>
+        )}
+
         {article.sections.map((sec) => (
           <section key={sec.heading} className="space-y-4">
             <h2 className="font-display text-2xl font-semibold text-[#05070E]">

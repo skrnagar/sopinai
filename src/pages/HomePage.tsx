@@ -13,7 +13,12 @@ import {
   Shield,
   Workflow,
 } from 'lucide-react';
-import { LIFECYCLE_5_STAGES, PRODUCT_SURFACES_10 } from '../data/sopinData';
+import {
+  ARCHITECTURE_LIFECYCLE_5,
+  LIFECYCLE_5_STAGES,
+  PRODUCTION_AI_CAPABILITIES,
+  PRODUCT_SURFACES_10,
+} from '../data/sopinData';
 import { RESOURCE_ARTICLES, ResearchCategory } from '../data/contentCatalog';
 import { RoutePath } from '../types/navigation';
 import { HeroComputationalVisual } from '../components/interactive/HeroComputationalVisual';
@@ -175,29 +180,125 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* C. PLATFORM OVERVIEW */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F5] border-b border-[#05070E]/10">
-        <div className="max-w-[1280px] mx-auto px-6 lg:px-10 space-y-10">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <SectionHeader
-              kicker="Platform Overview"
-              title="One unified architecture from authoring to governance."
-              description="SOPIN brings visual and SDK authoring, scoped memory, deterministic decisions, model routing, sandboxed execution, and human governance into a single coherent system."
-            />
-            <a
-              href="/platform"
-              onClick={(e) => {
-                e.preventDefault();
-                onNavigate('/platform');
-              }}
-              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#F3EDE2] text-sm font-semibold text-[#05070E] transition-colors whitespace-nowrap self-start lg:self-end shrink-0"
+      {/* C. PLATFORM OVERVIEW — UNIFIED INTELLIGENCE ARCHITECTURE */}
+      <section
+        id="platform-overview"
+        aria-labelledby="platform-overview-heading"
+        className="relative overflow-hidden bg-[#080D18] text-[#FFFFFF] border-b border-white/10"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 sopin-arch-grid sopin-arch-glow"
+        />
+
+        <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 py-16 sm:py-20 lg:py-24 space-y-12 lg:space-y-14">
+          {/* Exact Section Heading & Introductory Content */}
+          <div className="max-w-3xl space-y-4">
+            <p className="font-mono text-xs font-semibold tracking-[0.16em] text-[#D8B4FE]">
+              PLATFORM ARCHITECTURE
+            </p>
+
+            <h2
+              id="platform-overview-heading"
+              className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.08] text-[#FFFFFF]"
             >
-              <span>Inspect Full Platform</span>
-              <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </a>
+              Platform Overview
+            </h2>
+
+            <p className="font-display text-xl sm:text-2xl font-medium tracking-[-0.015em] leading-snug text-[#FFFFFF]/95 text-balance">
+              One unified architecture from authoring to governance.
+            </p>
+
+            <p className="pt-1 text-base sm:text-[17px] text-[#AAB8CE] leading-[1.65] max-w-[42rem]">
+              SOPIN brings agents, context, workflows, business decisions, execution and governance together in one connected engineering platform. Every component works as part of a unified system—from designing intelligent agents to executing and verifying real-world work.
+            </p>
           </div>
 
+          {/* Interactive 10-Surface Connected Architecture Visualization */}
           <PlatformArchitectureDiagram onNavigate={(path) => onNavigate(path)} />
+
+          {/* Architecture Information Panel: Built as one connected system. */}
+          <div className="rounded-2xl border border-[#AAB8CE]/15 bg-[#101D35]/70 p-6 sm:p-8 space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+              <div className="space-y-2 max-w-2xl">
+                <h3 className="font-display text-2xl sm:text-[28px] font-semibold tracking-[-0.02em] text-[#FFFFFF]">
+                  Built as one connected system.
+                </h3>
+                <p className="text-sm sm:text-base text-[#AAB8CE] leading-relaxed">
+                  Each SOPIN product has a focused responsibility. Together, they form a complete engineering lifecycle for intelligent systems.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#D8B4FE] shrink-0">
+                <Lock className="w-3.5 h-3.5 text-[#C084FC]" aria-hidden="true" />
+                <span>Control applies continuously across every stage</span>
+              </div>
+            </div>
+
+            {/* Five Compact Connected Lifecycle Stages */}
+            <div className="space-y-3">
+              {/* Continuous governance span rail above desktop stages */}
+              <div className="hidden lg:flex items-center justify-between px-4 py-2 rounded-lg border border-[#8F00FF]/40 bg-[#14233B]/80 text-[11px] font-mono text-[#D8B4FE]">
+                <span>SOPIN CONTROL — CONTINUOUS GOVERNANCE LAYER</span>
+                <span className="text-[#AAB8CE]">
+                  Permissions, policies & approvals apply throughout 01 → 05
+                </span>
+              </div>
+
+              <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {ARCHITECTURE_LIFECYCLE_5.map((stage, idx) => (
+                  <li
+                    key={stage.step}
+                    className="relative rounded-xl border border-[#AAB8CE]/15 bg-[#14233B]/85 p-4 flex flex-col justify-between gap-2.5"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-[11px] font-semibold tracking-wider text-[#D8B4FE] tabular-nums">
+                          {stage.step} — {stage.title}
+                        </span>
+                        {idx < ARCHITECTURE_LIFECYCLE_5.length - 1 && (
+                          <ArrowRight
+                            className="hidden lg:block w-3.5 h-3.5 text-[#AAB8CE]/50 shrink-0"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </div>
+                      <p className="text-xs sm:text-[13px] text-[#AAB8CE] leading-relaxed">
+                        {stage.description}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          {/* Technical Credibility Strip */}
+          <div className="pt-6 border-t border-[#AAB8CE]/15 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <p className="font-mono text-xs font-semibold tracking-[0.16em] text-[#D8B4FE] shrink-0">
+              ENGINEERED FOR PRODUCTION AI
+            </p>
+
+            <ul
+              aria-label="Production AI architecture capabilities"
+              className="flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs sm:text-[13px] text-[#FFFFFF]/90"
+            >
+              {PRODUCTION_AI_CAPABILITIES.map((cap, idx) => (
+                <li key={cap} className="inline-flex items-center gap-2.5">
+                  <span
+                    className="w-1.5 h-1.5 rotate-45 bg-[#8F00FF] shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>{cap}</span>
+                  {idx < PRODUCTION_AI_CAPABILITIES.length - 1 && (
+                    <span className="hidden xl:inline text-[#AAB8CE]/25 pl-2" aria-hidden="true">
+                      /
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -315,37 +416,49 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             description="Five connected engineering stages that take intelligent systems from initial blueprint through durable execution and accountable oversight."
           />
 
-          <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {LIFECYCLE_5_STAGES.map((stage, idx) => (
               <li
                 key={stage.step}
-                className="relative rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 flex flex-col justify-between gap-5"
+                className="group relative rounded-2xl overflow-hidden border border-[#05070E]/10 bg-[#FAF9F5] flex flex-col justify-between"
               >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-[#8F00FF]">
-                      Stage {stage.step}
-                    </span>
-                    {idx < LIFECYCLE_5_STAGES.length - 1 && (
-                      <ArrowRight
-                        className="hidden lg:block w-4 h-4 text-[#5E5E6E]"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </div>
-                  <h3 className="font-display text-xl font-semibold text-[#05070E]">
-                    {stage.title}
-                  </h3>
-                  <p className="text-xs font-semibold text-[#05070E]">
-                    {stage.headline}
-                  </p>
-                  <p className="text-sm text-[#5E5E6E] leading-relaxed">
-                    {stage.description}
-                  </p>
+                <div className="aspect-[16/10] w-full overflow-hidden border-b border-[#05070E]/10 bg-[#F3EDE2]">
+                  <img
+                    src={stage.image}
+                    alt={stage.imageAlt}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+                  />
                 </div>
 
-                <div className="pt-4 border-t border-[#05070E]/10">
-                  <StatusText items={stage.surfaces} />
+                <div className="p-5 flex-1 flex flex-col justify-between gap-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs font-semibold tabular-nums text-[#8F00FF]">
+                        Stage {stage.step}
+                      </span>
+                      {idx < LIFECYCLE_5_STAGES.length - 1 && (
+                        <ArrowRight
+                          className="hidden lg:block w-4 h-4 text-[#5E5E6E]"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </div>
+                    <h3 className="font-display text-xl font-semibold text-[#05070E]">
+                      {stage.title}
+                    </h3>
+                    <p className="text-xs font-semibold text-[#05070E]">
+                      {stage.headline}
+                    </p>
+                    <p className="text-sm text-[#5E5E6E] leading-relaxed">
+                      {stage.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-[#05070E]/10">
+                    <StatusText items={stage.surfaces} />
+                  </div>
                 </div>
               </li>
             ))}
@@ -482,45 +595,66 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               return (
                 <article
                   key={entry.id}
-                  className="rounded-2xl border border-[#05070E]/10 bg-[#FAF9F5] p-6 sm:p-7 flex flex-col justify-between gap-6"
+                  className="group rounded-2xl overflow-hidden border border-[#05070E]/10 bg-[#FAF9F5] hover:border-[#8F00FF]/40 transition-colors flex flex-col justify-between"
                 >
-                  <div className="space-y-3">
-                    <StatusText
-                      items={[entry.researchCategory, entry.publishedDate, entry.status]}
-                      accentLast={entry.status !== 'Available'}
+                  <a
+                    href={articleHref}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigate(articleHref);
+                    }}
+                    className="block aspect-[16/10] w-full overflow-hidden border-b border-[#05070E]/10 bg-[#F3EDE2]"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  >
+                    <img
+                      src={entry.coverImage}
+                      alt={entry.coverAlt}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
                     />
-                    <h3 className="font-display text-lg sm:text-xl font-semibold text-[#05070E] leading-snug">
+                  </a>
+
+                  <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between gap-6">
+                    <div className="space-y-3">
+                      <StatusText
+                        items={[entry.researchCategory, entry.publishedDate, entry.status]}
+                        accentLast={entry.status !== 'Available'}
+                      />
+                      <h3 className="font-display text-lg sm:text-xl font-semibold text-[#05070E] leading-snug">
+                        <a
+                          href={articleHref}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            onNavigate(articleHref);
+                          }}
+                          className="hover:text-[#8F00FF] transition-colors"
+                        >
+                          {entry.title}
+                        </a>
+                      </h3>
+                      <p className="text-sm text-[#5E5E6E] leading-relaxed">
+                        {entry.summary}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 border-t border-[#05070E]/10 flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium text-[#5E5E6E]">
+                        {entry.readTime}
+                      </span>
                       <a
                         href={articleHref}
                         onClick={(e) => {
                           e.preventDefault();
                           onNavigate(articleHref);
                         }}
-                        className="hover:text-[#8F00FF] transition-colors"
+                        className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold text-[#8F00FF] hover:underline whitespace-nowrap"
                       >
-                        {entry.title}
+                        <span>Read more</span>
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                       </a>
-                    </h3>
-                    <p className="text-sm text-[#5E5E6E] leading-relaxed">
-                      {entry.summary}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-[#05070E]/10 flex items-center justify-between gap-2">
-                    <span className="text-xs font-medium text-[#5E5E6E]">
-                      {entry.readTime}
-                    </span>
-                    <a
-                      href={articleHref}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onNavigate(articleHref);
-                      }}
-                      className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold text-[#8F00FF] hover:underline whitespace-nowrap"
-                    >
-                      <span>Read more</span>
-                      <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                    </a>
+                    </div>
                   </div>
                 </article>
               );
