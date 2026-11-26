@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -21,6 +21,7 @@ import {
 } from '../data/sopinData';
 import { RESOURCE_ARTICLES, ResearchCategory } from '../data/contentCatalog';
 import { RoutePath } from '../types/navigation';
+import { SOPIN_EMBLEM_ANGLES, SOPIN_EMBLEM_PRONG_PATH } from '../components/brand/SopinLogo';
 import { HeroComputationalVisual } from '../components/interactive/HeroComputationalVisual';
 import { PlatformArchitectureDiagram } from '../components/interactive/PlatformArchitectureDiagram';
 import { ProductSurfaceIllustration } from '../components/interactive/ProductSurfaceIllustrations';
@@ -109,6 +110,7 @@ const ENTERPRISE_SOLUTIONS: {
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [researchFilter, setResearchFilter] = useState<'All' | ResearchCategory>('All');
+  const shouldReduceMotion = useReducedMotion();
 
   const featuredPublications = useMemo(() => {
     const matches =
@@ -127,7 +129,34 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     <div className="overflow-x-clip bg-[#FAF9F5]">
       {/* B. HERO SECTION */}
       <section className="relative overflow-hidden border-b border-[#05070E]/10 bg-[#FAF9F5]">
-        <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 py-14 sm:py-20 lg:py-24">
+        {/* Subtle top-left corner animated background SOPIN line logo */}
+        <motion.svg
+          aria-hidden="true"
+          viewBox="-8 -12 420 410"
+          shapeRendering="geometricPrecision"
+          className="pointer-events-none absolute -top-28 -left-28 sm:-top-36 sm:-left-32 lg:-top-44 lg:-left-40 w-[420px] h-[420px] sm:w-[520px] sm:h-[520px] lg:w-[620px] lg:h-[620px]"
+          animate={shouldReduceMotion ? undefined : { rotate: 360 }}
+          transition={
+            shouldReduceMotion
+              ? undefined
+              : { repeat: Infinity, duration: 56, ease: 'linear' }
+          }
+        >
+          {SOPIN_EMBLEM_ANGLES.map((angle) => (
+            <path
+              key={angle}
+              transform={`rotate(${angle} 202.5 192.5)`}
+              fill="none"
+              stroke="#EBE5D8"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d={SOPIN_EMBLEM_PRONG_PATH}
+            />
+          ))}
+        </motion.svg>
+
+        <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-10 py-14 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -152,7 +181,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   }}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg bg-[#05070E] hover:bg-[#1E293B] text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0 shadow-[0_1px_2px_rgba(5,7,14,0.12)]"
                 >
-                  <span>Start Building</span>
+                  <span>Start for free</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </a>
                 <a
@@ -163,7 +192,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   }}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-lg border border-[#05070E]/15 bg-[#FAF9F5] hover:bg-[#05070E]/[0.04] text-[#05070E] text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                 >
-                  <span>Explore the Platform</span>
+                  <span>Explore SOPIN</span>
                 </a>
               </div>
             </motion.div>

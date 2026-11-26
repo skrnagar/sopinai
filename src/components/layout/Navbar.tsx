@@ -384,7 +384,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <span>{category.label}</span>
                     <ChevronDown
-                      className={`w-3.5 h-3.5 text-[#8F00FF] transition-transform duration-150 ${
+                      className={`w-3.5 h-3.5 text-current transition-transform duration-150 ${
                         isOpen ? 'rotate-180' : ''
                       }`}
                       aria-hidden="true"
@@ -452,7 +452,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav-drawer"
               aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg inline-flex items-center justify-center text-[#8F00FF] hover:bg-[#05070E]/[0.05] transition-colors shrink-0"
+              className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg inline-flex items-center justify-center text-[#05070E] hover:bg-[#05070E]/[0.05] transition-colors shrink-0"
             >
               {mobileOpen ? (
                 <X className="w-5 h-5" aria-hidden="true" />
@@ -841,7 +841,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     >
                       <span>{category.label}</span>
                       <ChevronDown
-                        className={`w-4 h-4 text-[#8F00FF] transition-transform duration-150 ${
+                        className={`w-4 h-4 text-current transition-transform duration-150 ${
                           isExpanded ? 'rotate-180' : ''
                         }`}
                         aria-hidden="true"
@@ -951,7 +951,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="flex items-center justify-between w-full text-left min-h-[48px] py-3 px-2 text-base font-semibold text-[#05070E] border-b border-[#05070E]/[0.08]"
               >
                 <span>Docs</span>
-                <ArrowRight className="w-4 h-4 text-[#8F00FF]" aria-hidden="true" />
+                <ArrowRight className="w-4 h-4 text-current" aria-hidden="true" />
               </a>
 
               {/* Primary Mobile Actions */}
